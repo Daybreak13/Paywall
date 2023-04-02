@@ -11,25 +11,25 @@ namespace Paywall {
         [field:Header("Canvases")]
 
         /// The main canvas
-        [Tooltip("The main canvas")]
+        [field: Tooltip("The main canvas")]
         [field:SerializeField] public GameObject MainCanvas { get; protected set; } 
         /// The dialogue canvas
-        [Tooltip("The dialogue canvas")]
+        [field: Tooltip("The dialogue canvas")]
         [field: SerializeField] public GameObject DialogueCanvas { get; protected set; }
         /// The inventory canvas
-        [Tooltip("The inventory canvas")]
+        [field: Tooltip("The inventory canvas")]
         [field: SerializeField] public GameObject InventoryCanvas { get; protected set; }
         /// The store canvas
-        [Tooltip("The store canvas")]
+        [field: Tooltip("The store canvas")]
         [field: SerializeField] public GameObject StoreCanvas { get; protected set; }
         /// The email canvas
-        [Tooltip("The email canvas")]
+        [field: Tooltip("The email canvas")]
         [field: SerializeField] public GameObject EmailCanvas { get; protected set; }
 
         [field:Header("Settings")]
 
         /// If true, turn certain canvases back on at start, and the rest off. Useful for debugging
-        [Tooltip("If true, turn certain canvases back on at start, and the rest off. Useful for debugging")]
+        [field: Tooltip("If true, turn certain canvases back on at start, and the rest off. Useful for debugging")]
         [field: SerializeField] public bool ToggleCanvasOnStart { get; protected set; } = true;
         [field: SerializeField] public bool UseCanvasGroup { get; protected set; } = false;
 
@@ -79,7 +79,7 @@ namespace Paywall {
         }
 
         public virtual void ActivateMain() {
-            ActivateCanvas(DialogueCanvas);
+            ActivateCanvas(MainCanvas);
         }
 
         public virtual void ActivateDialogue() {

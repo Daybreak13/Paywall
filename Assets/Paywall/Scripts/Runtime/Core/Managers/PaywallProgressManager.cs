@@ -4,6 +4,7 @@ using UnityEngine;
 using MoreMountains.Tools;
 using MoreMountains.CorgiEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 namespace Paywall {
 	
@@ -63,7 +64,6 @@ namespace Paywall {
 		[Tooltip("Trinkets are the \"game world\" currency")]
 		public int Trinkets { get; private set; }
 		public Dictionary<string, ScriptableUpgrade> Upgrades { get; private set; }
-		public static Progress persistentProgress { get; private set; }
 
 		protected const string _saveFolderName = "PaywallProgress";
 		protected const string _saveFileName = "Progress.data";
@@ -111,8 +111,6 @@ namespace Paywall {
 			progress.Credits = Credits;
 			progress.Trinkets = Trinkets;
 			progress.Upgrades = Upgrades;
-
-			persistentProgress = progress;
 
 			MMSaveLoadManager.Save(progress, _saveFileName, _saveFolderName);
 		}

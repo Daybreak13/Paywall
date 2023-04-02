@@ -7,11 +7,11 @@ namespace Paywall {
     public class UpgradeMenuDisplay : MonoBehaviour {
 
         /// List of upgrades
-        [Tooltip("List of upgrades")]
-        [field:SerializeField] public List<ScriptableUpgrade> Upgrades { get; protected set; }
+        [field: Tooltip("List of upgrades")]
+        [field: SerializeField] public List<ScriptableUpgrade> Upgrades { get; protected set; }
 
         /// Prefab to use for the buttons
-        [Tooltip("Prefab to use for the buttons")]
+        [field: Tooltip("Prefab to use for the buttons")]
         [field: SerializeField] public GameObject ButtonPrefab { get; protected set; }
 
 

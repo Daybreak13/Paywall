@@ -12,7 +12,7 @@ namespace Paywall {
     /// </summary>
     public class LevelSelector_PW : LevelSelector {
         /// If true, convert points to credits
-        [Tooltip("If true, convert points to credits")]
+        [field: Tooltip("If true, convert points to credits")]
         [field:SerializeField] public bool ConvertCredits { get; protected set; }
 
         public override void GoToLevel() {

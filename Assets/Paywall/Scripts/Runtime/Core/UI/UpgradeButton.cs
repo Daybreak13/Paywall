@@ -9,7 +9,7 @@ namespace Paywall {
     public class UpgradeButton : MonoBehaviour {
 
         /// The scriptable upgrade object associated with this button
-        [Tooltip("The scriptable upgrade object associated with this button")]
+        [field: Tooltip("The scriptable upgrade object associated with this button")]
         [field:SerializeField] public ScriptableUpgrade Upgrade { get; protected set; }
 
         /// <summary>

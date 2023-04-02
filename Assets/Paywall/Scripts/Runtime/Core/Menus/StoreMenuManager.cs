@@ -12,23 +12,23 @@ namespace Paywall {
     public class StoreMenuManager : MMSingleton<StoreMenuManager> {
 
         /// The money counter
-        [Tooltip("The money counter")]
+        [field: Tooltip("The money counter")]
         [field: SerializeField] public TextMeshProUGUI MoneyCounter { get; protected set; }
 
         [field:Header("Error Message")]
 
         /// The error message container (if there is insufficient funds to purchase upgrade)
-        [Tooltip("The error message container (if there is insufficient funds to purchase upgrade)")]
+        [field: Tooltip("The error message container (if there is insufficient funds to purchase upgrade)")]
         [field: SerializeField] public GameObject ErrorMessage { get; protected set; }
         [field: SerializeField] public float ErrorMessageDuration { get; protected set; } = 2f;
 
         [field:Header("Lists")]
 
         /// List of store menus
-        [Tooltip("List of store menus")]
+        [field: Tooltip("List of store menus")]
         [field:SerializeField] public List<GameObject> Menus { get; private set; }
         /// List of possible upgrades. Needs to be set via the Inspector.
-        [Tooltip("List of possible upgrades. Needs to be set via the Inspector.")]
+        [field: Tooltip("List of possible upgrades. Needs to be set via the Inspector.")]
         [field: SerializeField] public List<ScriptableUpgrade> Upgrades { get; private set; }
 
         protected Dictionary<string, ScriptableUpgrade> UpgradesDict;

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 515096830bea56e45b37c5288bf1374e, type: 3}
+  m_Name: Welcome
+  m_EditorClassIdentifier: 
+  <ItemID>k__BackingField: Welcome
+  <TargetInventoryName>k__BackingField: MainDocumentInventory
+  <Sender>k__BackingField: Zenith Interactive Entertainment - Orientation Branch
+  <SubjectLine>k__BackingField: Welcome to the Zenith Nexus!
+  <Details>k__BackingField: 
+  <Read>k__BackingField: 0
+  <Picture>k__BackingField: {fileID: 0}
+  <ButtonComponent>k__BackingField: {fileID: 0}
+  <Version>k__BackingField: 0

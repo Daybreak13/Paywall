@@ -28,17 +28,17 @@ namespace Paywall {
 		[field: Header("Game Over")]
 
 		/// Canvas group containing the Game Over screen
-		[Tooltip("Canvas group containing the Game Over screen")]
+		[field: Tooltip("Canvas group containing the Game Over screen")]
 		[field: SerializeField] public GameObject GameOverCanvas { get; protected set; }
 		/// If true, load to Game Over scene on a game over
-		[Tooltip("If true, load to Game Over scene on a game over")]
+		[field: Tooltip("If true, load to Game Over scene on a game over")]
 		[field: SerializeField] public bool UseGameOverScene { get; protected set; }
 		/// If not using Game Over scene, this is the delay to wait to pause the game
-		[Tooltip("If not using Game Over scene, this is the delay to wait to pause the game")]
+		[field: Tooltip("If not using Game Over scene, this is the delay to wait to pause the game")]
 		[MMCondition("UseGameOverScene", true, true)]
 		[field:SerializeField] public float PauseDelay { get; protected set; }
 		/// If true, trigger CorgiEnginePointsEvent to set points to 0
-		[Tooltip("If true, trigger CorgiEnginePointsEvent to set points to 0")]
+		[field: Tooltip("If true, trigger CorgiEnginePointsEvent to set points to 0")]
 		[field: SerializeField] public bool ClearPoints { get; protected set; } = true;
 
 		/// <summary>
