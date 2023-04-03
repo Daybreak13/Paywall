@@ -34,9 +34,7 @@ namespace Paywall.Documents {
         [field: Tooltip("The Inventory component is like the database and controller part of your inventory. It won't show anything on screen, you'll need also an InventoryDisplay for that. Here you can decide whether or not you want to output a debug content in the inspector (useful for debugging).")]
         [field: SerializeField] public bool DrawContentInInspector { get; protected set; } = false;
 
-        public Dictionary<string, EmailItem> EmailItems { get; protected set; }
-        public SortedDictionary<string, EmailItem> UnreadEmails { get; protected set; }
-        public SortedDictionary<string, EmailItem> ReadEmails { get; protected set; }
+        public Dictionary<string, EmailItem> EmailItems { get; protected set; } = new Dictionary<string, EmailItem>();
 
         [field:Header("Display")]
         [field: Tooltip("The canvas group which contains the document display")]
@@ -59,29 +57,28 @@ namespace Paywall.Documents {
                 return false;
             }
 
-            if (!UnreadEmails.ContainsKey(itemToAdd.ItemID)) {
+            if (!EmailItems.ContainsKey(itemToAdd.ItemID)) {
                 Content.Add(itemToAdd);
-                UnreadEmails.Add(itemToAdd.ItemID, itemToAdd);
+                EmailItems.Add(itemToAdd.ItemID, itemToAdd);
                 EmailEvent.Trigger(EmailEventType.Add, itemToAdd, PlayerID);
                 return true;
             } 
-            else if (UnreadEmails[itemToAdd.ItemID].Version < itemToAdd.Version) {
+            else if (EmailItems[itemToAdd.ItemID].Version < itemToAdd.Version) {
                 EmailEvent.Trigger(EmailEventType.Update, itemToAdd, PlayerID);
             }
+            EmailEvent.Trigger(EmailEventType.ContentChanged, null, PlayerID, EmailItems);
 
             return false;
         }
 
         protected virtual void ReadItem(EmailItem item) {
-            if (UnreadEmails.ContainsKey(item.ItemID)) {
-                ReadEmails.Add(item.ItemID, item);
-                UnreadEmails.Remove(item.ItemID);
+            if (EmailItems.ContainsKey(item.ItemID)) {
+                EmailItems[item.ItemID].SetRead(true);
+                EmailEvent.Trigger(EmailEventType.ContentChanged, null, PlayerID, EmailItems);
             }
         }
 
         public virtual bool ReplaceItem(EmailItem item) {
-
-            
 
             return false;
         }
@@ -122,12 +119,21 @@ namespace Paywall.Documents {
 
         }
 
-        public void OnMMEvent(EmailEvent documentEvent) {
-            if (documentEvent.EventType == EmailEventType.Pick) {
-                AddItem(documentEvent.Item);
+        public void OnMMEvent(EmailEvent emailEvent) {
+            if (emailEvent.EventType == EmailEventType.Pick) {
+                if (emailEvent.Item != null) {
+                    AddItem(emailEvent.Item);
+                }
+                if (emailEvent.ItemScriptable != null) {
+                    EmailItem emailItem = new EmailItem(emailEvent.ItemScriptable);
+                    AddItem(emailItem);
+                }
             }
-            if (documentEvent.EventType == EmailEventType.Read) {
-                ReadItem(documentEvent.Item);
+            if (emailEvent.EventType == EmailEventType.Read) {
+                ReadItem(emailEvent.Item);
+            }
+            if (emailEvent.EventType == EmailEventType.TriggerLoad) {
+                EmailItems = emailEvent.EmailItems;
             }
 
         }
@@ -138,13 +144,13 @@ namespace Paywall.Documents {
         /// <param name="gameEvent">Game event.</param>
         public virtual void OnMMEvent(MMGameEvent gameEvent) {
             if ((gameEvent.EventName == "Save") && Persistent) {
-                SaveInventory();
+                //SaveInventory();
             }
             if ((gameEvent.EventName == "Load") && Persistent) {
                 if (ResetThisInventorySaveOnStart) {
                     ResetSavedInventory();
                 }
-                LoadSavedInventory();
+                //LoadSavedInventory();
             }
         }
 

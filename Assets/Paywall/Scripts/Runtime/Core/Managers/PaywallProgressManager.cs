@@ -4,7 +4,8 @@ using UnityEngine;
 using MoreMountains.Tools;
 using MoreMountains.CorgiEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
+using Paywall.Documents;
+using MoreMountains.InventoryEngine;
 
 namespace Paywall {
 	
@@ -29,20 +30,27 @@ namespace Paywall {
 		public int CurrentLives = 0;
 		public int Credits = 0;
 		public int Trinkets = 0;
-		public Dictionary<string, ScriptableUpgrade> Upgrades = new Dictionary<string, ScriptableUpgrade>();
+		public Dictionary<string, Upgrade> Upgrades = new Dictionary<string, Upgrade>();
+		public Dictionary<string, EmailItem> EmailItems = new Dictionary<string, EmailItem>();
+		public SerializedInventory serializedInventory;
 		public PaywallScene[] Scenes;
 	}
 
 	/// <summary>
 	/// Creates save files for game progress and handles saves and loads
 	/// Every time credits are updated, save the game
+	/// Saves game on MMGameEvent "Save"
+	/// 
 	/// </summary>
 	public class PaywallProgressManager : MMSingleton<PaywallProgressManager>, 
 		MMEventListener<CorgiEngineEvent>, MMEventListener<PaywallCreditsEvent>, 
-		MMEventListener<MMGameEvent>, MMEventListener<PaywallUpgradeEvent>, MMEventListener<PaywallLevelEndEvent> {
+		MMEventListener<MMGameEvent>, MMEventListener<PaywallUpgradeEvent>, 
+		MMEventListener<PaywallLevelEndEvent>, MMEventListener<EmailEvent> {
 
 		public int InitialMaximumLives { get; set; }
 		public int InitialCurrentLives { get; set; }
+
+		public string PlayerID = "Player1";
 
 		/// the list of scenes that we'll want to consider for our game
 		[Tooltip("the list of scenes that we'll want to consider for our game")]
@@ -53,17 +61,20 @@ namespace Paywall {
 		public bool CreateSaveGameBtn;
 
 		/// Credits, readonly, for debug purposes only. Comment out Update for final build.
-		[Tooltip("Credits, readonly, for debug purposes only. Comment out Update for final build.")]
-		[MMReadOnly]
+		[field: Tooltip("Credits, readonly, for debug purposes only. Comment out Update for final build.")]
+		[field: MMReadOnly]
 		[field: SerializeField] private int displayedCredits;
 
 		/// Credits are the "real world" currency
-		[Tooltip("Credits are the \"real world\" currency")]
+		[field: Tooltip("Credits are the \"real world\" currency")]
 		[field:SerializeField] public int Credits { get; private set; }
 		/// Trinkets are the "game world" currency
-		[Tooltip("Trinkets are the \"game world\" currency")]
+		[field: Tooltip("Trinkets are the \"game world\" currency")]
 		public int Trinkets { get; private set; }
-		public Dictionary<string, ScriptableUpgrade> Upgrades { get; private set; }
+
+		public Dictionary<string, EmailItem> EmailItems { get; protected set; }
+		public Dictionary<string, Upgrade> Upgrades { get; private set; }
+		public enum SaveMethods { All, Inventory }
 
 		protected const string _saveFolderName = "PaywallProgress";
 		protected const string _saveFileName = "Progress.data";
@@ -74,6 +85,12 @@ namespace Paywall {
 		protected override void Awake() {
 			base.Awake();
 			LoadSavedProgress();
+		}
+
+		protected virtual void Start() {
+			if (EmailItems != null) {
+				EmailEvent.Trigger(EmailEventType.TriggerLoad, null, PlayerID, EmailItems);
+			}
 		}
 
 		/// <summary>
@@ -102,15 +119,22 @@ namespace Paywall {
 		/// <summary>
 		/// Saves the progress to a file
 		/// </summary>
-		protected virtual void SaveProgress() {
+		protected virtual void SaveProgress(SaveMethods saveMethod = SaveMethods.All) {
 			Progress progress = new Progress();
-			progress.MaximumLives = GameManager.Instance.MaximumLives;
-			progress.CurrentLives = GameManager.Instance.CurrentLives;
-			
-			progress.Scenes = Scenes;
-			progress.Credits = Credits;
-			progress.Trinkets = Trinkets;
-			progress.Upgrades = Upgrades;
+
+			if (saveMethod == SaveMethods.All) {
+				progress.MaximumLives = GameManager.Instance.MaximumLives;
+				progress.CurrentLives = GameManager.Instance.CurrentLives;
+
+				progress.Scenes = Scenes;
+				progress.Credits = Credits;
+				progress.Trinkets = Trinkets;
+				progress.Upgrades = Upgrades;
+				progress.EmailItems = EmailItems;
+			}
+			if (saveMethod == SaveMethods.Inventory) {
+
+            }
 
 			MMSaveLoadManager.Save(progress, _saveFileName, _saveFolderName);
 		}
@@ -179,6 +203,10 @@ namespace Paywall {
 				Credits = progress.Credits;
 				Trinkets = progress.Trinkets;
 				Upgrades = progress.Upgrades;
+				EmailItems = progress.EmailItems;
+				if (EmailItems != null) {
+					EmailEvent.Trigger(EmailEventType.TriggerLoad, null, PlayerID, EmailItems);
+				}
 			}
 			else {
 				InitialMaximumLives = GameManager.Instance.MaximumLives;
@@ -195,7 +223,7 @@ namespace Paywall {
 
 		protected virtual void ApplyUpgradesToCharacter() {
 			if (LevelManager.HasInstance && (LevelManager.Instance.Players.Count > 0) && (Upgrades != null)) {
-				foreach (KeyValuePair<string, ScriptableUpgrade> entry in Upgrades) {
+				foreach (KeyValuePair<string, Upgrade> entry in Upgrades) {
 					if (entry.Value.UpgradeType == UpgradeTypes.Player) {
 						entry.Value.UpgradeAction(LevelManager.Instance.Players[0]);
                     }
@@ -242,11 +270,12 @@ namespace Paywall {
 		/// </summary>
 		/// <param name="upgradeEvent"></param>
 		public virtual void OnMMEvent(PaywallUpgradeEvent upgradeEvent) {
-			if (Upgrades.TryGetValue(upgradeEvent.Upgrade.UpgradeName, out ScriptableUpgrade upgrade)) {
+			if (Upgrades.TryGetValue(upgradeEvent.Upgrade.UpgradeName, out Upgrade upgrade)) {
 				if (upgrade.Unlocked) {
 					return;
                 }
 
+				// Do nothing if there is insufficient funds
 				if (upgrade.MoneyType == MoneyTypes.Trinket) {
 					if (upgrade.Cost > Trinkets) {
 						return;
@@ -257,7 +286,7 @@ namespace Paywall {
 					}
 				}
 
-				Upgrades[upgradeEvent.Upgrade.UpgradeName] = upgradeEvent.Upgrade;
+				Upgrades[upgradeEvent.Upgrade.UpgradeName].UnlockUpgrade();
 				PaywallCreditsEvent.Trigger(upgrade.MoneyType, MoneyMethods.Add, -upgradeEvent.Upgrade.Cost);
 				SaveProgress();
 			}
@@ -265,6 +294,13 @@ namespace Paywall {
 
 		public virtual void OnMMEvent(MMGameEvent gameEvent) {
 			if (gameEvent.EventName == "Save") {
+				SaveProgress();
+            }
+        }
+
+		public virtual void OnMMEvent(EmailEvent emailEvent) {
+			if (emailEvent.EventType == EmailEventType.ContentChanged) {
+				EmailItems = emailEvent.EmailItems;
 				SaveProgress();
             }
         }
@@ -282,6 +318,7 @@ namespace Paywall {
 			this.MMEventStartListening<MMGameEvent>();
 			this.MMEventStartListening<PaywallUpgradeEvent>();
 			this.MMEventStartListening<PaywallLevelEndEvent>();
+			this.MMEventStartListening<EmailEvent>();
 		}
 
 		/// <summary>
@@ -293,6 +330,7 @@ namespace Paywall {
 			this.MMEventStopListening<MMGameEvent>();
 			this.MMEventStopListening<PaywallUpgradeEvent>();
 			this.MMEventStopListening<PaywallLevelEndEvent>();
+			this.MMEventStopListening<EmailEvent>();
 		}
 
 	}

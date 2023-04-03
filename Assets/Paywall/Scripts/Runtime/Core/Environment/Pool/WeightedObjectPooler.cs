@@ -19,14 +19,16 @@ namespace Paywall {
     public class WeightedObjectPooler : MonoBehaviour {
 
         /// the list of simple object pools
-		public List<WeightedPooler> Pool;
+        [field: Tooltip("the list of simple object pools")]
+		[field: SerializeField] public List<WeightedPooler> Pool { get; protected set; }
 
         public List<WeightedObjectPooler> Owner { get; set; }
         private void OnDestroy() { Owner?.Remove(this); }
 
         protected List<MMSimpleObjectPooler> _poolerList = new List<MMSimpleObjectPooler>();
         protected Dictionary<int, MMSimpleObjectPooler> _poolerDict = new Dictionary<int, MMSimpleObjectPooler>();
-        protected IWeightedRandomizer<int> _randomizer = new StaticWeightedRandomizer<int>();
+        protected IWeightedRandomizer<int> _randomizer = new DynamicWeightedRandomizer<int>();
+        protected IWeightedRandomizer<int> _originalRandomizer;
 
         /// <summary>
         /// Initialize lists
@@ -38,6 +40,7 @@ namespace Paywall {
                 _randomizer.Add(key, pooler.Weight);
                 key++;
             }
+            _originalRandomizer = _randomizer;
         }
         
         /// <summary>

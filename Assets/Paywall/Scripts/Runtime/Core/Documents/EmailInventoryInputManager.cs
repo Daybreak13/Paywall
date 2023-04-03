@@ -16,6 +16,9 @@ namespace Paywall {
 
         protected virtual void Awake() {
             InputActions = new CorgiEngineInputActions();
+            if (emailButtonDisplay == null) {
+                emailButtonDisplay = GetComponentInChildren<EmailButtonDisplay>(true);
+            }
         }
 
         protected virtual void Update() {
@@ -23,15 +26,18 @@ namespace Paywall {
         }
 
         protected virtual void HandleInput() {
-            if (InputActions.UI.Cancel.triggered) {
+            if (InputActions.UI.Cancel.WasPerformedThisFrame()) {
                 Back();
             }
         }
 
+        /// <summary>
+        /// Turns off email buttons, turns on the toggle display
+        /// </summary>
         protected virtual void Back() {
             if (emailButtonDisplay.EmailButtonsContainer.activeSelf) {
-                emailButtonDisplay.EmailButtonsContainer.SetActive(false);
-                emailButtonDisplay.ToggleButtonsContainer.SetActive(true);
+                emailButtonDisplay.ActivateEmailButtonsContainer(false);
+                emailButtonDisplay.ActivateToggleButtonsContainer(true);
             }
         }
 

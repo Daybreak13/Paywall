@@ -35,18 +35,13 @@ namespace Paywall.Documents {
 		/// the image container object
 		[field: Tooltip("the image container object")]
 		[field: SerializeField] public Image Picture { get; protected set; }
-		/// the description container object
-		[field: Tooltip("the description container object")]
-		[field: SerializeField] public Button EmailButton { get; protected set; }
-		/// the description container object
-		[field: Tooltip("the description container object")]
-		[field: SerializeField] public GameObject DetailsContainer { get; protected set; }
 
 		[field: Header("Document Item")]
 		[field: MMInformation("The currently displayed document item.", MMInformationAttribute.InformationType.Info, false)]
 
 		/// the currently displayed email item
 		[field: Tooltip("the currently displayed email item")]
+		[field: MMReadOnly]
 		[field: SerializeField] public EmailItem Email { get; protected set; }
 
 		protected float _fadeDelay = 0.2f;
@@ -57,31 +52,17 @@ namespace Paywall.Documents {
 		/// </summary>
 		/// <param name="item"></param>
 		public virtual void Display(EmailItem item) {
-			if (item.Picture == null) {
-				Picture.sprite = null;
-			}
-			else {
-				Picture.sprite = item.Picture;
-			}
-			if (item.ButtonComponent != null) {
-				EmailButton = item.ButtonComponent;
-            }
-
 			StringBuilder sb = new StringBuilder();
 			sb.Append("From: ");
 			sb.Append(item.Sender);
 			Sender.text = sb.ToString();
 			sb.Clear();
 			sb.Append("Subject: ");
-			sb.Append(SubjectLine);
+			sb.Append(item.SubjectLine);
 			SubjectLine.text = sb.ToString();
 
 			Details.text = item.Details;
 			Email = item;
-
-			if (item.Picture == null) {
-
-			}
 		}
 	}
 }

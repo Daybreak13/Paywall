@@ -2,58 +2,70 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.Tools;
-using System;
+using TMPro;
 using UnityEngine.UI;
+using System;
 
 namespace Paywall.Documents {
 
-	/// <summary>
-	/// Document item asset
-	/// </summary>
 	[Serializable]
-	public class EmailItem : ScriptableObject {
-
+    public class EmailItem {
 		[field: Header("ID and Target")]
 		/// the (unique) ID of the item
 		[field: MMInformation("The unique name of your object.", MMInformationAttribute.InformationType.Info, false)]
-		[field: SerializeField] public string ItemID { get; protected set; } 
+		[field: SerializeField] public string ItemID;
 
 		/// the inventory name into which this item will be stored
-		[field: SerializeField] public string TargetInventoryName { get; protected set; } = "MainEmailInventory";
+		[field: SerializeField] public string TargetInventoryName = "MainEmailInventory";
 
 		[field: Header("Basic info")]
 		[field: TextArea]
 		/// The email's subject line
 		[field: MMInformation("The email's sender", MMInformationAttribute.InformationType.Info, false)]
-		[field: SerializeField] public string Sender { get; protected set; }
+		[field: SerializeField] public string Sender;
 		[field: TextArea]
 		/// The email's subject line
 		[field: MMInformation("The email's subject line", MMInformationAttribute.InformationType.Info, false)]
-		[field: SerializeField] public string SubjectLine { get; protected set; }
+		[field: SerializeField] public string SubjectLine;
 		[field: TextArea]
 		[field: Tooltip("The document's text body")]
 		/// the document's text body
-		[field: SerializeField] public string Details { get; protected set; }
+		[field: SerializeField] public string Details;
 		/// Has the document been read
 		[field: Tooltip("Has the document been read")]
 		[field: MMReadOnly]
-		[field: SerializeField] public bool Read { get; protected set; }
-
-		[field: Header("Image and Button")]
-		/// the image that will be shown at the top of the document (if applicable)
-		[field: MMInformation("The image that will be shown at the top of the document (if applicable).", MMInformationAttribute.InformationType.Info, false)]
-		[field: SerializeField] public Sprite Picture { get; protected set; }
-		/// The special button in this email (if applicable)
-		[field: MMInformation("The special button in this email (if applicable).", MMInformationAttribute.InformationType.Info, false)]
-		[field: SerializeField] public Button ButtonComponent { get; protected set; }
+		[field: SerializeField] public bool Read;
+		/// Is the document starred (indicates importance)
+		[field: Tooltip("Is the document starred (indicates importance)")]
+		[field: SerializeField] public bool Starred;
 
 		[field: Header("Metadata")]
 		/// Version number, for documents that can be updated
 		[field: Tooltip("Version number, for documents that can be updated")]
-		[field: SerializeField] public int Version { get; protected set; }
+		[field: SerializeField] public int Version;
+
+		public EmailItem() {
+
+        }
+
+		public EmailItem(EmailItemScriptable s) {
+			ConvertToClass(s);
+        }
 
 		public virtual void SetRead(bool read) {
 			Read = read;
+		}
+
+		public virtual EmailItem ConvertToClass(EmailItemScriptable s) {
+			ItemID = s.ItemID;
+			TargetInventoryName = s.TargetInventoryName;
+			Sender = s.Sender;
+			SubjectLine = s.SubjectLine;
+			Details = s.Details;
+			Read = s.Read;
+			Starred = s.Starred;
+			Version = s.Version;
+			return this;
         }
 
 		/// <summary>
@@ -61,7 +73,7 @@ namespace Paywall.Documents {
 		/// </summary>
 		/// <returns><c>true</c> if is null the specified item; otherwise, <c>false</c>.</returns>
 		/// <param name="item">Item.</param>
-		public static bool IsNull(EmailItem item) {
+		public bool IsNull(EmailItem item) {
 			if (item == null) {
 				return true;
 			}
@@ -73,6 +85,5 @@ namespace Paywall.Documents {
 			}
 			return false;
 		}
-
 	}
 }

@@ -68,5 +68,11 @@ namespace Paywall {
             }
         }
 
+        protected virtual void OnDestroy() {
+            if (PaywallProgressManager.HasInstance) {
+                //PaywallProgressManager.Instance.ResetProgress();
+            }
+        }
+
     }
 }

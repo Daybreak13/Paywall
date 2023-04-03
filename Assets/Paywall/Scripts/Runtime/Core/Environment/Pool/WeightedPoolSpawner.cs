@@ -4,25 +4,27 @@ using UnityEngine;
 using MoreMountains.CorgiEngine;
 using MoreMountains.Tools;
 using System;
+using Paywall.Tools;
 
 namespace Paywall {
 
     public class WeightedPoolSpawner : MonoBehaviour {
 		/// the minimum frequency possible, in seconds
-		[Tooltip("the minimum frequency possible, in seconds")]
-		public float MinFrequency = 3f;
+		[field: Tooltip("the minimum frequency possible, in seconds")]
+		[field: SerializeField] public float MinFrequency { get; protected set; } = 3f;
 		/// the maximum frequency possible, in seconds
-		[Tooltip("the maximum frequency possible, in seconds")]
-		public float MaxFrequency = 3f;
+		[field: Tooltip("the maximum frequency possible, in seconds")]
+		[field: SerializeField] public float MaxFrequency { get; protected set; } = 3f;
 		/// if true, reset the object's position on spawn
-		[Tooltip("if true, reset the object's position on spawn")]
-		public bool ResetObjectPosition = true;
+		[field: Tooltip("if true, reset the object's position on spawn")]
+		[field: SerializeField] public bool ResetObjectPosition { get; protected set; } = true;
 		/// if true, spawn objects at its parent pooler's position
-		[Tooltip("if true, spawn objects at its parent pooler's position")]
-		[MMCondition("ResetObjectPosition", true)]
-		public bool UsePoolerPosition = true;
+		[field: Tooltip("if true, spawn objects at its parent pooler's position")]
+		[field: FieldCondition("ResetObjectPosition", true)]
+		[field: SerializeField] public bool UsePoolerPosition { get; protected set; } = true;
 		/// the object pooler associated to this spawner
-		public WeightedObjectPooler ObjectPooler { get; set; }
+		[field: Tooltip("the object pooler associated to this spawner")]
+		[field: SerializeField] public WeightedObjectPooler ObjectPooler { get; protected set; } 
 
 		protected float _lastSpawnTimestamp = 0f;
 		protected float _nextFrequency = 0f;
@@ -75,7 +77,7 @@ namespace Paywall {
 
 			// we position the object
 			if (UsePoolerPosition) {
-				nextGameObject.transform.position = nextGameObject.transform.parent.transform.parent.position;
+ 				nextGameObject.transform.position = nextGameObject.transform.parent.transform.parent.position;
 			}
 			else {
 				nextGameObject.transform.position = this.transform.position;

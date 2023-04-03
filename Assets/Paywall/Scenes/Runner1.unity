@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5baefc5468126a4cb5727ffe96372e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerID: Player1
   Scenes: []
   CreateSaveGameBtn: 0
   displayedCredits: 0
@@ -460,11 +461,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7a343ffc127af4b41b1e509d55d21956, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.198239
+      value: -7.604168
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7a343ffc127af4b41b1e509d55d21956, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.4062207
+      value: -2.5750496
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7a343ffc127af4b41b1e509d55d21956, type: 3}
       propertyPath: m_LocalPosition.z
@@ -586,7 +587,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab83702d67084ea45a76aeddf61b0cf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Pool:
+  <Pool>k__BackingField:
   - Pooler: {fileID: 396289301}
     Weight: 1
 --- !u!1 &1035644415
@@ -668,10 +669,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acfe1ea2e11ad1d4c93f17dda7ba82aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinFrequency: 2
-  MaxFrequency: 2
-  ResetObjectPosition: 1
-  UsePoolerPosition: 1
+  <MinFrequency>k__BackingField: 3
+  <MaxFrequency>k__BackingField: 3
+  <ResetObjectPosition>k__BackingField: 1
+  <UsePoolerPosition>k__BackingField: 1
+  <ObjectPooler>k__BackingField: {fileID: 953978891}
 --- !u!1001 &1807871646
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -757,7 +759,9 @@ GameObject:
   - component: {fileID: 1978588936}
   - component: {fileID: 1978588938}
   - component: {fileID: 1978588937}
-  m_Layer: 8
+  - component: {fileID: 1978588939}
+  - component: {fileID: 1978588940}
+  m_Layer: 18
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -857,6 +861,84 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1978588939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978588935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e9a0571a618b5d4680ffd26656dbde7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CycleOption: 0
+  LoopInitialMovementDirection: 0
+  PathElements:
+  - PathElementPosition: {x: -10.81, y: 0, z: 0}
+    Delay: 0
+  - PathElementPosition: {x: 3.2, y: 0, z: 0}
+    Delay: 0
+  AlignmentMode: 0
+  MovementSpeed: 1
+  AccelerationType: 0
+  Acceleration:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  UpdateMode: 0
+  MinDistanceToGoal: 0.1
+  OnlyMovesWhenPlayerIsColliding: 0
+  OnlyMovesWhenCharacterIsColliding: 0
+  ResetPositionWhenPlayerRespawns: 0
+  ScriptActivated: 0
+  StartMovingWhenPlayerIsColliding: 0
+  ToggleButton: 0
+  ChangeDirectionButton: 0
+  ResetEndReachedButton: 0
+  MoveTowardsStartButton: 0
+  MoveTowardsEndButton: 0
+  PointReachedFeedback: {fileID: 0}
+  EndReachedFeedback: {fileID: 0}
+--- !u!114 &1978588940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978588935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d1ed657c7c3a8047b0001b430ef66b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Friction: 0.01
+  ForceApplicationMode: 0
+  AddedForce: {x: 0, y: 0}
+  OnlyApplyForceIfGrounded: 1
+  ForceApplicationCooldownDuration: {x: 0, y: 1000}
+  ResetForcesOnExit: 0
 --- !u!1001 &1388192182247589372
 PrefabInstance:
   m_ObjectHideFlags: 0

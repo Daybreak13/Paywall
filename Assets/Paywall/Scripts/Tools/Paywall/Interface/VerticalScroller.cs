@@ -77,7 +77,7 @@ namespace Paywall.Tools {
 		/// </summary>
 		protected virtual void Start() {
 			StartCoroutine(Initialization());
-			if (ExplicitNavigationRoot != null) {
+			if (UseExplicitNavigationRoot && ExplicitNavigationRoot != null) {
 				SetNavigation();
 			}
         }
