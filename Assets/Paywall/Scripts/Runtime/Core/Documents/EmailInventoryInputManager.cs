@@ -12,10 +12,10 @@ namespace Paywall {
 
         [SerializeField] private EmailButtonDisplay emailButtonDisplay;
 
-        public CorgiEngineInputActions InputActions;
+        public IFInputActions InputActions;
 
         protected virtual void Awake() {
-            InputActions = new CorgiEngineInputActions();
+            InputActions = new IFInputActions();
             if (emailButtonDisplay == null) {
                 emailButtonDisplay = GetComponentInChildren<EmailButtonDisplay>(true);
             }

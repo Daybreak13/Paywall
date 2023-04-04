@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.Tools;
-using MoreMountains.CorgiEngine;
 using UnityEngine.SceneManagement;
 using Paywall.Documents;
 using MoreMountains.InventoryEngine;
+using MoreMountains.InfiniteRunnerEngine;
 
 namespace Paywall {
 	
@@ -42,8 +42,7 @@ namespace Paywall {
 	/// Saves game on MMGameEvent "Save"
 	/// 
 	/// </summary>
-	public class PaywallProgressManager : MMSingleton<PaywallProgressManager>, 
-		MMEventListener<CorgiEngineEvent>, MMEventListener<PaywallCreditsEvent>, 
+	public class PaywallProgressManager : MMSingleton<PaywallProgressManager>, MMEventListener<PaywallCreditsEvent>, 
 		MMEventListener<MMGameEvent>, MMEventListener<PaywallUpgradeEvent>, 
 		MMEventListener<PaywallLevelEndEvent>, MMEventListener<EmailEvent> {
 
@@ -123,7 +122,6 @@ namespace Paywall {
 			Progress progress = new Progress();
 
 			if (saveMethod == SaveMethods.All) {
-				progress.MaximumLives = GameManager.Instance.MaximumLives;
 				progress.CurrentLives = GameManager.Instance.CurrentLives;
 
 				progress.Scenes = Scenes;
@@ -143,8 +141,8 @@ namespace Paywall {
 		/// Called when the level ends.
 		/// Convert points, save progress.
 		/// </summary>
-		protected virtual void LevelEnd() {
-			ConvertPointsToCredits();
+		protected virtual void LevelEnd(bool convert) {
+			if (convert) ConvertPointsToCredits();
 			SaveProgress();
         }
 
@@ -153,7 +151,7 @@ namespace Paywall {
 		/// </summary>
 		protected virtual void ConvertPointsToCredits() {
 			if (GameManager.HasInstance) {
-				Credits += GameManager.Instance.Points;
+				Credits += (int)GameManager.Instance.Points;
             }
         }
 
@@ -195,8 +193,7 @@ namespace Paywall {
 			Progress progress = (Progress)MMSaveLoadManager.Load(typeof(Progress), _saveFileName, _saveFolderName);
 			if (progress != null) {
 				Scenes = progress.Scenes;
-				GameManager.Instance.MaximumLives = progress.MaximumLives;
-				GameManager.Instance.CurrentLives = progress.CurrentLives;
+				GameManager.Instance.SetLives(progress.CurrentLives);
 				InitialMaximumLives = progress.InitialMaximumLives;
 				InitialCurrentLives = progress.InitialCurrentLives;
 				Scenes = progress.Scenes;
@@ -209,7 +206,6 @@ namespace Paywall {
 				}
 			}
 			else {
-				InitialMaximumLives = GameManager.Instance.MaximumLives;
 				InitialCurrentLives = GameManager.Instance.CurrentLives;
 			}
 		}
@@ -222,35 +218,14 @@ namespace Paywall {
 		}
 
 		protected virtual void ApplyUpgradesToCharacter() {
-			if (LevelManager.HasInstance && (LevelManager.Instance.Players.Count > 0) && (Upgrades != null)) {
+			if (LevelManager.HasInstance && (LevelManager.Instance.CurrentPlayableCharacters.Count > 0) && (Upgrades != null)) {
 				foreach (KeyValuePair<string, Upgrade> entry in Upgrades) {
 					if (entry.Value.UpgradeType == UpgradeTypes.Player) {
-						entry.Value.UpgradeAction(LevelManager.Instance.Players[0]);
+						entry.Value.UpgradeAction(LevelManager.Instance.CurrentPlayableCharacters[0]);
                     }
                 }
             }
         }
-
-		/// <summary>
-		/// When we grab a level complete event, we update our status, and save our progress to file
-		/// </summary>
-		/// <param name="gameEvent">Game event.</param>
-		public virtual void OnMMEvent(CorgiEngineEvent gameEvent) {
-			switch (gameEvent.EventType) {
-				case CorgiEngineEventTypes.LevelComplete:
-					LevelComplete();
-					break;
-				case CorgiEngineEventTypes.GameOver:
-					//LevelEnd();
-					break;
-				case CorgiEngineEventTypes.LevelEnd:
-					//LevelEnd();
-					break;
-				case CorgiEngineEventTypes.LevelStart:
-					//ApplyUpgradesToCharacter();
-					break;
-			}
-		}
 
 		public virtual void OnMMEvent(PaywallCreditsEvent creditsEvent) {
 			switch (creditsEvent.MoneyMethod) {
@@ -306,14 +281,13 @@ namespace Paywall {
         }
 
 		public virtual void OnMMEvent(PaywallLevelEndEvent endEvent) {
-			LevelEnd();
+			LevelEnd(endEvent.convertCredits);
         }
 
 		/// <summary>
 		/// OnEnable, we start listening to events.
 		/// </summary>
 		protected virtual void OnEnable() {
-			this.MMEventStartListening<CorgiEngineEvent>();
 			this.MMEventStartListening<PaywallCreditsEvent>();
 			this.MMEventStartListening<MMGameEvent>();
 			this.MMEventStartListening<PaywallUpgradeEvent>();
@@ -325,7 +299,6 @@ namespace Paywall {
 		/// OnDisable, we stop listening to events.
 		/// </summary>
 		protected virtual void OnDisable() {
-			this.MMEventStopListening<CorgiEngineEvent>();
 			this.MMEventStopListening<PaywallCreditsEvent>();
 			this.MMEventStopListening<MMGameEvent>();
 			this.MMEventStopListening<PaywallUpgradeEvent>();

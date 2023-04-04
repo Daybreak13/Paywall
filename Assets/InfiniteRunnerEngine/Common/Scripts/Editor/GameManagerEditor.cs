@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MoreMountains.InfiniteRunnerEngine
 {	
 
-	[CustomEditor(typeof(GameManager))]
+	[CustomEditor(typeof(GameManager), true)]
 	[CanEditMultipleObjects]
 
 	/// <summary>

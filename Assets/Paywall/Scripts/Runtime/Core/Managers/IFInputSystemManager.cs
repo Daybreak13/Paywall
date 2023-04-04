@@ -16,6 +16,19 @@ namespace Paywall {
 
         public IFInputActions InputActions;
 
+        protected bool _initialized = false;
+
+        protected virtual void Start() {
+            if (!_initialized) {
+                Initialization();
+            }
+        }
+
+        protected virtual void Initialization() {
+            InputActions = new IFInputActions();
+            _initialized = true;
+        }
+
         protected override void HandleKeyboard() {
             if (InputActions.PlayerControls.Pause.WasPressedThisFrame()) {
                 PauseButtonDown();
@@ -77,7 +90,24 @@ namespace Paywall {
                 RightButtonUp();
             }
 
-
         }
+
+        /// <summary>
+        /// On enable we enable our input actions
+        /// </summary>
+        protected virtual void OnEnable() {
+            if (!_initialized) {
+                Initialization();
+            }
+            InputActions.Enable();
+        }
+
+        /// <summary>
+        /// On disable we disable our input actions
+        /// </summary>
+        protected virtual void OnDisable() {
+            InputActions.Disable();
+        }
+
     }
 }

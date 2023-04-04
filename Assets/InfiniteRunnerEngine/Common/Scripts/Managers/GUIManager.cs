@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using MoreMountains.Tools;
+using TMPro;
 
 namespace MoreMountains.InfiniteRunnerEngine
 {	
@@ -19,11 +20,11 @@ namespace MoreMountains.InfiniteRunnerEngine
 	    /// the object that will contain lives hearts
 	    public GameObject HeartsContainer;
 	    /// the points counter
-	    public Text PointsText;
+	    public TextMeshProUGUI PointsText;
 		/// the level display
-		public Text LevelText;
+		public TextMeshProUGUI LevelText;
 		/// the countdown at the start of a level
-		public Text CountdownText;
+		public TextMeshProUGUI CountdownText;
 		/// the screen used for all fades
 		public Image Fader;
 

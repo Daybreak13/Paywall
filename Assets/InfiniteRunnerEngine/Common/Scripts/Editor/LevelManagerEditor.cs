@@ -8,7 +8,7 @@ namespace MoreMountains.InfiniteRunnerEngine
 	/// <summary>
 	/// This class adds names for each LevelMapPathElement next to it on the scene view, for easier setup
 	/// </summary>
-	[CustomEditor(typeof(LevelManager))]
+	[CustomEditor(typeof(LevelManager), true)]
 	[InitializeOnLoad]
 	public class LevelManagerEditor : Editor 
 	{		
