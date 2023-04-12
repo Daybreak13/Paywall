@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Paywall.Tools;
+using Paywall.Documents;
 
 namespace Paywall {
 
@@ -75,7 +76,6 @@ namespace Paywall {
                     menu.SetActive(true);
                 }
             }
-
         }
 
         public virtual void ActivateMain() {

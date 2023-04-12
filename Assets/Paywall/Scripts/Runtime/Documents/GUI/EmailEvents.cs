@@ -12,7 +12,7 @@ namespace Paywall.Documents {
 	/// TriggerLoad: Triggered by PaywallProgressManager on a load, to load the save's inventory data
 	/// ContentChanged: Triggered by Inventory after an item is added/updated, for the PaywallProgressManager to save the new data
 	/// </summary>
-	public enum EmailEventType { Pick, Add, Update, Read, TriggerLoad, Destroy, ContentChanged, Error, MenuOpen, MenuCloseRequest, MenuClose, ShowDetails, Trigger, NotificationOpen, NotificationClose }
+	public enum EmailEventType { Pick, Add, Update, Read, TriggerLoad, SetDictionary, Destroy, ContentChanged, Error, MenuOpen, MenuCloseRequest, MenuClose, ShowDetails, Trigger, NotificationOpen, NotificationClose }
 
 	/// <summary>
 	/// A document event (Pick, Read, Destroy, ContentChanged, Error, MenuOpen, MenuCloseRequest, MenuClose)
@@ -23,23 +23,26 @@ namespace Paywall.Documents {
 		public string PlayerID;
 		public Dictionary<string, EmailItem> EmailItems;
 		public EmailItemScriptable ItemScriptable;
+		public EmailDictionary emailDictionary;
 
-		public EmailEvent(EmailEventType eventType, EmailItem item, string playerID = "", Dictionary<string, EmailItem> emailItems = null, EmailItemScriptable itemScriptable = null) {
+		public EmailEvent(EmailEventType eventType, EmailItem item, string playerID = "", Dictionary<string, EmailItem> emailItems = null, EmailItemScriptable itemScriptable = null, EmailDictionary dict = null) {
 			EventType = eventType;
 			Item = item;
 			PlayerID = (playerID != "") ? playerID : "Player1";
 			EmailItems = emailItems;
 			ItemScriptable = itemScriptable;
+			emailDictionary = dict;
 		}
 
 		static EmailEvent e;
 
-		public static void Trigger(EmailEventType eventType, EmailItem item, string playerID = "", Dictionary<string, EmailItem> emailItems = null, EmailItemScriptable itemScriptable = null) {
+		public static void Trigger(EmailEventType eventType, EmailItem item, string playerID = "", Dictionary<string, EmailItem> emailItems = null, EmailItemScriptable itemScriptable = null, EmailDictionary dict = null) {
 			e.EventType = eventType;
 			e.Item = item;
 			e.PlayerID = (playerID != "") ? playerID : "Player1";
 			e.EmailItems = emailItems;
 			e.ItemScriptable = itemScriptable;
+			e.emailDictionary = dict;
 			if (eventType == EmailEventType.MenuOpen) {
 				MMGameEvent.Trigger("agInventoryOpen");
 			}

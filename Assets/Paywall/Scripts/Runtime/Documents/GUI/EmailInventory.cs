@@ -20,6 +20,9 @@ namespace Paywall.Documents {
         /// the complete list of inventory items in this inventory
         [field: Tooltip("This is a realtime view of your Inventory's contents. Don't modify this list via the inspector, it's visible for control purposes only.")]
         [field: SerializeField] public List<EmailItem> Content { get; protected set; } = new List<EmailItem>();
+        /// Scriptable email dictionary
+        [field: Tooltip("Scriptable email dictionary")]
+        [field: SerializeField] public EmailDictionary emailDictionary { get; protected set; }
 
         [field:Header("Persistency")]
         [field: Tooltip("Here you can define whether or not this inventory should respond to Load and Save events. If you don't want to have your inventory saved to disk, set this to false. You can also have it reset on start, to make sure it's always empty at the start of this level.")]
@@ -34,15 +37,19 @@ namespace Paywall.Documents {
         [field: Tooltip("The Inventory component is like the database and controller part of your inventory. It won't show anything on screen, you'll need also an InventoryDisplay for that. Here you can decide whether or not you want to output a debug content in the inspector (useful for debugging).")]
         [field: SerializeField] public bool DrawContentInInspector { get; protected set; } = false;
 
-        public Dictionary<string, EmailItem> EmailItems { get; protected set; } = new Dictionary<string, EmailItem>();
-
-        [field:Header("Display")]
-        [field: Tooltip("The canvas group which contains the document display")]
-        [field: SerializeField] public GameObject EmailDisplayContainer { get; protected set; }
+        public Dictionary<string, EmailItem> EmailItems { get { return emailDictionary.EmailItems; } protected set { } }
 
         public const string _resourceItemPath = "Emails/";
         protected const string _saveFolderName = "EmailInventory/";
         protected const string _saveFileExtension = ".emailinventory";
+
+        protected virtual void Start() {
+            //EmailItems = emailDictionary.EmailItems;
+        }
+
+        public virtual void SetDictionary(EmailDictionary dict) {
+            emailDictionary = dict;
+        }
 
         /// <summary>
         /// Adds an EmailItem to the inventory. EmailItems are sorted alphabetically by ItemName.
@@ -132,10 +139,6 @@ namespace Paywall.Documents {
             if (emailEvent.EventType == EmailEventType.Read) {
                 ReadItem(emailEvent.Item);
             }
-            if (emailEvent.EventType == EmailEventType.TriggerLoad) {
-                EmailItems = emailEvent.EmailItems;
-            }
-
         }
 
         /// <summary>

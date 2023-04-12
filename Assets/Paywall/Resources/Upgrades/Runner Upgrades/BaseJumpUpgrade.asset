@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7712934723b64ce4fbfd08f51d688ba4, type: 3}
   m_Name: BaseJumpUpgrade
   m_EditorClassIdentifier: 
+  <UpgradeID>k__BackingField: BaseJump
   <UpgradeName>k__BackingField: BaseJump
-  <UpgradeDescription>k__BackingField: 
+  <UpgradeDescription>k__BackingField: Allows jumping
   <Unlocked>k__BackingField: 0
   <Cost>k__BackingField: 1
   <MoneyType>k__BackingField: 0
+  <UpgradeType>k__BackingField: 1

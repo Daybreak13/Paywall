@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 namespace Paywall {
 
@@ -12,6 +13,9 @@ namespace Paywall {
     public class Upgrade {
         [field: Header("Basic Info")]
 
+        /// The upgrade's ID
+        [field: Tooltip("The upgrade's ID")]
+        [field: SerializeField] public string UpgradeID { get; protected set; }
         /// The upgrade's name
         [Tooltip("The upgrade's name")]
         [field: SerializeField] public string UpgradeName { get; protected set; }
@@ -49,6 +53,7 @@ namespace Paywall {
         }
 
         public virtual Upgrade ConvertToClass(ScriptableUpgrade s) {
+            UpgradeID = s.UpgradeID;
             UpgradeName = s.UpgradeName;
             UpgradeDescription = s.UpgradeDescription;
             Unlocked = s.Unlocked;

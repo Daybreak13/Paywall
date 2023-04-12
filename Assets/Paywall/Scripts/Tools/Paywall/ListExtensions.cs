@@ -14,7 +14,7 @@ namespace Paywall.Tools {
         /// <param name="list"></param>
         /// <param name="obj">Object to add to the list</param>
         public static void AddIfNotNull<T>(this List<T> list, T obj) {
-            if (obj != null) {
+            if (obj != null && (obj.ToString() != "null")) {
                 list.Add(obj);
             }
         }

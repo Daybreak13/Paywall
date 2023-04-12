@@ -31,6 +31,7 @@ namespace Paywall {
 		public int Credits = 0;
 		public int Trinkets = 0;
 		public Dictionary<string, Upgrade> Upgrades = new Dictionary<string, Upgrade>();
+		public Dictionary<string, Upgrade> RunnerUpgrades = new Dictionary<string, Upgrade>();
 		public Dictionary<string, EmailItem> EmailItems = new Dictionary<string, EmailItem>();
 		public SerializedInventory serializedInventory;
 		public PaywallScene[] Scenes;
@@ -42,8 +43,8 @@ namespace Paywall {
 	/// Saves game on MMGameEvent "Save"
 	/// 
 	/// </summary>
-	public class PaywallProgressManager : MMSingleton<PaywallProgressManager>, MMEventListener<PaywallCreditsEvent>, 
-		MMEventListener<MMGameEvent>, MMEventListener<PaywallUpgradeEvent>, 
+	public class PaywallProgressManager : MMPersistentSingleton<PaywallProgressManager>, MMEventListener<PaywallCreditsEvent>,
+		MMEventListener<MMGameEvent>, MMEventListener<PaywallUpgradeEvent>,
 		MMEventListener<PaywallLevelEndEvent>, MMEventListener<EmailEvent> {
 
 		public int InitialMaximumLives { get; set; }
@@ -66,14 +67,26 @@ namespace Paywall {
 
 		/// Credits are the "real world" currency
 		[field: Tooltip("Credits are the \"real world\" currency")]
-		[field:SerializeField] public int Credits { get; private set; }
+		public int Credits { get; private set; }
 		/// Trinkets are the "game world" currency
 		[field: Tooltip("Trinkets are the \"game world\" currency")]
 		public int Trinkets { get; private set; }
 
-		public Dictionary<string, EmailItem> EmailItems { get; protected set; }
-		public Dictionary<string, Upgrade> Upgrades { get; private set; }
+		[field: Header("Dictionaries")]
+
+		/// Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record.
+		[field: Tooltip("Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record.")]
+		[field: SerializeField] public EmailDictionary EmailsDictionary { get; private set; }
+		/// Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.
+		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.")]
+		[field: SerializeField] public UpgradeDictionary UpgradesDictionary { get; private set; }
+
+		public Dictionary<string, EmailItem> EmailItems { get { return EmailsDictionary.EmailItems; } protected set { } }
+		public Dictionary<string, Upgrade> Upgrades { get; private set; } = new();
 		public enum SaveMethods { All, Inventory }
+
+		protected EmailInventory _emailInventory;
+		protected StoreMenuManager _storeMenuManager;
 
 		protected const string _saveFolderName = "PaywallProgress";
 		protected const string _saveFileName = "Progress.data";
@@ -87,10 +100,23 @@ namespace Paywall {
 		}
 
 		protected virtual void Start() {
-			if (EmailItems != null) {
-				EmailEvent.Trigger(EmailEventType.TriggerLoad, null, PlayerID, EmailItems);
-			}
+        }
+
+		protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+			UpdateManagersAndInventories();
 		}
+
+		/// <summary>
+		/// When the scene loads, load the data into the StoreMenuManager and EmailInventory (if applicable)
+		/// </summary>
+		protected virtual void UpdateManagersAndInventories() {
+			if (_storeMenuManager = FindAnyObjectByType<StoreMenuManager>(FindObjectsInactive.Include)) {
+				_storeMenuManager.LoadUpgrades(Upgrades);
+            }
+			if (_emailInventory = FindAnyObjectByType<EmailInventory>(FindObjectsInactive.Include)) {
+				_emailInventory.SetDictionary(EmailsDictionary);
+            }
+        }
 
 		/// <summary>
 		/// Updates credit display
@@ -142,7 +168,9 @@ namespace Paywall {
 		/// Convert points, save progress.
 		/// </summary>
 		protected virtual void LevelEnd(bool convert) {
-			if (convert) ConvertPointsToCredits();
+			if (convert) {
+				ConvertPointsToCredits();
+			}
 			SaveProgress();
         }
 
@@ -172,7 +200,7 @@ namespace Paywall {
 		/// </summary>
 		/// <param name="money"></param>
 		protected virtual void SetMoney(MoneyTypes MoneyType, int money) {
-			if (MoneyType == MoneyTypes.Trinket) {
+			if (MoneyType == MoneyTypes.Credit) {
 				Credits = money;
 			} else {
 				Trinkets = money;
@@ -199,11 +227,13 @@ namespace Paywall {
 				Scenes = progress.Scenes;
 				Credits = progress.Credits;
 				Trinkets = progress.Trinkets;
-				Upgrades = progress.Upgrades;
-				EmailItems = progress.EmailItems;
-				if (EmailItems != null) {
-					EmailEvent.Trigger(EmailEventType.TriggerLoad, null, PlayerID, EmailItems);
+				if (progress.Upgrades == null) {
+					Upgrades = new();
 				}
+				else {
+					Upgrades = progress.Upgrades;
+				}
+				EmailsDictionary.SetDictionary(progress.EmailItems);
 			}
 			else {
 				InitialCurrentLives = GameManager.Instance.CurrentLives;
@@ -221,7 +251,7 @@ namespace Paywall {
 			if (LevelManager.HasInstance && (LevelManager.Instance.CurrentPlayableCharacters.Count > 0) && (Upgrades != null)) {
 				foreach (KeyValuePair<string, Upgrade> entry in Upgrades) {
 					if (entry.Value.UpgradeType == UpgradeTypes.Player) {
-						entry.Value.UpgradeAction(LevelManager.Instance.CurrentPlayableCharacters[0]);
+						//entry.Value.UpgradeAction(LevelManager.Instance.CurrentPlayableCharacters[0]);
                     }
                 }
             }
@@ -245,37 +275,50 @@ namespace Paywall {
 		/// </summary>
 		/// <param name="upgradeEvent"></param>
 		public virtual void OnMMEvent(PaywallUpgradeEvent upgradeEvent) {
-			if (Upgrades.TryGetValue(upgradeEvent.Upgrade.UpgradeName, out Upgrade upgrade)) {
+			if ((upgradeEvent.UpgradeMethod == UpgradeMethods.TryUnlock)) {
+				if (!Upgrades.ContainsKey(upgradeEvent.Upgrade.UpgradeID)) {
+					Upgrades.Add(upgradeEvent.Upgrade.UpgradeID, upgradeEvent.Upgrade.ConvertToClass());
+				}
+				Upgrade upgrade = Upgrades[upgradeEvent.Upgrade.UpgradeID];
 				if (upgrade.Unlocked) {
 					return;
-                }
+				}
 
 				// Do nothing if there is insufficient funds
 				if (upgrade.MoneyType == MoneyTypes.Trinket) {
 					if (upgrade.Cost > Trinkets) {
+						PaywallUpgradeEvent.Trigger(UpgradeMethods.Error);
 						return;
-                    }
-                } else {
+					}
+				}
+				else {
 					if (upgrade.Cost > Trinkets) {
+						PaywallUpgradeEvent.Trigger(UpgradeMethods.Error);
 						return;
 					}
 				}
 
 				Upgrades[upgradeEvent.Upgrade.UpgradeName].UnlockUpgrade();
+				upgradeEvent.ButtonComponent.UnlockUpgrade();
+				PaywallUpgradeEvent.Trigger(UpgradeMethods.Unlock, null, upgradeEvent.ButtonComponent);
 				PaywallCreditsEvent.Trigger(upgrade.MoneyType, MoneyMethods.Add, -upgradeEvent.Upgrade.Cost);
 				SaveProgress();
 			}
+			
 		}
 
 		public virtual void OnMMEvent(MMGameEvent gameEvent) {
 			if (gameEvent.EventName == "Save") {
 				SaveProgress();
             }
+			if (gameEvent.EventName == "Load") {
+
+            }
         }
 
 		public virtual void OnMMEvent(EmailEvent emailEvent) {
 			if (emailEvent.EventType == EmailEventType.ContentChanged) {
-				EmailItems = emailEvent.EmailItems;
+				//EmailItems = emailEvent.EmailItems;
 				SaveProgress();
             }
         }
@@ -293,6 +336,7 @@ namespace Paywall {
 			this.MMEventStartListening<PaywallUpgradeEvent>();
 			this.MMEventStartListening<PaywallLevelEndEvent>();
 			this.MMEventStartListening<EmailEvent>();
+			SceneManager.sceneLoaded += OnSceneLoaded;
 		}
 
 		/// <summary>
@@ -304,6 +348,7 @@ namespace Paywall {
 			this.MMEventStopListening<PaywallUpgradeEvent>();
 			this.MMEventStopListening<PaywallLevelEndEvent>();
 			this.MMEventStopListening<EmailEvent>();
+			SceneManager.sceneLoaded -= OnSceneLoaded;
 		}
 
 	}

@@ -165,7 +165,9 @@ namespace Paywall.Documents {
                 return;
             }
 
-            if (TargetInventory.EmailItems.ContainsKey(item.ItemID)) {
+            if (TargetInventory.EmailItems.ContainsKey(item.ItemID) 
+                && !(_readDocumentButtons.ContainsKey(item.ItemID) || _unreadDocumentButtons.ContainsKey(item.ItemID))
+                ) {
                 // Instantiate the button and set its size
                 GameObject newButton;
                 if (item.Read) {
@@ -183,8 +185,6 @@ namespace Paywall.Documents {
                         child.Value.SetAsLastSibling();
                     }
                 }
-            } else {
-                Debug.LogError("The document item has an invalid ItemID.");
             }
 
         }

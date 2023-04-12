@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+#if ENABLE_INPUT_SYSTEM
 	using UnityEngine.InputSystem;
 #endif
 
@@ -34,7 +34,7 @@ namespace MoreMountains.InventoryEngine
 		/// if this is true, the inventory container will be hidden automatically on start
 		public bool InputOnlyWhenOpen = true;
 
-		#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+		#if ENABLE_INPUT_SYSTEM
 		
 			[Header("Input System Key Mapping")] 
 
@@ -433,7 +433,7 @@ namespace MoreMountains.InventoryEngine
 				return;
 			}
 			
-			#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+			#if ENABLE_INPUT_SYSTEM
 				_toggleInventoryKeyPressed = ToggleInventoryKey.action.WasPressedThisFrame();
 				_openInventoryKeyPressed = OpenInventoryKey.action.WasPressedThisFrame();
 				_closeInventoryKeyPressed = CloseInventoryKey.action.WasPressedThisFrame();

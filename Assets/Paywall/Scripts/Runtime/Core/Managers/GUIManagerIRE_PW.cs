@@ -4,6 +4,7 @@ using UnityEngine;
 using MoreMountains.InfiniteRunnerEngine;
 using MoreMountains.Tools;
 using TMPro;
+using Paywall.Tools;
 
 namespace Paywall {
 
@@ -13,15 +14,31 @@ namespace Paywall {
 		/// the game object that contains the heads up display (avatar, health, points...)
 		[field: Tooltip("the game object that contains the heads up display (avatar, health, points...)")]
 		[field: SerializeField] public GameObject HUD { get; protected set; }
+		/// the game object that contains the ammo display
+		[field: Tooltip("the game object that contains the ammo display")]
+		[field: SerializeField] public GameObject AmmoBarContainer { get; protected set; }
+		/// the game object that contains the ammo display
+		[field: Tooltip("the game object that contains the ammo display")]
+		[field: SerializeField] public SegmentedBar AmmoBar { get; protected set; }
 		/// the jetpack bar
 		[field: Tooltip("the jetpack bar")]
 		[field: SerializeField] public MMProgressBar[] HealthBars { get; protected set; }
 
-		/// <summary>
-		/// Sets the HUD active or inactive
-		/// </summary>
-		/// <param name="state">If set to <c>true</c> turns the HUD active, turns it off otherwise.</param>
-		public virtual void SetHUDActive(bool state) {
+        protected virtual void Start() {
+			Initialization();
+        }
+
+		protected virtual void Initialization() {
+			if ((AmmoBar == null) && (AmmoBarContainer != null)) {
+				AmmoBar = AmmoBarContainer.GetComponentInChildren<SegmentedBar>();
+			}
+        }
+
+        /// <summary>
+        /// Sets the HUD active or inactive
+        /// </summary>
+        /// <param name="state">If set to <c>true</c> turns the HUD active, turns it off otherwise.</param>
+        public virtual void SetHUDActive(bool state) {
 			if (HUD != null) {
 				HUD.SetActive(state);
 			}
@@ -52,6 +69,20 @@ namespace Paywall {
 			}
 		}
 
+		public virtual void UpdateAmmoBar(int currentAmmo, int minAmmo, int maxAmmo) {
+			if ((AmmoBarContainer == null) || (AmmoBar == null)) { return; }
+			if (minAmmo >= 0) {
+				AmmoBar.SetMinimumValue(minAmmo);
+            }
+			if (maxAmmo >= 0) {
+				AmmoBar.SetMaximumValue(maxAmmo);
+            }
+			AmmoBar.SetCurrentValue(currentAmmo);
+		}
+
+		public virtual void UpdateAmmoBar(int currentAmmo) {
+			UpdateAmmoBar(currentAmmo, -1, -1);
+        }
 
 	}
 }

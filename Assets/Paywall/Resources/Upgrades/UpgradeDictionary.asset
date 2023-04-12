@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d558f81e60668a4e8fc5030e1ffd74e, type: 3}
+  m_Name: UpgradeDictionary
+  m_EditorClassIdentifier: 
+  <GameStoreUpgrades>k__BackingField: []
+  <RunnerStoreUpgrades>k__BackingField: []
+  <OtherUpgrades>k__BackingField: []
+  <Upgrades>k__BackingField: []

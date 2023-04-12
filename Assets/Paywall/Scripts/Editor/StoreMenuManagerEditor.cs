@@ -9,24 +9,23 @@ namespace Paywall {
     [CustomEditor(typeof(StoreMenuManager), true)]
     public class StoreMenuManagerEditor : Editor {
 
-        public StoreMenuManager storeMenuManager {
+        protected StoreMenuManager _storeMenuManager {
             get {
                 return (StoreMenuManager)target;
             }
         }
 
         protected virtual void GetUpgrades() {
-            //var upgradeButtons = FindObjectsByType(typeof(UpgradeButton), FindObjectsInactive.Include, FindObjectsSortMode.None);
             UpgradeButton[] upgradeButtons = FindObjectsByType<UpgradeButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            List<ScriptableUpgrade> upgrades = new List<ScriptableUpgrade>();
+            List<UpgradeButton> buttons = new();
             foreach (UpgradeButton button in upgradeButtons) {
-                upgrades.Add(button.Upgrade);
+                buttons.Add(button);
             }
-            storeMenuManager.SetUpgrades(upgrades);
+            _storeMenuManager.SetUpgradesEditor(buttons);
         }
 
         protected virtual void ClearUpgrades() {
-            storeMenuManager.SetUpgrades(null);
+            _storeMenuManager.SetUpgradesEditor(null);
         }
 
         public override void OnInspectorGUI() {

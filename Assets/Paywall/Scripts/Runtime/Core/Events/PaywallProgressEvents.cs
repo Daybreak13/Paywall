@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MoreMountains.Tools;
 
 namespace Paywall {
 
@@ -27,25 +28,41 @@ namespace Paywall {
 			e.MoneyType = moneyType;
 			e.MoneyMethod = creditsMethod;
 			e.Money = credits;
+			MMEventManager.TriggerEvent(e);
 		}
 	}
 
-	public enum UpgradeMethods { Unlock, Lock }
+	public enum UpgradeMethods { Unlock, Lock, Error, TryUnlock }
 
 	public struct PaywallUpgradeEvent {
 		public UpgradeMethods UpgradeMethod;
 		public ScriptableUpgrade Upgrade;
+		public UpgradeButton ButtonComponent;
 
-		public PaywallUpgradeEvent(UpgradeMethods upgradeMethod, ScriptableUpgrade upgrade) {
+		public PaywallUpgradeEvent(UpgradeMethods upgradeMethod, ScriptableUpgrade upgrade = null, UpgradeButton button = null) {
 			UpgradeMethod = upgradeMethod;
 			Upgrade = upgrade;
+			ButtonComponent = button;
 		}
 		static PaywallUpgradeEvent e;
-		public static void Trigger(UpgradeMethods upgradeMethod, ScriptableUpgrade upgrade) {
+		public static void Trigger(UpgradeMethods upgradeMethod, ScriptableUpgrade upgrade = null, UpgradeButton button = null) {
 			e.UpgradeMethod = upgradeMethod;
 			e.Upgrade = upgrade;
+			e.ButtonComponent = button;
+			MMEventManager.TriggerEvent(e);
 		}
+	}
 
+	public struct PaywallLevelEndEvent {
+		public bool convertCredits;
+		public PaywallLevelEndEvent(bool convert) {
+			convertCredits = convert;
+		}
+		static PaywallLevelEndEvent e;
+		public static void Trigger(bool convert) {
+			e.convertCredits = convert;
+			MMEventManager.TriggerEvent(e);
+		}
 	}
 
 }

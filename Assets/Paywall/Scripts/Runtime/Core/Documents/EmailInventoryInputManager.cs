@@ -12,10 +12,10 @@ namespace Paywall {
 
         [SerializeField] private EmailButtonDisplay emailButtonDisplay;
 
-        public IFInputActions InputActions;
+        public IREInputActions InputActions;
 
         protected virtual void Awake() {
-            InputActions = new IFInputActions();
+            InputActions = new IREInputActions();
             if (emailButtonDisplay == null) {
                 emailButtonDisplay = GetComponentInChildren<EmailButtonDisplay>(true);
             }

@@ -11,7 +11,9 @@ GameObject:
   - component: {fileID: 6553815000953251736}
   - component: {fileID: 8075506299424422726}
   - component: {fileID: 5989792704175651659}
-  - component: {fileID: 8377547763010813769}
+  - component: {fileID: 6850843437636439954}
+  - component: {fileID: 1766010608938253577}
+  - component: {fileID: 3048907195748926798}
   m_Layer: 0
   m_Name: Trinket
   m_TagString: Untagged
@@ -112,7 +114,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8377547763010813769
+--- !u!114 &6850843437636439954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,13 +123,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 1095806965007268914}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2d96dc71d76c4e2ab8eb19d92d40d5f, type: 3}
+  m_Script: {fileID: 11500000, guid: 35da0840400d7a8479bdb905e2405d78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Item: {fileID: 11400000, guid: b471bffba61869645963debe8538ba42, type: 2}
-  Quantity: 1
-  RemainingQuantity: 1
-  PickableIfInventoryIsFull: 0
-  DisableObjectWhenDepleted: 0
-  PickFeedbacks: {fileID: 0}
-  ResetQuantityOnPlayerRespawn: 0
+  <PickEffect>k__BackingField: {fileID: 0}
+  <studioEventEmitter>k__BackingField: {fileID: 0}
+  <Value>k__BackingField: 0
+--- !u!114 &1766010608938253577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095806965007268914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72de0b0360096ea41a18d17864ecb963, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoundsBasedOn: 1
+  ExecuteOnEnable:
+    m_PersistentCalls:
+      m_Calls: []
+  ExecuteOnDisable:
+    m_PersistentCalls:
+      m_Calls: []
+  LifeTime: 0
+--- !u!114 &3048907195748926798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095806965007268914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89a8cfe26a3a99741ab5f196acf474a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DestroyDistanceBehindBounds: 5
