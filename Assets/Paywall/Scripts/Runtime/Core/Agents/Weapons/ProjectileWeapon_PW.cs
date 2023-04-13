@@ -16,7 +16,6 @@ namespace Paywall {
 		protected float _lastShot;
 
         protected override void LateUpdate() {
-			Debug.Log(WeaponState);
             base.LateUpdate();
 			AutoReloadWeapon();
         }
@@ -43,7 +42,7 @@ namespace Paywall {
 						CurrentAmmoLoaded -= AmmoConsumedPerShot;
 					}
 					else {
-						
+						WeaponState.ChangeState(WeaponStates.WeaponIdle);
 					}
 				}
 			}

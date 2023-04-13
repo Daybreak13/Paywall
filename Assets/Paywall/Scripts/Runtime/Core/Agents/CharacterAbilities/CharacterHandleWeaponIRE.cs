@@ -95,7 +95,6 @@ namespace Paywall {
         protected int _count = 0;
         protected virtual void Attack(InputAction.CallbackContext context) {
             AttackStart();
-            Debug.Log(++_count);
         }
 
         protected virtual void AttackStart() {

@@ -87,6 +87,7 @@ namespace Paywall {
             GameManager.Instance.SetPoints(_savedPoints);
             GameManager.Instance.LoseLives(1);
 
+            /// If no more lives, trigger game over
             if (GameManager.Instance.CurrentLives <= 0) {
                 GUIManager.Instance.SetGameOverScreen(true);
                 GameManager.Instance.SetStatus(GameManager.GameStatus.GameOver);

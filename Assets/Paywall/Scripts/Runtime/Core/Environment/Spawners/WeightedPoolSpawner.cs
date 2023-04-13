@@ -5,6 +5,7 @@ using MoreMountains.CorgiEngine;
 using MoreMountains.Tools;
 using System;
 using Paywall.Tools;
+using MoreMountains.InfiniteRunnerEngine;
 
 namespace Paywall {
 

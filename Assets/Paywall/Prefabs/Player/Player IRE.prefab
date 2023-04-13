@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5815232894283774553}
   - component: {fileID: 2374680489603698423}
   - component: {fileID: 4183993507995283181}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WeaponUsedFeedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -681,7 +681,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5621064052192545577}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -716,7 +716,7 @@ GameObject:
   - component: {fileID: 2690591332449508702}
   - component: {fileID: 2875474175305247704}
   - component: {fileID: 2853643925424634196}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: MachineGunFlames
   m_TagString: Untagged
   m_Icon: {fileID: 796366903, guid: 0000000000000000d000000000000000, type: 0}
@@ -5526,7 +5526,7 @@ GameObject:
   - component: {fileID: 2690591330949603282}
   - component: {fileID: 2858096440862941968}
   - component: {fileID: 2652366967717228682}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MachineGun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5629,7 +5629,7 @@ GameObject:
   - component: {fileID: 2875474164354421736}
   - component: {fileID: 2853643924975248800}
   - component: {fileID: 2652250316615000020}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: MachineGunShells
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10376,7 +10376,7 @@ GameObject:
   - component: {fileID: 3685558303274733224}
   - component: {fileID: 2652005667840006248}
   - component: {fileID: 2652269586227164164}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: MinimalMachineGun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10562,7 +10562,7 @@ GameObject:
   m_Component:
   - component: {fileID: 10609962669610095}
   - component: {fileID: 6051725571857789299}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WeaponStartFeedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10675,7 +10675,7 @@ GameObject:
   m_Component:
   - component: {fileID: 844271475864563803}
   - component: {fileID: 4345103709595504091}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WeaponStopFeedback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10789,7 +10789,7 @@ GameObject:
   - component: {fileID: 1420738374408291379}
   - component: {fileID: 5821070982960601449}
   - component: {fileID: 568611085357058943}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10899,7 +10899,7 @@ GameObject:
   - component: {fileID: 3078687695425193512}
   - component: {fileID: 7048044862321172469}
   - component: {fileID: -1772729090732756650}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player IRE
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -11066,7 +11066,7 @@ MonoBehaviour:
   <AttachWeapon>k__BackingField: 0
   <WeaponAttachment>k__BackingField: {fileID: 0}
   <InstantiateNewWeapon>k__BackingField: 0
-  <BufferInput>k__BackingField: 0
+  <BufferInput>k__BackingField: 1
   <NewInputExtendsBuffer>k__BackingField: 0
   <MaximumBufferDuration>k__BackingField: 0.25
   <CurrentWeapon>k__BackingField: {fileID: 0}

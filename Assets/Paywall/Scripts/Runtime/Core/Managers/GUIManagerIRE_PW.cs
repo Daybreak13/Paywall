@@ -50,14 +50,22 @@ namespace Paywall {
 			}
 		}
 
-		/// <summary>
-		/// Updates the health bar.
-		/// </summary>
-		/// <param name="currentHealth">Current health.</param>
-		/// <param name="minHealth">Minimum health.</param>
-		/// <param name="maxHealth">Max health.</param>
-		/// <param name="playerID">Player I.</param>
-		public virtual void UpdateHealthBar(float currentHealth, float minHealth, float maxHealth, string playerID) {
+        public override void SetGameOverScreen(bool state) {
+			GameOverScreen.SetActive(state);
+			//TextMeshProUGUI gameOverScreenTextObject = GameOverScreen.transform.Find("GameOverScreenText").GetComponent<TextMeshProUGUI>();
+			//if (gameOverScreenTextObject != null) {
+			//	gameOverScreenTextObject.text = "GAME OVER\nYOUR SCORE : " + Mathf.Round(GameManager.Instance.Points);
+			//}
+		}
+
+        /// <summary>
+        /// Updates the health bar.
+        /// </summary>
+        /// <param name="currentHealth">Current health.</param>
+        /// <param name="minHealth">Minimum health.</param>
+        /// <param name="maxHealth">Max health.</param>
+        /// <param name="playerID">Player I.</param>
+        public virtual void UpdateHealthBar(float currentHealth, float minHealth, float maxHealth, string playerID) {
 			if (HealthBars == null) { return; }
 			if (HealthBars.Length <= 0) { return; }
 

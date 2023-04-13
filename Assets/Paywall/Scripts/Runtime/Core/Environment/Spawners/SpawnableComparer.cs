@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace Paywall {
 
+    [System.Serializable]
+    public struct SpawnableObject {
+        // The prefab to spawn
+        public GameObject prefab;
+        // Spawn chance for the prefab
+        [Range(0f, 1f)]
+        public float spawnChance;
+    }
+
     /// <summary>
     /// Compares SpawnableObjects
     /// </summary>

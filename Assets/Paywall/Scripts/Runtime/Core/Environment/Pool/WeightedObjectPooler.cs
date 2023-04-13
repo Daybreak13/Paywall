@@ -8,7 +8,7 @@ using Weighted_Randomizer;
 namespace Paywall {
 
     [System.Serializable]
-    public class WeightedPooler {
+    public class WeightedPool {
         public MMSimpleObjectPooler Pooler;
         public int Weight = 1;
     }
@@ -20,7 +20,7 @@ namespace Paywall {
 
         /// the list of simple object pools
         [field: Tooltip("the list of simple object pools")]
-		[field: SerializeField] public List<WeightedPooler> Pool { get; protected set; }
+		[field: SerializeField] public List<WeightedPool> Pool { get; protected set; }
 
         public List<WeightedObjectPooler> Owner { get; set; }
         private void OnDestroy() { Owner?.Remove(this); }
@@ -35,7 +35,7 @@ namespace Paywall {
         /// </summary>
         protected virtual void Start() {
             int key = 0;
-            foreach (WeightedPooler pooler in Pool) {
+            foreach (WeightedPool pooler in Pool) {
                 _poolerDict.Add(key, pooler.Pooler);
                 _randomizer.Add(key, pooler.Weight);
                 key++;
