@@ -6,7 +6,7 @@ using UnityEditor;
 namespace Paywall.Editors {
 
 	/// <summary>
-	/// Currently unused
+	/// CURRENTLY UNUSED
 	/// </summary>
 	//[CustomPropertyDrawer(typeof(LevelSegment), true)]
 	public class LevelSegmentInspectorDrawer : PropertyDrawer {

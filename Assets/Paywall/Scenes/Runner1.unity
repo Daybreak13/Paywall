@@ -532,6 +532,7 @@ MonoBehaviour:
   <Pool>k__BackingField:
   - Pooler: {fileID: 396289301}
     Weight: 1
+    DifficultyMod: 1
 --- !u!1 &1035644415
 GameObject:
   m_ObjectHideFlags: 0
@@ -595,7 +596,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0fc1b76f37a20144ab9f63c5c8d7223, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LevelSegments: []
+  <LevelSegments>k__BackingField:
+  - <Label>k__BackingField: 
+    <SegmentController>k__BackingField: {fileID: 0}
+    <NextLevelSegments>k__BackingField:
+    - CurrentIndex: 0
+      Dist: 0
+  <WeightedPooler>k__BackingField: {fileID: 0}
+  <UseNextSegmentProbability>k__BackingField: 0
+  Difficulty: 0
 --- !u!4 &1213809061
 Transform:
   m_ObjectHideFlags: 0

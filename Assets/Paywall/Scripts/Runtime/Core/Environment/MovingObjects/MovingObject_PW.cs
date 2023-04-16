@@ -12,14 +12,14 @@ namespace Paywall {
 
         public override void Move() {
 			if (!LevelManagerIRE_PW.HasInstance) {
-				_movement = Direction * (Speed / 10) * Time.deltaTime;
+				_movement = (Speed / 10) * Time.deltaTime * Direction;
 			}
 			else {
 				if (UseEnemySpeed) {
-					_movement = Direction * (Speed / 10) * (LevelManagerIRE_PW.Instance as LevelManagerIRE_PW).EnemySpeed * Time.deltaTime;					
+					_movement = (LevelManagerIRE_PW.Instance as LevelManagerIRE_PW).EnemySpeed * (Speed / 10) * Time.deltaTime * Direction;					
 				}
 				else {
-					_movement = Direction * (Speed / 10) * LevelManager.Instance.Speed * Time.deltaTime;
+					_movement = (Speed / 10) * LevelManager.Instance.Speed * Time.deltaTime * Direction;
 				}
 			}
 			transform.Translate(_movement, MovementSpace);

@@ -10,7 +10,13 @@ namespace Paywall {
     [System.Serializable]
     public class WeightedPool {
         public MMSimpleObjectPooler Pooler;
-        public int Weight = 1;
+        public int Weight = 10;
+        public int ModWeight { 
+            get {
+                return (int)(Weight * DifficultyMod * ProceduralLevelGenerator.Instance.Difficulty); 
+            }
+        }
+        public float DifficultyMod = 1f;
     }
 
     /// <summary>
@@ -25,8 +31,8 @@ namespace Paywall {
         public List<WeightedObjectPooler> Owner { get; set; }
         private void OnDestroy() { Owner?.Remove(this); }
 
-        protected List<MMSimpleObjectPooler> _poolerList = new List<MMSimpleObjectPooler>();
-        protected Dictionary<int, MMSimpleObjectPooler> _poolerDict = new Dictionary<int, MMSimpleObjectPooler>();
+        protected List<MMSimpleObjectPooler> _poolerList = new();
+        protected Dictionary<int, MMSimpleObjectPooler> _poolerDict = new();
         protected IWeightedRandomizer<int> _randomizer = new DynamicWeightedRandomizer<int>();
         protected IWeightedRandomizer<int> _originalRandomizer;
 

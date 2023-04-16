@@ -9,12 +9,12 @@ namespace Paywall.Editors {
     [CustomPropertyDrawer(typeof(SegmentsList))]
     public class SegmentsListInspectorDrawer : PropertyDrawer {
         private const string _currentIndexPropertyName = "CurrentIndex";
+        private const string _weightPropertyName = "Weight";
 
 #if UNITY_EDITOR
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
-            //string[] _segmentNames = (property.serializedObject.targetObject as ProceduralLevelGenerator).GetAttachedSegmentNames();
-            string[] sortedNames = (property.serializedObject.targetObject as ProceduralLevelGenerator).GetAttachedSegmentNamesSorted();
+            string[] sortedNames = (property.serializedObject.targetObject as ProceduralLevelGenerator).GetAttachedSegmentNames();
             string[] segmentNames = new string[sortedNames.Length + 1];
             segmentNames[0] = "None";
             sortedNames.CopyTo(segmentNames, 1);
