@@ -7,6 +7,6 @@ using MoreMountains.Tools;
 namespace Paywall {
 
     public class DMSimpleObjectPooler : MMSimpleObjectPooler {
-        public int Weight = 0;
+        [field: SerializeField] public string SegmentName { get; protected set; }
     }
 }

@@ -98,7 +98,7 @@ namespace Paywall {
         }
 
         protected virtual void AttackStart() {
-            if (!AbilityPermitted || WeaponComponent == null) {
+            if (!AbilityAuthorized || WeaponComponent == null) {
                 return;
             }
             //  if we've decided to buffer input, and if the weapon is in use right now

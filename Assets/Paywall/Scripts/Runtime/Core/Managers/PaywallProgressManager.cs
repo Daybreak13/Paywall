@@ -351,5 +351,10 @@ namespace Paywall {
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 		}
 
+		[RuntimeInitializeOnLoadMethod]
+		void RunOnStart() {
+			SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
 	}
 }

@@ -24,7 +24,7 @@ namespace MoreMountains.InfiniteRunnerEngine
 		/// the duration (in seconds) of invincibility on spawn
 		public float InitialInvincibilityDuration = 3f;
 
-		public bool Invincible => (Time.time - _awakeAt < InitialInvincibilityDuration);
+		[field: SerializeField] public bool Invincible { get; protected set; } = true;
 		
 		protected Vector3 _initialPosition;
 		protected bool _grounded;
@@ -37,6 +37,8 @@ namespace MoreMountains.InfiniteRunnerEngine
 
 		protected Vector3 _raycastLeftOrigin;
 		protected Vector3 _raycastRightOrigin;
+
+		protected bool _initialInvincibilityActive = true;
 		
 		/// <summary>
 		/// Use this for initialization
@@ -81,6 +83,8 @@ namespace MoreMountains.InfiniteRunnerEngine
 		// Update is called once per frame
 		protected virtual void Update ()
 	    {
+			CheckInvincibility();
+
 		    // we send our various states to the animator.      
 	        UpdateAnimator ();
 
@@ -461,6 +465,12 @@ namespace MoreMountains.InfiniteRunnerEngine
 			
 		}
 
+		protected virtual void CheckInvincibility() {
+			if (_initialInvincibilityActive && (Time.time - _awakeAt >= InitialInvincibilityDuration)) {
+				_initialInvincibilityActive = false;
+				Invincible = false;
+            }
+        }
 
 	}
 }

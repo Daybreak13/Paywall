@@ -24,8 +24,23 @@ namespace Paywall {
         [field: SerializeField] public bool RepopulateOnEnable { get; protected set; } = true;
 
         protected List<GameObject> _poolableObjects = new();
+        protected bool _initialized = false;
+
+        protected virtual void Start() {
+            Initialization();
+        }
+
+        protected virtual void Initialization() {
+            if (!_initialized) {
+
+                _initialized = true;
+            }
+        }
 
         protected virtual void OnEnable() {
+            if (!_initialized) {
+                Initialization();
+            }
             if (RepopulateOnEnable) {
                 Repopulate();
             }

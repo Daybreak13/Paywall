@@ -11,12 +11,6 @@ namespace Paywall {
     public class WeightedPool {
         public MMSimpleObjectPooler Pooler;
         public int Weight = 10;
-        public int ModWeight { 
-            get {
-                return (int)(Weight * DifficultyMod * ProceduralLevelGenerator.Instance.Difficulty); 
-            }
-        }
-        public float DifficultyMod = 1f;
     }
 
     /// <summary>
@@ -40,6 +34,10 @@ namespace Paywall {
         /// Initialize lists
         /// </summary>
         protected virtual void Start() {
+            Initialization();
+        }
+
+        public virtual void Initialization() {
             int key = 0;
             foreach (WeightedPool pooler in Pool) {
                 _poolerDict.Add(key, pooler.Pooler);

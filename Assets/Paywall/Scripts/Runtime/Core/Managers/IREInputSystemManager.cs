@@ -12,7 +12,7 @@ namespace Paywall {
     public class IREInputSystemManager : InputManager {
         /// the minimum horizontal and vertical value you need to reach to trigger movement on an analog controller (joystick for example)
 		[Tooltip("the minimum horizontal and vertical value you need to reach to trigger movement on an analog controller (joystick for example)")]
-        public Vector2 Threshold = new Vector2(0.1f, 0.4f);
+        public Vector2 Threshold = new(0.1f, 0.4f);
 
         public IREInputActions InputActions;
 
@@ -96,6 +96,22 @@ namespace Paywall {
                 RightButtonUp();
             }
 
+        }
+
+        public override void MainActionButtonDown() {
+            if ((LevelManager.Instance.ControlScheme == LevelManager.Controls.SingleButton)
+                || (LevelManager.Instance.ControlScheme == LevelManager.Controls.Swipe)) {
+                if (GameManager.Instance.Status == GameManager.GameStatus.GameOver) {
+                    return;
+                }
+                if (GameManager.Instance.Status == GameManager.GameStatus.LifeLost) {
+                    LevelManager.Instance.LifeLostAction();
+                    return;
+                }
+            }
+            for (int i = 0; i < LevelManager.Instance.CurrentPlayableCharacters.Count; ++i) {
+                LevelManager.Instance.CurrentPlayableCharacters[i].MainActionStart();
+            }
         }
 
         /// <summary>

@@ -9,6 +9,9 @@ using Paywall.Tools;
 
 namespace Paywall {
 
+	/// <summary>
+	/// Weighted pool spawner
+	/// </summary>
     public class Spawner_PW : MonoBehaviour {
 		[Header("Size")]
 
@@ -44,8 +47,8 @@ namespace Paywall {
 		[field: Tooltip("if true, spawn objects at its parent pooler's position")]
 		[field: FieldCondition("ResetObjectPosition", true)]
 		[field: SerializeField] public bool UsePoolerPosition { get; protected set; } = true;
-		/// the object pooler associated to this spawner
-		[field: Tooltip("the object pooler associated to this spawner")]
+		/// the object pooler associated with this spawner
+		[field: Tooltip("the object pooler associated with this spawner")]
 		[field: SerializeField] public WeightedObjectPooler ObjectPooler { get; protected set; }
 
 		protected float _startTime;

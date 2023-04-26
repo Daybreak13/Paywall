@@ -49,6 +49,7 @@ namespace Paywall.Editors {
 #endif
 
 		protected virtual void Dropdown(Rect rect, SerializedProperty property) {
+			/*
 			SerializedProperty current = property.FindPropertyRelative(_currentPropertyName);
 			string[] _segmentNames = (property.serializedObject.targetObject as ProceduralLevelGenerator).GetAttachedSegmentNames();
 			//EditorGUI.BeginChangeCheck();
@@ -67,6 +68,7 @@ namespace Paywall.Editors {
 		/// <param name="prop"></param>
 		protected virtual void DrawSelectionDropdown(Rect position, SerializedProperty prop) {
 			//LevelSegment thisAction = prop.objectReferenceValue as LevelSegment;
+			/*
 			LevelSegment[] segments = (prop.serializedObject.targetObject as ProceduralLevelGenerator).GetAttachedSegments();
 			int selected = 0;
 			int i = 1;
@@ -88,6 +90,7 @@ namespace Paywall.Editors {
 				prop.serializedObject.ApplyModifiedProperties();
 				EditorUtility.SetDirty(prop.serializedObject.targetObject);
 			}
+			*/
 		}
 
 		/// <summary>

@@ -10,7 +10,6 @@ namespace Paywall {
     public class SegmentsList {
         [MMReadOnly, HideInInspector]
         public int CurrentIndex;
-        public int Weight;
         public void SetCurrentIndex(int idx) {
             CurrentIndex = idx;
         }
@@ -24,5 +23,20 @@ namespace Paywall {
         public Dictionary<string, LevelSegment> NextSegmentDict { get; protected set; } = new();
     }
 
+    [System.Serializable]
+    public class WeightedLevelSegment {
+        [field: SerializeField] public string SegmentName { get; protected set; }
+        [field: SerializeField] public DMSimpleObjectPooler SegmentObjectPooler { get; set; }
+        [field: SerializeField] public int InitialWeight { get; protected set; }
+        public void SetWeight(int weight) {
+            InitialWeight = weight;
+        }
 
+    }
+
+    [System.Serializable]
+    public class WeightedLevelSegmentList {
+        [field: SerializeField] public string Category { get; protected set; }
+        [field: SerializeField] public List<WeightedLevelSegment> LevelSegments { get; set; }
+    }
 }

@@ -61,6 +61,12 @@ namespace Paywall {
                 _retainEnemySpeed = false;
             }
             base.HandleSpeedFactor();
+            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
+            if (Speed > 0) {
+                GameManager.Instance.SetPointsPerSecond(PointsPerSecond * (Speed / InitialSpeed));
+            } else {
+                GameManager.Instance.SetPointsPerSecond(0f);
+            }
         }
 
         /// <summary>
@@ -92,6 +98,8 @@ namespace Paywall {
                 GUIManager.Instance.SetGameOverScreen(true);
                 GameManager.Instance.SetStatus(GameManager.GameStatus.GameOver);
                 MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
+            } else {
+                player.GetComponent<PaywallPlayableCharacter>().ActivateTempInvincibility();
             }
         }
 
@@ -101,17 +109,38 @@ namespace Paywall {
         /// <param name="player"></param>
         public virtual void KillCharacterOutOfBounds(PlayableCharacter player) {
             TemporarilyMultiplySpeedSwitch(0f, true);
-            LevelManager.Instance.CurrentPlayableCharacters.Remove(player);
+            Instance.CurrentPlayableCharacters.Remove(player);
             player.Die();
 
             // if this was the last character, we trigger the all characters are dead coroutine
-            if (LevelManager.Instance.CurrentPlayableCharacters.Count == 0) {
+            if (Instance.CurrentPlayableCharacters.Count == 0) {
                 AllCharactersAreDead();
             }
         }
 
+        protected virtual void CharactersDeadOutOfBounds() {
+
+        }
+
         protected override void AllCharactersAreDead() {
-            base.AllCharactersAreDead();
+            // if we've specified an effect for when a life is lost, we instantiate it at the camera's position
+            if (LifeLostExplosion != null) {
+                GameObject explosion = Instantiate(LifeLostExplosion);
+                explosion.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 0);
+            }
+
+            // we've just lost a life
+            GameManager.Instance.SetStatus(GameManager.GameStatus.LifeLost);
+            MMEventManager.TriggerEvent(new MMGameEvent("LifeLost"));
+            _started = DateTime.UtcNow;
+            GameManager.Instance.SetPoints(_savedPoints);
+            GameManager.Instance.LoseLives(1);
+
+            if (GameManager.Instance.CurrentLives <= 0) {
+                GUIManager.Instance.SetGameOverScreen(true);
+                GameManager.Instance.SetStatus(GameManager.GameStatus.GameOver);
+                MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
+            }
         }
 
         public override void LifeLostAction() {

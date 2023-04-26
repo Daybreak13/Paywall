@@ -1,5 +1,63 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1140006250437578632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 408446194455652612}
+  - component: {fileID: 3685255521174740986}
+  m_Layer: 7
+  m_Name: Hitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &408446194455652612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140006250437578632}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5126643435051678289}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &3685255521174740986
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140006250437578632}
+  m_Enabled: 0
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.014594406, y: -0.0145944655}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.66262406, y: 1.0291889}
+  m_EdgeRadius: 0
 --- !u!1 &1796555498356442242
 GameObject:
   m_ObjectHideFlags: 0
@@ -10919,6 +10977,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5621064052192545577}
+  - {fileID: 408446194455652612}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10962,13 +11021,13 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 4
   m_Material: {fileID: 0}
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!114 &-1207595155902400121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10986,15 +11045,28 @@ MonoBehaviour:
   ResetPositionSpeed: 0.5
   GroundDistanceTolerance: 0.05
   InitialInvincibilityDuration: 3
-  JumpForce: 20
-  NumberOfJumpsAllowed: 1
-  CooldownBetweenJumps: 0
-  JumpsAllowedWhenGroundedOnly: 0
-  JumpReleaseSpeed: 50
-  JumpProportionalToPress: 0
-  MinimalDelayBetweenJumps: 0.02
-  UngroundedDurationAfterJump: 0.2
-  _numberOfJumpsLeft: 0
+  <Invincible>k__BackingField: 1
+  <JumpForce>k__BackingField: 15
+  <NumberOfJumpsAllowed>k__BackingField: 2
+  <CooldownBetweenJumps>k__BackingField: 0
+  <JumpsAllowedWhenGroundedOnly>k__BackingField: 0
+  <JumpReleaseSpeed>k__BackingField: 30
+  <JumpProportionalToPress>k__BackingField: 1
+  <MinimalDelayBetweenJumps>k__BackingField: 0.02
+  <UngroundedDurationAfterJump>k__BackingField: 0.2
+  <UseDoubleJumpHeight>k__BackingField: 1
+  <DoubleJumpForce>k__BackingField: 10
+  <DoubleJumpHeight>k__BackingField: 2
+  <UseJumpHeight>k__BackingField: 1
+  <JumpHeight>k__BackingField: 3
+  <LowJumpBuffer>k__BackingField: 0.15
+  <LowJumpBufferFrames>k__BackingField: 6
+  <NumberOfJumpsLeft>k__BackingField: 0
+  <LowJumpForce>k__BackingField: 10
+  <LowJumpHeight>k__BackingField: 2
+  <UseJumpStartUp>k__BackingField: 0
+  <JumpStartup>k__BackingField: 0.1
+  <TempInvincibilityDuration>k__BackingField: 0
 --- !u!114 &3078687695425193512
 MonoBehaviour:
   m_ObjectHideFlags: 0
