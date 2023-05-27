@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Paywall.Tools;
+using MoreMountains.Tools;
 
 namespace Paywall {
 
@@ -12,55 +13,58 @@ namespace Paywall {
     public class LaunchPad : MonoBehaviour {
         [field: Header("Launch Pad")]
 
-        /// If true, use launch force instead of fixed height
-        [field: Tooltip("If true, use launch force instead of fixed height")]
-        [field: SerializeField] public bool UseLaunchForce;
+        /// If true, use fixed height instead of launch force
+        [field: Tooltip("If true, use fixed height instead of launch force")]
+        [field: SerializeField] public bool UseLaunchHeight { get; protected set; } = true;
         /// Launch force
         [field: Tooltip("Launch force")]
-        [field: FieldCondition("UseLaunchForce", true, false)]
-        [field: SerializeField] public float LaunchForce = 10f;
+        [field: FieldCondition("UseLaunchHeight", true, true)]
+        [field: SerializeField] public float LaunchForce { get; protected set; } = 10f;
         /// Launch height
         [field: Tooltip("Launch height")]
-        [field: FieldCondition("UseLaunchForce", true, true)]
-        [field: SerializeField] public float LaunchHeight = 2f;
+        [field: FieldCondition("UseLaunchHeight", true, false)]
+        [field: SerializeField] public float LaunchHeight { get; protected set; } = 2f;
         /// How many rays to cast to check for collision above
         [field: Tooltip("How many rays to cast to check for collision above")]
-        [field: SerializeField] public int RaysToCast = 5;
+        [field: SerializeField] public int RaysToCast { get; protected set; } = 3;
+
+        protected float _sideBuffer = 0.01f;
 
         protected const string _playerTag = "Player";
         protected Collider2D _collider2D;
-        protected BoxCollider2D _collidingObject;
         protected bool _collidingAbove;
-        protected PaywallPlayableCharacter _player;
+        protected CharacterIRE _character;
+
+        protected Vector2 _raycastLeftOrigin;
+        protected Vector2 _raycastRightOrigin;
 
         protected virtual void Awake() {
             _collider2D = GetComponent<Collider2D>();
+            if (RaysToCast <= 2) {
+                RaysToCast = 2;
+            }
         }
 
         protected virtual void OnCollisionEnter2D(Collision2D collision) {
             if (collision.collider.CompareTag(_playerTag)) {
-                _collidingObject = (BoxCollider2D) collision.collider;
-                _player = collision.collider.GetComponent<PaywallPlayableCharacter>();
-                if (_player != null) {
+                _character = collision.collider.GetComponent<CharacterIRE>();
+                if (_character != null) {
                     _collidingAbove = CastRaysAbove();
-                    if (CastRaysAbove()) {
-                        if (UseLaunchForce) {
-                            _player.ApplyExternalJumpForce(LaunchForce, true, true);
+                    if (_collidingAbove) {
+                        if (!UseLaunchHeight) {
+                            _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchForce, true);
                         } else {
-                            _player.ApplyExternalJumpForce(LaunchHeight, false, true);
+                            _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchHeight, false);
                         }
                     }
                 }
             }
         }
 
-        protected virtual bool CheckIfAbove() {
-            float bottom = _collidingObject.bounds.min.y;
-            float top = _collider2D.bounds.max.y;
-            if ((bottom - top) >= -0.05f) {
-                return true;
+        protected virtual void OnCollisionExit2D(Collision2D collision) {
+            if ((_character != null) && (collision.gameObject == _character.gameObject)) {
+                _character = null;
             }
-            return false;
         }
 
         /// <summary>
@@ -68,27 +72,34 @@ namespace Paywall {
         /// </summary>
         /// <returns></returns>
         protected virtual bool CastRaysAbove() {
-            Vector2 leftOrigin = new(_collider2D.bounds.min.x, _collider2D.bounds.max.y);
-            Vector2 centerOrigin = new(_collider2D.bounds.center.x, _collider2D.bounds.max.y);
-            Vector2 rightOrigin = new(_collider2D.bounds.max.x, _collider2D.bounds.max.y);
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer, _collider2D.bounds.max.y);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer, _collider2D.bounds.max.y);
             RaycastHit2D raycastHit2D;
-            raycastHit2D = Physics2D.Raycast(leftOrigin, Vector2.up, 1 << LayerMask.NameToLayer(_playerTag));
-            if (raycastHit2D.collider != null) {
-                _collidingAbove = true;
-                return true;
+
+            for (int i = 0; i < RaysToCast; i++) {
+                Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(RaysToCast - 1f));
+                raycastHit2D = Physics2D.Raycast(originPoint, Vector2.up, 1f, 1 << LayerMask.NameToLayer(_playerTag));
+                if (raycastHit2D.collider != null) {
+                    _collidingAbove = true;
+                    return true;
+                }
             }
-            raycastHit2D = Physics2D.Raycast(centerOrigin, Vector2.up, 1 << LayerMask.NameToLayer(_playerTag));
-            if (raycastHit2D.collider != null) {
-                _collidingAbove = true;
-                return true;
-            }
-            raycastHit2D = Physics2D.Raycast(rightOrigin, Vector2.up, 1 << LayerMask.NameToLayer(_playerTag));
-            if (raycastHit2D.collider != null) {
-                _collidingAbove = true;
-                return true;
-            }
+
             _collidingAbove = false;
             return false;
+        }
+
+        protected virtual void OnDrawGizmosSelected() {
+            if (_collider2D == null) {
+                _collider2D = GetComponent<Collider2D>();
+            }
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer, _collider2D.bounds.max.y);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer, _collider2D.bounds.max.y);
+            for (int i = 0; i < RaysToCast; i++) {
+                Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(RaysToCast - 1f));
+                Gizmos.color = Color.blue;
+                Gizmos.DrawRay(originPoint, Vector3.up.normalized);
+            }
         }
 
     }

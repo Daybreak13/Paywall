@@ -50,10 +50,19 @@ namespace Paywall {
 
         protected bool _buffering = false;
         protected float _bufferEndsAt = 0f;
+        protected Coroutine _airStallCoroutine;
 
         protected override void Initialization() {
             base.Initialization();
             Setup();
+            if (CurrentWeapon is ProjectileWeapon_PW) {
+                (CurrentWeapon as ProjectileWeapon_PW).SetOwner(_character, this);
+            }
+            if (CurrentWeapon.MagazineBased) {
+                if (GUIManagerIRE_PW.HasInstance) {
+                    (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
+                }
+            }
         }
 
         protected virtual void Setup() {
@@ -69,10 +78,14 @@ namespace Paywall {
             }
         }
 
-        protected override void ProcessAbility() {
+        public override void ProcessAbility() {
             base.ProcessAbility();
             UpdateAmmoDisplay();
             HandleBuffer();
+        }
+
+        protected virtual void LateUpdate() {
+            HandleAirStall();
         }
 
         /// <summary>
@@ -93,7 +106,7 @@ namespace Paywall {
             }
         }
         protected int _count = 0;
-        protected virtual void Attack(InputAction.CallbackContext context) {
+        protected virtual void AttackPerformed(InputAction.CallbackContext context) {
             AttackStart();
         }
 
@@ -119,14 +132,45 @@ namespace Paywall {
             }
         }
 
+        protected virtual void HandleAirStall() {
+            if ((_rigidbody2D.velocity.y > 0) && (_airStallCoroutine != null)) {
+                StopCoroutine(_airStallCoroutine);
+                _rigidbody2D.gravityScale = _initialGravityScale;
+            }
+        }
+
+        /// <summary>
+        /// Stalls the player in the air
+        /// </summary>
+        /// <param name="stallTime"></param>
+        public virtual void AirStall(float stallTime) {
+            if (_rigidbody2D.velocity.y <= 0) {
+                if (_airStallCoroutine != null) {
+                    StopCoroutine(_airStallCoroutine);
+                }
+                _airStallCoroutine = StartCoroutine(AirStallCo(stallTime));
+            }
+        }
+
+        protected virtual IEnumerator AirStallCo(float stallTime) {
+            _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0f);
+            _rigidbody2D.gravityScale = 0;
+            yield return new WaitForSeconds(stallTime);
+            _rigidbody2D.gravityScale = _initialGravityScale;
+        }
+
+        public override void ResetAbility() {
+            CurrentWeapon.CurrentAmmoLoaded = CurrentWeapon.MagazineSize;
+        }
+
         protected override void OnEnable() {
             base.OnEnable();
-            _inputActions.PlayerControls.Attack.performed += Attack;
+            _inputManager.InputActions.PlayerControls.Attack.performed += AttackPerformed;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            _inputActions.PlayerControls.Attack.performed -= Attack;
+            _inputManager.InputActions.PlayerControls.Attack.performed -= AttackPerformed;
         }
     }
 }

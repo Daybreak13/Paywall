@@ -6,6 +6,10 @@ using Paywall.Tools;
 
 namespace Paywall {
 
+	/// <summary>
+	/// Add this to an enemy that is stompable, and may damage the player
+	/// If the enemy is stompable, use this in place of KillOnTouch_PW
+	/// </summary>
     public class Stompable_PW : LaunchPad {
 		[field: Header("Stompable")]
 
@@ -19,7 +23,7 @@ namespace Paywall {
 
 		protected override void OnCollisionEnter2D(Collision2D collision) {
 			base.OnCollisionEnter2D(collision);
-			if (collision.collider.CompareTag(_playerTag) && (_player != null)) {
+			if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
 				if (KillsPlayer) {
 					// The player made contact with something that hits no matter what, or they made contact without stomping
 					if (KillsPlayerRegardless || !_collidingAbove) {
@@ -32,6 +36,14 @@ namespace Paywall {
 			}
         }
 
+		protected virtual void OnCollisionStay2D(Collision2D collision) {
+			if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
+				if (KillsPlayer) {
+					KillPlayer(collision.gameObject);
+				}
+			}
+		}
+
 		protected virtual void DestroySelf() {
 			gameObject.SetActive(false);
         }
@@ -43,16 +55,16 @@ namespace Paywall {
 		protected virtual void KillPlayer(GameObject collidingObject) {
 			// we verify that the colliding object is a PlayableCharacter with the Player tag. If not, we do nothing.
 
-			if (_player == null) {
+			if (_character == null) {
 				return;
 			}
 
-			if (_player.Invincible) {
+			if (_character.Invincible) {
 				return;
 			}
 
 			// we ask the LevelManager to kill the character
-			(LevelManagerIRE_PW.Instance as LevelManagerIRE_PW).KillCharacter(_player);
+			LevelManagerIRE_PW.Instance.KillCharacter(_character);
 		}
 
 	}

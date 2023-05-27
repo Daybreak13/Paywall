@@ -8,13 +8,13 @@ using Paywall.Tools;
 
 namespace Paywall {
 
-    /// <summary>
-    /// Playable character for Paywall
-    /// </summary>
-    public class PaywallPlayableCharacter : PlayableCharacter {
-        #region Property Fields
+	/// <summary>
+	/// Playable character for Paywall
+	/// </summary>
+	public class PaywallPlayableCharacter : PlayableCharacter {
+		#region Property Fields
 
-        [field: Header("Jumper")]
+		[field: Header("Jumper")]
 
 		/// the vertical force applied to the character when jumping
 		[field: Tooltip("the vertical force applied to the character when jumping")]
@@ -60,7 +60,7 @@ namespace Paywall {
 
 		/// If true, use jump height instead of jump force
 		[field: Tooltip("If true, use jump height instead of jump force")]
-		[field: SerializeField] public bool UseJumpHeight { get; protected set; } 
+		[field: SerializeField] public bool UseJumpHeight { get; protected set; }
 		/// Jump height
 		[field: Tooltip("Jump height")]
 		[field: FieldCondition("UseJumpHeight", true)]
@@ -99,6 +99,8 @@ namespace Paywall {
 
 		#endregion
 
+		public InputSystemManager_PW LinkedInputManager { get; protected set; }
+
 		protected bool _jumping = false;
 		protected bool _doubleJumping = false;
 		protected float _lastJumpTime;
@@ -127,16 +129,17 @@ namespace Paywall {
 
 		protected override void Awake() {
 			base.Awake();
-        }
+			LinkedInputManager = (InputSystemManager_PW)FindAnyObjectByType(typeof(InputSystemManager_PW), FindObjectsInactive.Include);
+		}
 
 		protected override void Start() {
-            base.Start();
+			base.Start();
 			_lastJumpTime = Time.time;
 			NumberOfJumpsLeft = NumberOfJumpsAllowed;
 			if (!_initialized) {
 				Initialization();
 			}
-        }
+		}
 
 		protected virtual void Initialization() {
 			_inputActions = new();
@@ -146,10 +149,10 @@ namespace Paywall {
 			if (UseJumpHeight) {
 				JumpForce = CalculateJumpForce(JumpHeight);
 				DoubleJumpForce = CalculateJumpForce(DoubleJumpHeight);
-            }
-        }
+			}
+		}
 
-        protected override void Update() {
+		protected override void Update() {
 			base.Update();
 
 			// we reset our jump variables if needed
@@ -173,10 +176,10 @@ namespace Paywall {
 				_jumpFrames = 0;
 				_jumpCancelled = false;
 				_origin = _rigidbody2D.position.y;
-            }
+			}
 			if (_jumping) {
 				_jumpFrames++;
-            }
+			}
 
 			if (!UseJumpStartUp && _jumpCancelled && !_doubleJumping) {
 				if (_jumpFrames > LowJumpBufferFrames) {
@@ -194,7 +197,7 @@ namespace Paywall {
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// Updates all mecanim animators.
 		/// </summary>
@@ -212,9 +215,10 @@ namespace Paywall {
 		public override void MainActionStart() {
 			if (!UseJumpStartUp) {
 				Jump();
-			} else {
+			}
+			else {
 				InitiateJump();
-            }
+			}
 		}
 
 		/// <summary>
@@ -286,7 +290,7 @@ namespace Paywall {
 			StopCoroutine(_jumpCoroutine);
 			_jumpCancelled = false;
 			_inJumpStartup = false;
-        }
+		}
 
 		/// <summary>
 		/// Performs a jump or double jump and updates animator and state
@@ -316,7 +320,7 @@ namespace Paywall {
 			}
 			if (_jumping) {
 				_doubleJumping = true;
-            }
+			}
 			MMEventManager.TriggerEvent(new MMGameEvent("Jump"));
 
 			_lastJumpTime = Time.time;
@@ -347,12 +351,13 @@ namespace Paywall {
 			else {
 				NumberOfJumpsLeft--;
 			}
-			if (useForce) {				
+			if (useForce) {
 				_rigidbody2D.AddForce(Vector3.up * JumpForce, ForceMode2D.Impulse);
-			} else {
+			}
+			else {
 				float jumpForce = CalculateJumpForce(force);
 				_rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
-            }
+			}
 		}
 
 		/// <summary>
@@ -378,8 +383,8 @@ namespace Paywall {
 		}
 
 		protected virtual bool EvaluateJumpConditions() {
-			if (GameManager.HasInstance) {
-				if (GameManager.Instance.Status != GameManager.GameStatus.GameInProgress) {
+			if (GameManagerIRE_PW.HasInstance) {
+				if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
 					return false;
 				}
 			}
@@ -402,11 +407,11 @@ namespace Paywall {
 			return true;
 		}
 
-        #endregion
+		#endregion
 
-        #region PlayableCharacter overrides
+		#region PlayableCharacter overrides
 
-        protected override void ComputeDistanceToTheGround() {
+		protected override void ComputeDistanceToTheGround() {
 			if (_rigidbodyInterface == null) {
 				return;
 			}
@@ -447,35 +452,36 @@ namespace Paywall {
 			}
 		}
 
-        protected override void CheckDeathConditions() {
+		protected override void CheckDeathConditions() {
 			if (LevelManagerIRE_PW.Instance.CheckDeathCondition(GetPlayableCharacterBounds())) {
-				(LevelManagerIRE_PW.Instance as LevelManagerIRE_PW).KillCharacterOutOfBounds(this);
+				//LevelManagerIRE_PW.Instance.KillCharacterOutOfBounds(this);
 			}
 		}
 
-        #endregion
+		#endregion
 
 		public virtual void SetJumpsLeft(int jumpsLeft) {
 			NumberOfJumpsLeft = jumpsLeft;
-        }
+		}
 
 		public virtual void SetInvincibility(float duration) {
 			Invincible = true;
 			_remainingInvincibility = duration;
-        }
+		}
 
 		public virtual void ActivateTempInvincibility() {
 			Invincible = true;
 			_remainingInvincibility = TempInvincibilityDuration;
-        }
+		}
 
-        protected override void CheckInvincibility() {
-            base.CheckInvincibility();
+		protected override void CheckInvincibility() {
+			base.CheckInvincibility();
 			if (_remainingInvincibility > 0) {
 				_remainingInvincibility -= Time.deltaTime;
-			} else {
+			}
+			else {
 				Invincible = false;
-            }
+			}
 		}
 
 		protected virtual double CalculateDistanceTraveled() {
@@ -485,18 +491,18 @@ namespace Paywall {
 			return distance;
 		}
 
-        /// <summary>
-        /// Calculates the jump force required to attain the given height
-        /// </summary>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        protected virtual float CalculateJumpForce(float height) {
+		/// <summary>
+		/// Calculates the jump force required to attain the given height
+		/// </summary>
+		/// <param name="height"></param>
+		/// <returns></returns>
+		protected virtual float CalculateJumpForce(float height) {
 			return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravity));
 		}
 
-        #region Raycasts
+		#region Raycasts
 
-        protected virtual void CastRaysBelow() {
+		protected virtual void CastRaysBelow() {
 			SetRaysParameters();
 			Vector3 raycastLeftOrigin = _boxCollider.bounds.min;
 			Vector3 raycastRightOrigin = _boxCollider.bounds.min;
@@ -529,7 +535,7 @@ namespace Paywall {
 				distanceToObject = -1;
 				hitObject = null;
 			}
-			
+
 		}
 
 		/// <summary>
@@ -560,19 +566,19 @@ namespace Paywall {
 			_boundsCenter = _boxCollider.bounds.center;
 		}
 
-        #endregion
+		#endregion
 
-        protected virtual void OnEnable() {
+		protected virtual void OnEnable() {
 			if (!_initialized) {
 				Initialization();
-            }
+			}
 			_inputActions.Enable();
-        }
+		}
 
 		protected virtual void OnDisable() {
 			_inputActions.Disable();
 			StopAllCoroutines();
-        }
+		}
 
-    }
+	}
 }

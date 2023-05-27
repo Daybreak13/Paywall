@@ -17,8 +17,8 @@ namespace Paywall {
 		/// <returns></returns>
 		protected virtual IEnumerator PauseButtonCo() {
 			yield return null;
-			if (GameManager.HasInstance) {
-				GameManager.Instance.Pause();
+			if (GameManagerIRE_PW.HasInstance) {
+				(GameManagerIRE_PW.Instance as GameManagerIRE_PW).Pause();
             }
 		}
 

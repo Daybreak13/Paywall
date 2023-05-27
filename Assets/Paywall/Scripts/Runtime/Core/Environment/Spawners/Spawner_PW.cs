@@ -76,7 +76,7 @@ namespace Paywall {
         public virtual GameObject Spawn(Vector3 spawnPosition, bool triggerObjectActivation = true) {
 			// if the spawner can only spawn while the game is in progress, we wait until we're in that state
 			if (OnlySpawnWhileGameInProgress) {
-				if (MoreMountains.InfiniteRunnerEngine.GameManager.Instance.Status != MoreMountains.InfiniteRunnerEngine.GameManager.GameStatus.GameInProgress) {
+				if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
 					return null;
 				}
 			}

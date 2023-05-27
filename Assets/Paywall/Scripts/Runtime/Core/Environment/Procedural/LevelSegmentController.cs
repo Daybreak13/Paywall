@@ -4,6 +4,8 @@ using UnityEngine;
 using MoreMountains.InfiniteRunnerEngine;
 using MoreMountains.Tools;
 using Weighted_Randomizer;
+using System.Linq;
+using Paywall.Tools;
 
 namespace Paywall {
     /// <summary>
@@ -18,31 +20,45 @@ namespace Paywall {
 
     public enum HeightLockSettings { None, Previous, Next, Both }
 
+    /// <summary>
+    /// Represents a spawn point for spawnables in this level segment
+    /// </summary>
+    [System.Serializable]
+    public class SpawnPointClass {
+        public string PoolerName;
+        public SpawnableWeightedObjectPooler WeightedPooler;
+        public Transform Location;
+    }
+
+    /// <summary>
+    /// Stores spawn points, bounds, link points, and other level segment data
+    /// </summary>
     public class LevelSegmentController : MonoBehaviour {
+
         /// The segment's name
-        [field: Tooltip("The segment's name")]
-        [field: SerializeField] public string SegmentName { get; protected set; }
-        /// The weighted object poolers
-        [field: Tooltip("The weighted object poolers")]
-        [field: SerializeField] public List<WeightedObjectPooler> WeightedPoolers { get; protected set; }
+        //[field: Tooltip("The segment's name")]
+        public string SegmentName { get { return gameObject.name; } protected set { } }
+
+        [field: Header("Segment Info")]
+
         /// The segment's type
         [field: Tooltip("The segment's type")]
         [field: SerializeField] public SegmentTypes SegmentType { get; protected set; }
 
+        [field: Header("Spawners")]
+
+        /// The weighted object poolers
+        [field: Tooltip("The weighted object poolers")]
+        [field: SerializeField] public List<SpawnPoint> SpawnPoints { get; protected set; }
+
         [field: Header("Boundaries")]
 
-        /// The left bound of the platform
-        [field: Tooltip("The left bound of the platform")]
-        [field: SerializeField] public Vector3 LeftBound { get; protected set; }
-        /// The right bound of the platform
-        [field: Tooltip("The right bound of the platform")]
-        [field: SerializeField] public Vector3 RightBound { get; protected set; }
         /// The point at which the previous segment connects to this one
         [field: Tooltip("The point at which the previous segment connects to this one")]
-        [field: SerializeField] public Vector3 LeftIn { get; protected set; }
+        [field: SerializeField] public Transform LeftIn { get; protected set; }
         /// The point at which the next segment connects to this one
         [field: Tooltip("The point at which the next segment connects to this one")]
-        [field: SerializeField] public Vector3 RightOut { get; protected set; }
+        [field: SerializeField] public Transform RightOut { get; protected set; }
 
         [field: Header("Walls")]
 
@@ -53,44 +69,34 @@ namespace Paywall {
         [field: Tooltip("The right wall (for ground type segments)")]
         [field: SerializeField] public GameObject RightWall { get; protected set; }
 
-        [field: Header("Other Settings")]
+        [field: Header("Height Lock")]
 
         /// Lock the height of the previous/next/both segments to be the same height as this one
         [field: Tooltip("Lock the height of the previous/next/both segments to be the same height as this one")]
         [field: SerializeField] public HeightLockSettings HeightLockSetting { get; protected set; } = HeightLockSettings.None;
-
-        public virtual void SetLeftBound(Vector3 vector) {
-            LeftBound = vector;
-        }
-
-        public virtual void SetRightBound(Vector3 vector) {
-            RightBound = vector;
-        }
-
-        public virtual void SetLeftIn(Vector3 vector) {
-            LeftIn = vector;
-        }
-
-        public virtual void SetRightOut(Vector3 vector) {
-            RightOut = vector;
-        }
+        /// Lock the height of the previous/next/both segments to be the same height as this one
+        [field: Tooltip("Lock the height of the previous/next/both segments to be the same height as this one")]
+        [field: SerializeField] public int PreviousHeightDelta { get; protected set; }
 
         protected virtual void OnEnable() {
-            if (LeftWall != null) {
-                LeftWall.SetActive(true);
-            }
-            if (RightWall != null) {
-                RightWall.SetActive(true);
-            }
+            LeftWall.SetActiveIfNotNull(true);
+            RightWall.SetActiveIfNotNull(true);
+        }
+
+        /// <summary>
+        /// Used by editor
+        /// </summary>
+        /// <param name="spawnPoints"></param>
+        public virtual void SetSpawnPoints(List<SpawnPoint> spawnPoints) {
+            SpawnPoints = spawnPoints;
         }
 
         protected virtual void OnDrawGizmosSelected() {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.TransformPoint(LeftBound), 0.2f);
-            Gizmos.DrawWireSphere(transform.TransformPoint(RightBound), 0.2f);
-            Gizmos.color = Color.black;
-            Gizmos.DrawWireSphere(transform.TransformPoint(LeftIn), 0.2f);
-            Gizmos.DrawWireSphere(transform.TransformPoint(RightOut), 0.2f);
+            if ((LeftIn != null) && (RightOut != null)) {
+                Gizmos.DrawWireSphere(LeftIn.position, 0.2f);
+                Gizmos.DrawWireSphere(RightOut.position, 0.2f);
+            }
         }
     }
 

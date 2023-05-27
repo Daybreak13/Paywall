@@ -16,10 +16,10 @@ namespace Paywall {
 			}
 			else {
 				if (UseEnemySpeed) {
-					_movement = (LevelManagerIRE_PW.Instance as LevelManagerIRE_PW).EnemySpeed * (Speed / 10) * Time.deltaTime * Direction;					
+					_movement = LevelManagerIRE_PW.Instance.EnemySpeed * (Speed / 10) * Time.deltaTime * Direction;					
 				}
 				else {
-					_movement = (Speed / 10) * LevelManager.Instance.Speed * Time.deltaTime * Direction;
+					_movement = (Speed / 10) * LevelManagerIRE_PW.Instance.Speed * Time.deltaTime * Direction;
 				}
 			}
 			transform.Translate(_movement, MovementSpace);

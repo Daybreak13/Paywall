@@ -30,7 +30,7 @@ namespace Paywall.Tools {
         /// The maximum value of this bar
         [field: Tooltip("The maximum value of this bar")]
         [field: SerializeField] public int MaximumValue { get; protected set; } = 3;
-        /// The minimum value of this bar
+        /// The minimum value of this bar (currently unused)
         [field: Tooltip("The minimum value of this bar")]
         [field: SerializeField] public int MinimumValue { get; protected set; } = 0;
         /// If true, set an initial fill value on start
@@ -79,8 +79,13 @@ namespace Paywall.Tools {
         protected virtual void SetActiveSegments() {
             if (UseExistingSegments) {
                 int childCount = _layoutGroup.transform.childCount;
-                for (int i = 0; i < (childCount - MaximumValue); i++) {
-                    _layoutGroup.transform.GetChild(i).gameObject.SetActive(false);
+                for (int i = 0; i < childCount; i++) {
+                    if (i < MaximumValue) {
+                        _layoutGroup.transform.GetChild(i).gameObject.SetActive(true);
+                    }
+                    else {
+                        _layoutGroup.transform.GetChild(i).gameObject.SetActive(false);
+                    }
                 }
             }
         }

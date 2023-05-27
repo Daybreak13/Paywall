@@ -10,14 +10,28 @@ namespace Paywall {
     public class ProjectileWeapon_PW : ProjectileWeapon {
 		[field: MMInspectorGroup("Paywall Settings", true)]
 
+		/// How long after a shot before the weapon begins to reload
+		[field: Tooltip("How long after a shot before the weapon begins to reload")]
 		[field: SerializeField] public float ReloadDelay { get; protected set; } = 2f;
+		/// How long does this weapon cause the player to stall in the air when fired
+		[field: Tooltip("How long does this weapon cause the player to stall in the air when fired")]
+		[field: SerializeField] public float AirStallTime { get; protected set; } = 0.1f;
+
+		public CharacterIRE CharacterOwner { get; protected set; }
+		public CharacterHandleWeaponIRE HandleWeaponIRE { get; protected set; }
 
 		protected float _lastReload;
 		protected float _lastShot;
+		protected float _lastFullAmmo;
 
         protected override void LateUpdate() {
             base.LateUpdate();
 			AutoReloadWeapon();
+        }
+
+		public virtual void SetOwner(CharacterIRE character, CharacterHandleWeaponIRE handleWeapon) {
+			CharacterOwner = character;
+			HandleWeaponIRE = handleWeapon;
         }
 
         protected override void ShootRequest() {
@@ -26,6 +40,7 @@ namespace Paywall {
 				if (WeaponAmmo != null) {
 					if (WeaponAmmo.EnoughAmmoToFire()) {
 						WeaponState.ChangeState(WeaponStates.WeaponUse);
+						_lastShot = Time.time;
 					}
 					else {
 						if (AutoReload && MagazineBased) {
@@ -40,6 +55,7 @@ namespace Paywall {
 					if (CurrentAmmoLoaded > 0) {
 						WeaponState.ChangeState(WeaponStates.WeaponUse);
 						CurrentAmmoLoaded -= AmmoConsumedPerShot;
+						_lastShot = Time.time;
 					}
 					else {
 						WeaponState.ChangeState(WeaponStates.WeaponIdle);
@@ -50,6 +66,7 @@ namespace Paywall {
 				if (WeaponAmmo != null) {
 					if (WeaponAmmo.EnoughAmmoToFire()) {
 						WeaponState.ChangeState(WeaponStates.WeaponUse);
+						_lastShot = Time.time;
 					}
 					else {
 						WeaponState.ChangeState(WeaponStates.WeaponReloadNeeded);
@@ -57,21 +74,20 @@ namespace Paywall {
 				}
 				else {
 					WeaponState.ChangeState(WeaponStates.WeaponUse);
+					_lastShot = Time.time;
 				}
 			}
 		}
 
         protected override void WeaponUse() {
             base.WeaponUse();
-			_lastShot = Time.time;
+			HandleWeaponIRE.AirStall(AirStallTime);
         }
 
-        public override void InitiateReloadWeapon() {
-			if (!MagazineBased) {
-				return;
-			}
-		}
-
+		/// <summary>
+		/// Autoreload weapon
+		/// Should use coroutine for autoreload??
+		/// </summary>
 		protected virtual void AutoReloadWeapon() {
 			if (((Time.time - _lastShot) < ReloadDelay)
 				|| (CurrentAmmoLoaded == MagazineSize)

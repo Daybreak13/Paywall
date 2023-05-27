@@ -65,12 +65,16 @@ namespace Paywall {
 		[field: MMReadOnly]
 		[field: SerializeField] private int displayedCredits;
 
+		[field: Header("Currency")]
+
 		/// Credits are the "real world" currency
 		[field: Tooltip("Credits are the \"real world\" currency")]
-		public int Credits { get; private set; }
+		[field: MMReadOnly]
+		[field: SerializeField] public int Credits { get; private set; }
 		/// Trinkets are the "game world" currency
 		[field: Tooltip("Trinkets are the \"game world\" currency")]
-		public int Trinkets { get; private set; }
+		[field: MMReadOnly]
+		[field: SerializeField] public int Trinkets { get; private set; }
 
 		[field: Header("Dictionaries")]
 
@@ -81,6 +85,7 @@ namespace Paywall {
 		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.")]
 		[field: SerializeField] public UpgradeDictionary UpgradesDictionary { get; private set; }
 
+		public int CurrentLevelTrinkets { get; private set; }
 		public Dictionary<string, EmailItem> EmailItems { get { return EmailsDictionary.EmailItems; } protected set { } }
 		public Dictionary<string, Upgrade> Upgrades { get; private set; } = new();
 		public enum SaveMethods { All, Inventory }
@@ -100,10 +105,15 @@ namespace Paywall {
 		}
 
 		protected virtual void Start() {
+
         }
 
 		protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
 			UpdateManagersAndInventories();
+			CurrentLevelTrinkets = 0;
+			if (GUIManagerIRE_PW.HasInstance) {
+				GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
+			}
 		}
 
 		/// <summary>
@@ -148,7 +158,7 @@ namespace Paywall {
 			Progress progress = new Progress();
 
 			if (saveMethod == SaveMethods.All) {
-				progress.CurrentLives = GameManager.Instance.CurrentLives;
+				progress.CurrentLives = (GameManagerIRE_PW.Instance as GameManagerIRE_PW).CurrentLives;
 
 				progress.Scenes = Scenes;
 				progress.Credits = Credits;
@@ -160,7 +170,7 @@ namespace Paywall {
 
             }
 
-			MMSaveLoadManager.Save(progress, _saveFileName, _saveFolderName);
+			//MMSaveLoadManager.Save(progress, _saveFileName, _saveFolderName);
 		}
 
 		/// <summary>
@@ -178,8 +188,8 @@ namespace Paywall {
 		/// Converts current points to credits
 		/// </summary>
 		protected virtual void ConvertPointsToCredits() {
-			if (GameManager.HasInstance) {
-				Credits += (int)GameManager.Instance.Points;
+			if (GameManagerIRE_PW.HasInstance) {
+				Credits += (int)(GameManagerIRE_PW.Instance as GameManagerIRE_PW).Points;
             }
         }
 
@@ -192,7 +202,15 @@ namespace Paywall {
 				Credits += money;
 			} else {
 				Trinkets += money;
-            }
+				if (GameManagerIRE_PW.HasInstance
+					&& (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress)) {
+					CurrentLevelTrinkets += money;
+
+					if (GUIManagerIRE_PW.HasInstance) {
+						GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
+					}
+				}
+			}
         }
 
 		/// <summary>
@@ -204,6 +222,14 @@ namespace Paywall {
 				Credits = money;
 			} else {
 				Trinkets = money;
+				if (GameManagerIRE_PW.HasInstance
+					&& (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress)) {
+					CurrentLevelTrinkets = money;
+
+					if (GUIManagerIRE_PW.HasInstance) {
+						GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
+					}
+				}
             }
 		}
 
@@ -221,7 +247,7 @@ namespace Paywall {
 			Progress progress = (Progress)MMSaveLoadManager.Load(typeof(Progress), _saveFileName, _saveFolderName);
 			if (progress != null) {
 				Scenes = progress.Scenes;
-				GameManager.Instance.SetLives(progress.CurrentLives);
+				(GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetLives(progress.CurrentLives);
 				InitialMaximumLives = progress.InitialMaximumLives;
 				InitialCurrentLives = progress.InitialCurrentLives;
 				Scenes = progress.Scenes;
@@ -236,7 +262,7 @@ namespace Paywall {
 				EmailsDictionary.SetDictionary(progress.EmailItems);
 			}
 			else {
-				InitialCurrentLives = GameManager.Instance.CurrentLives;
+				InitialCurrentLives = (GameManagerIRE_PW.Instance as GameManagerIRE_PW).CurrentLives;
 			}
 		}
 
@@ -261,13 +287,12 @@ namespace Paywall {
 			switch (creditsEvent.MoneyMethod) {
 				case MoneyMethods.Add:
 					AddMoney(creditsEvent.MoneyType, creditsEvent.Money);
-					SaveProgress();
 					break;
 				case MoneyMethods.Set:
 					SetMoney(creditsEvent.MoneyType, creditsEvent.Money);
-					SaveProgress();
 					break;
 			}
+			if (creditsEvent.MoneyType == MoneyTypes.Credit) SaveProgress();
 		}
 
 		/// <summary>

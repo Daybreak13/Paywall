@@ -25,11 +25,12 @@ namespace Paywall {
 
     [System.Serializable]
     public class WeightedLevelSegment {
-        [field: SerializeField] public string SegmentName { get; protected set; }
-        [field: SerializeField] public DMSimpleObjectPooler SegmentObjectPooler { get; set; }
+        [field: SerializeField] public LevelSegmentPooler SegmentPooler { get; set; }
         [field: SerializeField] public int InitialWeight { get; protected set; }
+        [field: SerializeField] public int StartingDifficulty { get; protected set; }
+        public int CurrentWeight { get; protected set; }
         public void SetWeight(int weight) {
-            InitialWeight = weight;
+            CurrentWeight = weight;
         }
 
     }

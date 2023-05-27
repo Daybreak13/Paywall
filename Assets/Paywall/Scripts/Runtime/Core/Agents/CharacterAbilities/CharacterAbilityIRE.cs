@@ -12,9 +12,15 @@ namespace Paywall {
         [field: Tooltip("Is the ability enabled")]
         [field: SerializeField] public bool AbilityPermitted { get; protected set; } = true;
 
-        protected IREInputActions _inputActions;
+        public bool AbilityInitialized { get { return _initialized; } }
+
+        protected InputSystemManager_PW _inputManager;
         protected bool _initialized;
-        protected PaywallPlayableCharacter _character;
+        protected CharacterIRE _character;
+        protected Animator _animator;
+        protected Rigidbody2D _rigidbody2D;
+        protected BoxCollider2D _boxCollider;
+        protected float _initialGravityScale;
 
         /// <summary>
         /// Is the ability allowed to be used
@@ -24,8 +30,8 @@ namespace Paywall {
                 if (_character != null) {
 
                 }
-                if (GameManager.HasInstance) {
-                    if (GameManager.Instance.Status != GameManager.GameStatus.GameInProgress) {
+                if (GameManagerIRE_PW.HasInstance) {
+                    if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
                         return false;
                     }
                 }
@@ -41,20 +47,67 @@ namespace Paywall {
         }
 
         protected virtual void Initialization() {
-            _inputActions = new();
-            TryGetComponent(out _character);
+            if (_character == null) {
+                _character = GetComponentInParent<CharacterIRE>();
+            }
+            if (_character != null) {
+                _inputManager = _character.LinkedInputManager;
+                _animator = _character.CharacterAnimator;
+                _rigidbody2D = _character.CharacterRigidBody;
+                _boxCollider = _character.CharacterBoxCollider;
+                _initialGravityScale = _rigidbody2D.gravityScale;
+                _initialized = true;
+            }
+        }
+
+        public virtual void SetCharacter(CharacterIRE character) {
+            _character = character;
         }
 
         protected virtual void Update() {
-            HandleInput();
-            ProcessAbility();
+            //EarlyProcessAbility();
+            //ProcessAbility();
         }
 
+        protected virtual void InternalHandleInput() {
+            if (_inputManager == null) {
+                return;
+            }
+            HandleInput();
+        }
+
+        /// <summary>
+        /// Handles user input. To be overridden.
+        /// </summary>
         protected virtual void HandleInput() {
 
         }
 
-        protected virtual void ProcessAbility() {
+        /// <summary>
+        /// Early update. To be overridden
+        /// </summary>
+        public virtual void EarlyProcessAbility() {
+            InternalHandleInput();
+        }
+
+        /// <summary>
+        /// Update. To be overridden.
+        /// </summary>
+        public virtual void ProcessAbility() {
+
+        }
+
+        /// <summary>
+        /// Late update. To be overridden
+        /// </summary>
+        public virtual void LateProcessAbility() {
+
+        }
+
+        /// <summary>
+        /// Resets abilities. Usually called on player out of bounds death.
+        /// </summary>
+        public virtual void ResetAbility() {
 
         }
 
@@ -62,11 +115,11 @@ namespace Paywall {
             if (!_initialized) {
                 Initialization();
             }
-            _inputActions.Enable();
+
         }
 
         protected virtual void OnDisable() {
-            _inputActions.Disable();
+
         }
 
     }
