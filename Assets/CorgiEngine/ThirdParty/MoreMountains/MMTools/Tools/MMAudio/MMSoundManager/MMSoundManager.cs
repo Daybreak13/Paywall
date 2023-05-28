@@ -514,6 +514,24 @@ namespace MoreMountains.Tools
 			}
 			return false;
 		}
+		
+		/// <summary>
+		/// Returns a list of MMSoundManagerSounds for the specified track
+		/// </summary>
+		/// <param name="track">the track on which to grab the playing sounds</param>
+		/// <returns></returns>
+		public virtual List<MMSoundManagerSound> GetSoundsPlaying(MMSoundManagerTracks track)
+		{
+			List<MMSoundManagerSound> soundsPlaying = new List<MMSoundManagerSound>();
+			foreach (MMSoundManagerSound sound in _sounds)
+			{
+				if ((sound.Track == track) && (sound.Source.isPlaying))
+				{
+					soundsPlaying.Add(sound);
+				}
+			}
+			return soundsPlaying;
+		}
         
 		/// <summary>
 		/// Stops all sounds on a track, and returns them to the pool
@@ -600,13 +618,13 @@ namespace MoreMountains.Tools
 			switch (track)
 			{
 				case MMSoundManagerTracks.Master:
-					return settingsSo.Settings.MasterOn; 
+					return !settingsSo.Settings.MasterOn; 
 				case MMSoundManagerTracks.Music:
-					return settingsSo.Settings.MusicOn;
+					return !settingsSo.Settings.MusicOn;
 				case MMSoundManagerTracks.Sfx:
-					return settingsSo.Settings.SfxOn;
+					return !settingsSo.Settings.SfxOn;
 				case MMSoundManagerTracks.UI:
-					return settingsSo.Settings.UIOn;
+					return !settingsSo.Settings.UIOn;
 			}
 			return false;
 		}

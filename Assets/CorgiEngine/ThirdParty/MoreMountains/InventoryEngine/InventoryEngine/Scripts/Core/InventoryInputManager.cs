@@ -3,7 +3,7 @@ using MoreMountains.Tools;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 	using UnityEngine.InputSystem;
 #endif
 
@@ -18,23 +18,36 @@ namespace MoreMountains.InventoryEngine
 		[Header("Targets")]
 		[MMInformation("Bind here your inventory container (the CanvasGroup that you want to turn on/off when opening/closing the inventory), your main InventoryDisplay, and the overlay that will be displayed under the InventoryDisplay when opened.", MMInformationAttribute.InformationType.Info, false)]
 		/// The CanvasGroup containing all the elements you want to show/hide when pressing the open/close inventory button
+		[Tooltip("The CanvasGroup containing all the elements you want to show/hide when pressing the open/close inventory button")]
 		public CanvasGroup TargetInventoryContainer;
-		/// The main inventory display 
+		/// The main inventory display
+		[Tooltip("The main inventory display")] 
 		public InventoryDisplay TargetInventoryDisplay;
 		/// The Fader that will be used under it when opening/closing the inventory
+		[Tooltip("The Fader that will be used under it when opening/closing the inventory")]
 		public CanvasGroup Overlay;
+
+		[Header("Overlay")] 
+		/// the opacity of the overlay when active
+		[Tooltip("the opacity of the overlay when active")]
+		public float OverlayActiveOpacity = 0.85f;
+		/// the opacity of the overlay when inactive
+		[Tooltip("the opacity of the overlay when inactive")]
+		public float OverlayInactiveOpacity = 0f;
 
 		[Header("Start Behaviour")]
 		[MMInformation("If you set HideContainerOnStart to true, the TargetInventoryContainer defined right above this field will be automatically hidden on Start, even if you've left it visible in Scene view. Useful for setup.", MMInformationAttribute.InformationType.Info, false)]
 		/// if this is true, the inventory container will be hidden automatically on start
+		[Tooltip("if this is true, the inventory container will be hidden automatically on start")]
 		public bool HideContainerOnStart = true;
 
 		[Header("Permissions")]
 		[MMInformation("Here you can decide to have your inventory catch input only when open, or not.", MMInformationAttribute.InformationType.Info, false)]
 		/// if this is true, the inventory container will be hidden automatically on start
+		[Tooltip("if this is true, the inventory container will be hidden automatically on start")]
 		public bool InputOnlyWhenOpen = true;
 
-		#if ENABLE_INPUT_SYSTEM
+		#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 		
 			[Header("Input System Key Mapping")] 
 
@@ -254,7 +267,7 @@ namespace MoreMountains.InventoryEngine
 			if (HideContainerOnStart)
 			{
 				if (TargetInventoryContainer != null) { TargetInventoryContainer.alpha = 0; }
-				if (Overlay != null) { Overlay.alpha = 0; }
+				if (Overlay != null) { Overlay.alpha = OverlayInactiveOpacity; }
 				EventSystem.current.sendNavigationEvents = false;
 				if (_canvasGroup != null)
 				{
@@ -401,7 +414,7 @@ namespace MoreMountains.InventoryEngine
 			InventoryIsOpen = true;
 
 			StartCoroutine(MMFade.FadeCanvasGroup(TargetInventoryContainer, 0.2f, 1f));
-			StartCoroutine(MMFade.FadeCanvasGroup(Overlay, 0.2f, 0.85f));
+			StartCoroutine(MMFade.FadeCanvasGroup(Overlay, 0.2f, OverlayActiveOpacity));
 		}
 
 		/// <summary>
@@ -419,7 +432,7 @@ namespace MoreMountains.InventoryEngine
 			InventoryIsOpen = false;
 
 			StartCoroutine(MMFade.FadeCanvasGroup(TargetInventoryContainer, 0.2f, 0f));
-			StartCoroutine(MMFade.FadeCanvasGroup(Overlay, 0.2f, 0f));
+			StartCoroutine(MMFade.FadeCanvasGroup(Overlay, 0.2f, OverlayInactiveOpacity));
 		}
 
 		/// <summary>
@@ -433,7 +446,7 @@ namespace MoreMountains.InventoryEngine
 				return;
 			}
 			
-			#if ENABLE_INPUT_SYSTEM
+			#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 				_toggleInventoryKeyPressed = ToggleInventoryKey.action.WasPressedThisFrame();
 				_openInventoryKeyPressed = OpenInventoryKey.action.WasPressedThisFrame();
 				_closeInventoryKeyPressed = CloseInventoryKey.action.WasPressedThisFrame();
@@ -462,16 +475,7 @@ namespace MoreMountains.InventoryEngine
 			// if the user presses the 'toggle inventory' key
 			if (_toggleInventoryKeyPressed)
 			{
-				// if the inventory is not open
-				if (!InventoryIsOpen)
-				{
-					OpenInventory();
-				}
-				// if it's open
-				else
-				{
-					CloseInventory();
-				}
+				ToggleInventory();
 			}
 
 			if (_openInventoryKeyPressed)
@@ -571,7 +575,7 @@ namespace MoreMountains.InventoryEngine
 					if (hotbar != null)
 					{
 						#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-						_hotbarInputPressed = Keyboard.current[hotbar.HotbarKey].wasPressedThisFrame;
+						_hotbarInputPressed = hotbar.HotbarInputAction.action.WasPressedThisFrame();
 						#else
 						_hotbarInputPressed = Input.GetKeyDown(hotbar.HotbarKey) || Input.GetKeyDown(hotbar.HotbarAltKey);
 						#endif

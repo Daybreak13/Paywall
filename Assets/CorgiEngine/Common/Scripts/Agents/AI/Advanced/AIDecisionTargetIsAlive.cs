@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MoreMountains.CorgiEngine
 {
 	/// <summary>
-	/// This decision will return true if the Brain's current target is facing this character. Yes, it's quite specific to Ghosts. But hey now you can use it too!
+	/// This decision will return true if the Brain's current target is alive
 	/// </summary>
 	[AddComponentMenu("Corgi Engine/Character/AI/Decisions/AI Decision Target is Alive")]
 	// [RequireComponent(typeof(Character))]
@@ -15,7 +15,7 @@ namespace MoreMountains.CorgiEngine
 		protected Character _character;
         
 		/// <summary>
-		/// On Decide we check whether the Target is facing us
+		/// On Decide we check whether the Target is alive or not
 		/// </summary>
 		/// <returns></returns>
 		public override bool Decide()
@@ -24,7 +24,7 @@ namespace MoreMountains.CorgiEngine
 		}
 
 		/// <summary>
-		/// Returns true if the Brain's Target is facing us (this will require that the Target has a Character component)
+		/// Returns true if the Brain's Target is alive (this will require that the Target has a Character component)
 		/// </summary>
 		/// <returns></returns>
 		protected virtual bool CheckIfTargetIsAlive()

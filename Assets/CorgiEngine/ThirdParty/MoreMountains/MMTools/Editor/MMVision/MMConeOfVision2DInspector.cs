@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace MoreMountains.Tools
 {
-	[CustomEditor(typeof(MMConeOfVision2D))]
+	[CustomEditor(typeof(MMConeOfVision2D), true)]
 	public class MMConeOfVision2DInspector : Editor
 	{
 		protected MMConeOfVision2D _coneOfVision;

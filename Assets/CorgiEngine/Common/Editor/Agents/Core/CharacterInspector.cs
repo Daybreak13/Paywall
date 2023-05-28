@@ -7,7 +7,7 @@ using MoreMountains.Tools;
 namespace MoreMountains.CorgiEngine
 {
 
-	[CustomEditor (typeof(Character))]
+	[CustomEditor (typeof(Character), true)]
 	[CanEditMultipleObjects]
 
 	/// <summary>

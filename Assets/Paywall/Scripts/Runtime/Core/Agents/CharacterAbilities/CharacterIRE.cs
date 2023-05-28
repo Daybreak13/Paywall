@@ -233,9 +233,9 @@ namespace Paywall {
 
 			for (int i = 0; i < RaysToCast; i++) {
 				Vector2 originPoint = Vector2.Lerp(topOrigin, bottomOrigin, i / (RaysToCast - 1));
-				raycastHit2D = Physics2D.Raycast(originPoint, Vector2.right, 1f, 1 << LayerMask.NameToLayer("Ground"));
+				raycastHit2D = Physics2D.Raycast(originPoint, Vector2.right, 1f + CharacterBoxCollider.edgeRadius, 1 << LayerMask.NameToLayer("Ground"));
 				if (raycastHit2D.collider != null) {
-					if (raycastHit2D.distance < GroundDistanceTolerance) {
+					if (raycastHit2D.distance < (GroundDistanceTolerance + CharacterBoxCollider.edgeRadius)) {
 						CollidingRight = true;
 						_rightObject = raycastHit2D.collider.gameObject;
 						if (raycastHit2D.distance <= 0) {
@@ -304,7 +304,7 @@ namespace Paywall {
 				return (false);
 			}
 			// if the distance to the ground is within the tolerated bounds, the character is grounded, otherwise it's not.
-			if (DistanceToTheGround < GroundDistanceTolerance) {
+			if (DistanceToTheGround < (GroundDistanceTolerance + CharacterBoxCollider.edgeRadius)) {
 				return (true);
 			}
 			else {

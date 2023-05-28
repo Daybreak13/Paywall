@@ -11,7 +11,7 @@ namespace MoreMountains.Tools
 	/// A custom editor displaying a foldable list of MMFeedbacks, a dropdown to add more, as well as test buttons to test your feedbacks at runtime
 	/// </summary>
 	[CanEditMultipleObjects]
-	[CustomEditor(typeof(MMPlotter))]
+	[CustomEditor(typeof(MMPlotter), true)]
 	public class MMPlotterEditor : Editor
 	{
 		protected string[] _typeDisplays;

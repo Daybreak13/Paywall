@@ -215,19 +215,22 @@ namespace MoreMountains.Feedbacks
 				_originalRemapShadowStrengthOne = RemapShadowStrengthOne;
 			}
 
-			ModifyColor = modifyColor;
-			RelativeValues = relativeValues;
-			ShakeDuration = shakeDuration;
-			ColorOverTime = colorOverTime;
-			IntensityCurve = intensityCurve;
-			RemapIntensityZero = remapIntensityZero;
-			RemapIntensityOne = remapIntensityOne;
-			RangeCurve = rangeCurve;
-			RemapRangeZero = remapRangeZero;
-			RemapRangeOne = remapRangeOne;
-			ShadowStrengthCurve = shadowStrengthCurve;
-			RemapShadowStrengthZero = remapShadowStrengthZero;
-			RemapShadowStrengthOne = remapShadowStrengthOne;
+			if (!OnlyUseShakerValues)
+			{
+				ModifyColor = modifyColor;
+				RelativeValues = relativeValues;
+				ShakeDuration = shakeDuration;
+				ColorOverTime = colorOverTime;
+				IntensityCurve = intensityCurve;
+				RemapIntensityZero = remapIntensityZero;
+				RemapIntensityOne = remapIntensityOne;
+				RangeCurve = rangeCurve;
+				RemapRangeZero = remapRangeZero;
+				RemapRangeOne = remapRangeOne;
+				ShadowStrengthCurve = shadowStrengthCurve;
+				RemapShadowStrengthZero = remapShadowStrengthZero;
+				RemapShadowStrengthOne = remapShadowStrengthOne;
+			}
 
 			Play();
 		}

@@ -35,6 +35,12 @@ namespace MoreMountains.CorgiEngine
 		[Tooltip("the material used to render the laser")]
 		public Material LaserMaterial;
 
+		/// the world space coordinates of the laser's origin point
+		public Vector3 LaserOrigin => _origin;
+		/// the world space coordinates of the laser's destination point
+		public Vector3 LaserDestination => _destination;
+		
+
 		protected Weapon _weapon;
 		protected Vector3 _direction;
 		protected LineRenderer _line;

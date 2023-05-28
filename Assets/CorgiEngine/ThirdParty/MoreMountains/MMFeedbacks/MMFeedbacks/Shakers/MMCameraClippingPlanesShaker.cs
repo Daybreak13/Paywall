@@ -141,16 +141,19 @@ namespace MoreMountains.Feedbacks
 				_originalRelativeClippingPlanes = RelativeClippingPlanes;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeNear = animNearCurve;
-			RemapNearZero = remapNearMin * feedbacksIntensity;
-			RemapNearOne = remapNearMax * feedbacksIntensity;
-			ShakeFar = animFarCurve;
-			RemapFarZero = remapFarMin * feedbacksIntensity;
-			RemapFarOne = remapFarMax * feedbacksIntensity;
-			RelativeClippingPlanes = relativeValues;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeNear = animNearCurve;
+				RemapNearZero = remapNearMin * feedbacksIntensity;
+				RemapNearOne = remapNearMax * feedbacksIntensity;
+				ShakeFar = animFarCurve;
+				RemapFarZero = remapFarMin * feedbacksIntensity;
+				RemapFarOne = remapFarMax * feedbacksIntensity;
+				RelativeClippingPlanes = relativeValues;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

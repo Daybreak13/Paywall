@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using MoreMountains.Tools;
 using UnityEngine;
 
@@ -63,6 +62,21 @@ namespace MoreMountains.CorgiEngine
 						DetachController(_controllers[i]);
 						continue;
 					}
+
+					if (BoundPathMovement.CurrentSpeed.x > 0 &&
+					    _controllers[i].ColliderRightPosition.x < this.transform.position.x)
+					{
+						DetachController(_controllers[i]);
+						continue;
+					}
+					
+					if (BoundPathMovement.CurrentSpeed.x < 0 &&
+					    _controllers[i].ColliderLeftPosition.x > this.transform.position.x)
+					{
+						DetachController(_controllers[i]);
+						continue;
+					}
+					
 				}
 			}
 		}

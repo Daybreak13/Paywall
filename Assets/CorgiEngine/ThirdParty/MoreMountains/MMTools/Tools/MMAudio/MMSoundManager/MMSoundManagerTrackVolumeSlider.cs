@@ -118,8 +118,16 @@ namespace MoreMountains.Tools
 		{
 			if (soundManagerEvent.EventType == MMSoundManagerEventTypes.SettingsLoaded)
 			{
-				_slider.value = MMMaths.Remap(MMSoundManager.Instance.GetTrackVolume(Track, false), 0f, 1f, MinVolume, MaxVolume);
+				UpdateSliderValueWithTrackVolume();
 			}
+		}
+
+		/// <summary>
+		/// Updates the slider value to reflect the current track volume
+		/// </summary>
+		public virtual void UpdateSliderValueWithTrackVolume()
+		{
+			_slider.value = MMMaths.Remap(MMSoundManager.Instance.GetTrackVolume(Track, false), 0f, 1f, MinVolume, MaxVolume);
 		}
 
 		/// <summary>

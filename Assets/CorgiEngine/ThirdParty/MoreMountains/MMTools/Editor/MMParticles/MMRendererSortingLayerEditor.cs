@@ -7,7 +7,7 @@ using System.Reflection;
 namespace MoreMountains.Tools
 {
 	[CanEditMultipleObjects()]
-	[CustomEditor(typeof(MMRendererSortingLayer))]
+	[CustomEditor(typeof(MMRendererSortingLayer), true)]
 	public class MMRendererLayerEditor : Editor
 	{
 		int popupMenuIndex;

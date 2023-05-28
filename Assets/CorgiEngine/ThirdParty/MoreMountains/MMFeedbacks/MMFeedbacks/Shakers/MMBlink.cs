@@ -420,5 +420,20 @@ namespace MoreMountains.Feedbacks
             
 			ApplyBlink(false, value);
 		}
+
+		protected void OnDisable()
+		{
+			if (ForceStateOnExit)
+			{
+				if (StateOnExit == States.Off)
+				{
+					ApplyBlink(false, 0f);
+				}
+				else
+				{
+					ApplyBlink(true, 1f);
+				}
+			}
+		}
 	}
 }

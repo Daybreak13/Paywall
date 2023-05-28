@@ -168,6 +168,11 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		public virtual void Explode()
 		{
+			if (_exploded)
+			{
+				return;
+			}
+			
 			EnableDamageArea ();
 			if (_rendererIsNotNull)
 			{

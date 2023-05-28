@@ -37,6 +37,9 @@ namespace MoreMountains.Feedbacks
 		/// if this is true, this shaker will always reset target values, regardless of how it was called
 		[Tooltip("if this is true, this shaker will always reset target values, regardless of how it was called")]
 		public bool AlwaysResetTargetValuesAfterShake = false;
+		/// if this is true, this shaker will ignore any value passed in an event that triggered it, and will instead use the values set on its inspector
+		[Tooltip("if this is true, this shaker will ignore any value passed in an event that triggered it, and will instead use the values set on its inspector")]
+		public bool OnlyUseShakerValues = false;
 		/// a cooldown, in seconds, after a shake, during which no other shake can start
 		[Tooltip("a cooldown, in seconds, after a shake, during which no other shake can start")]
 		public float CooldownBetweenShakes = 0f;
@@ -50,8 +53,7 @@ namespace MoreMountains.Feedbacks
 
 		[HideInInspector] 
 		public TimescaleModes TimescaleMode = TimescaleModes.Scaled;
-        
-        
+
 		public virtual float GetTime() { return (TimescaleMode == TimescaleModes.Scaled) ? Time.time : Time.unscaledTime; }
 		public virtual float GetDeltaTime() { return (TimescaleMode == TimescaleModes.Scaled) ? Time.deltaTime : Time.unscaledDeltaTime; }
 		public virtual MMChannelData ChannelData => new MMChannelData(ChannelMode, Channel, MMChannelDefinition);

@@ -20,6 +20,9 @@ namespace MoreMountains.CorgiEngine
 		/// the tolerance to apply when comparing the relative positions of the falling platform and 
 		[Tooltip("the tolerance to apply when comparing the relative positions of the falling platform and ")]
 		public float Tolerance = 0.1f;
+		/// if this is true, the platform will only fall if the colliding character is above the platform 
+		[Tooltip("if this is true, the platform will only fall if the colliding character is above the platform")]		
+		public bool RequiresCharacterAbove = true;
 
 		// private stuff
 		protected Animator _animator;
@@ -116,17 +119,30 @@ namespace MoreMountains.CorgiEngine
 			
 			if (TimeBeforeFall>0)
 			{
-				_platformTopY = (_collider2D != null) ? _collider2D.bounds.max.y : this.transform.position.y;
+				bool canShake = false;
 
-				if (controller.ColliderBottomPosition.y >= _platformTopY - Tolerance)
+				if (RequiresCharacterAbove)
+				{
+					_platformTopY = (_collider2D != null) ? _collider2D.bounds.max.y : this.transform.position.y;
+					if (controller.ColliderBottomPosition.y >= _platformTopY - Tolerance)
+					{
+						canShake = true;
+					}	
+				}
+				else
+				{
+					canShake = true;
+				}
+
+				if (canShake)
 				{
 					_timer -= Time.deltaTime;
-					_shaking=true;
+					_shaking = true;
 				}
 			}	
 			else
 			{
-				_shaking=false;
+				_shaking = false;
 			}
 		}
 		/// <summary>

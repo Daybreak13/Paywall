@@ -27,6 +27,12 @@ namespace MoreMountains.CorgiEngine
 		/// the layers that will be damaged by this object
 		[Tooltip("the layers that will be damaged by this object")]
 		public LayerMask TargetLayerMask;
+		/// if this is true, the damage will apply on trigger enter
+		[Tooltip("if this is true, the damage will apply on trigger enter")]
+		public bool ApplyDamageOnTriggerEnter = true;
+		/// if this is true, the damage will apply on trigger stay
+		[Tooltip("if this is true, the damage will apply on trigger stay")]
+		public bool ApplyDamageOnTriggerStay = true;
 
 		[Header("Damage Caused")]
 		/// The minimum amount of health to remove from the player's health
@@ -268,12 +274,20 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		/// <param name="collider">what's colliding with the object.</param>
 		public virtual void OnTriggerStay2D(Collider2D collider)
-		{			
+		{
+			if (!ApplyDamageOnTriggerStay)
+			{
+				return;
+			}
 			Colliding (collider);
 		}
 
 		public virtual void OnTriggerEnter2D(Collider2D collider)
-		{			
+		{	
+			if (!ApplyDamageOnTriggerEnter)
+			{
+				return;
+			}		
 			Colliding (collider);
 		}
 

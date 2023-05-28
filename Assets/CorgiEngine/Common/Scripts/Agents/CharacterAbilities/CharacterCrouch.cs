@@ -38,6 +38,9 @@ namespace MoreMountains.CorgiEngine
 		/// if this is false, the character will have to stop moving to start crouching
 		[Tooltip("if this is false, the character will have to stop moving to start crouching")]
 		public bool CanCrouchWhileMoving = true;
+		/// if this is false, the character won't be able to move while crouching
+		[Tooltip("if this is false, the character won't be able to move while crouching")]
+		public bool CanMoveWhileCrouching = true;
 		/// if this is true, the character is crouched and has an obstacle over its head that prevents it from getting back up again
 		[MMReadOnly]
 		[Tooltip("if this is true, the character is crouched and has an obstacle over its head that prevents it from getting back up again")]
@@ -59,6 +62,8 @@ namespace MoreMountains.CorgiEngine
 		protected int _crawlingAnimationParameter;
 		protected bool _wasInATunnelLastFrame;
 		protected bool _crouching = false;
+		protected bool _airborneLastFrame = false;
+		protected bool _appliedMovementMultiplier = false;
 
 		/// <summary>
 		/// On Start(), we set our tunnel flag to false
@@ -99,7 +104,8 @@ namespace MoreMountains.CorgiEngine
 			if ( !AbilityAuthorized // if the ability is not permitted
 			     || (_condition.CurrentState != CharacterStates.CharacterConditions.Normal) // or if we're not in our normal stance
 			     || (!_controller.State.IsGrounded) // or if we're grounded
-			     || (_movement.CurrentState == CharacterStates.MovementStates.Gripping) ) // or if we're gripping
+			     || (_movement.CurrentState == CharacterStates.MovementStates.Gripping) // or if we're gripping
+			     || (_movement.CurrentState == CharacterStates.MovementStates.Dashing) ) // or if we're dashing
 			{
 				// we do nothing and exit
 				return;
@@ -132,6 +138,12 @@ namespace MoreMountains.CorgiEngine
 			{
 				_controller.ResizeCollider(CrouchedBoxColliderSize);
 				Invoke ("RecalculateRays", Time.deltaTime * 10);			
+			}
+
+			if (!CanMoveWhileCrouching && !_appliedMovementMultiplier)
+			{
+				_appliedMovementMultiplier = true;
+				_characterHorizontalMovement.SetContextSpeedMultiplier(0f);
 			}
 
 			// we change our character's speed
@@ -181,7 +193,7 @@ namespace MoreMountains.CorgiEngine
 		/// Every frame, we check to see if we should exit the Crouching (or Crawling) state
 		/// </summary>
 		protected virtual void CheckExitCrouch()
-		{				
+		{
 			if (_inputManager == null)
 			{
 				if ((_movement.CurrentState == CharacterStates.MovementStates.Crouching)
@@ -195,7 +207,7 @@ namespace MoreMountains.CorgiEngine
 			    || (_movement.CurrentState == CharacterStates.MovementStates.Crawling))
 			{
 				// but we're not pressing down anymore, or we're not grounded anymore
-				if ((!_controller.State.IsGrounded) || (_verticalInput >= -_inputManager.Threshold.y))
+				if ((_character.Airborne && _airborneLastFrame) || (_verticalInput >= -_inputManager.Threshold.y))
 				{
 					ExitCrouch();
 				}
@@ -215,7 +227,9 @@ namespace MoreMountains.CorgiEngine
 				{
 					ExitCrouch();
 				}
-			}		
+			}
+			
+			_airborneLastFrame = _character.Airborne;
 		}
 
 		/// <summary>
@@ -244,6 +258,12 @@ namespace MoreMountains.CorgiEngine
 				{
 					_character.SetCameraTargetOffset(Vector3.zero);
 				}
+				
+				if (!CanMoveWhileCrouching)
+				{
+					_characterHorizontalMovement.ResetContextSpeedMultiplier();
+					_appliedMovementMultiplier = false;
+				}
 
 				// we play our exit feedback
 				StopStartFeedbacks();
@@ -251,7 +271,8 @@ namespace MoreMountains.CorgiEngine
 				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Crouch, MMCharacterEvent.Moments.End);
 
 				// we go back to Idle state and reset our collider's size
-				if (_movement.CurrentState != CharacterStates.MovementStates.LadderClimbing)
+				if ((_movement.CurrentState != CharacterStates.MovementStates.LadderClimbing)
+					&& (_movement.CurrentState != CharacterStates.MovementStates.Dashing))
 				{
 					_movement.ChangeState(CharacterStates.MovementStates.Idle);    
 				}

@@ -60,7 +60,7 @@ namespace Paywall {
         [MMReadOnly]
         public List<DialogueUILines> TextLines = new List<DialogueUILines>();
 
-        public CorgiEngineInputActions InputActions;
+        public IREInputActions InputActions;
 
         // Does the game pause for this dialogue
         protected bool _pausedDialogue;
@@ -75,7 +75,7 @@ namespace Paywall {
         protected bool _playingDialogue;
 
         protected virtual void Awake() {
-            InputActions = new CorgiEngineInputActions();
+            InputActions = new();
             foreach (Transform child in DialogueCanvasGroup.transform) {
                 //child.gameObject.SetActive(false);
             }

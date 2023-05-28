@@ -134,16 +134,19 @@ namespace MoreMountains.FeedbacksForThirdParty
 				_originalRemapThresholdOne = RemapThresholdOne;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeIntensity = intensity;
-			RemapIntensityZero = remapMin * attenuation;
-			RemapIntensityOne = remapMax * attenuation;
-			RelativeValues = relativeIntensity;
-			ShakeThreshold = threshold;
-			RemapThresholdZero = remapThresholdMin;
-			RemapThresholdOne = remapThresholdMax;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeIntensity = intensity;
+				RemapIntensityZero = remapMin * attenuation;
+				RemapIntensityOne = remapMax * attenuation;
+				RelativeValues = relativeIntensity;
+				ShakeThreshold = threshold;
+				RemapThresholdZero = remapThresholdMin;
+				RemapThresholdOne = remapThresholdMax;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

@@ -64,8 +64,6 @@ namespace MoreMountains.CorgiEngine
             InputActions.PlayerControls.Throw.performed += context => { BindButton(context, ThrowButton); };
             InputActions.PlayerControls.Push.performed += context => { BindButton(context, PushButton); };
 
-            InputActions.PlayerControls.Restart.performed += context => { BindButton(context, RestartButton); };
-
             _initialized = true;
         }
 

@@ -311,7 +311,7 @@ namespace MoreMountains.CorgiEngine
 			{
 				yield return MMCoroutine.WaitFor(Delay);
 			}            
-			int randomQuantity = Random.Range((int)Quantity.x, (int)Quantity.y);
+			int randomQuantity = Random.Range((int)Quantity.x, (int)Quantity.y + 1);
 			for (int i = 0; i < randomQuantity; i++)
 			{
 				SpawnOneLoot();

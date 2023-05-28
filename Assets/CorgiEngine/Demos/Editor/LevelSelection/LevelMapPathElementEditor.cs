@@ -7,7 +7,7 @@ namespace MoreMountains.CorgiEngine
 	/// <summary>
 	/// This class adds names for each LevelMapPathElement next to it on the scene view, for easier setup
 	/// </summary>
-	[CustomEditor(typeof(LevelMapPathElement))]
+	[CustomEditor(typeof(LevelMapPathElement), true)]
 	[InitializeOnLoad]
 	public class LevelMapPathElementEditor : Editor 
 	{		

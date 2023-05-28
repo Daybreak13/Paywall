@@ -25,14 +25,14 @@ namespace MoreMountains.CorgiEngine
 		[Tooltip("the shape of the damage area (rectangle or circle)")]
 		[MMEnumCondition("MeleeDamageAreaMode", (int)MeleeDamageAreaModes.Generated)]
 		public MeleeDamageAreaShapes DamageAreaShape = MeleeDamageAreaShapes.Rectangle;
-		/// the size of the damage area
-		[Tooltip("the size of the damage area")]
-		[MMEnumCondition("MeleeDamageAreaMode", (int)MeleeDamageAreaModes.Generated)]
-		public Vector2 AreaSize = new Vector2(1,1);
 		/// the offset to apply to the damage area (from the weapon's attachment position
 		[Tooltip("the offset to apply to the damage area (from the weapon's attachment position")]
 		[MMEnumCondition("MeleeDamageAreaMode", (int)MeleeDamageAreaModes.Generated)]
 		public Vector2 AreaOffset = new Vector2(1,0);
+		/// the size of the damage area
+		[Tooltip("the size of the damage area")]
+		[MMEnumCondition("MeleeDamageAreaMode", (int)MeleeDamageAreaModes.Generated)]
+		public Vector2 AreaSize = new Vector2(1,1);
 		/// an existing damage area to activate/handle as the weapon is used
 		[Tooltip("an existing damage area to activate/handle as the weapon is used")]
 		[MMEnumCondition("MeleeDamageAreaMode", (int)MeleeDamageAreaModes.Existing)]
@@ -52,6 +52,13 @@ namespace MoreMountains.CorgiEngine
 		/// the layers that will be damaged by this object
 		[Tooltip("the layers that will be damaged by this object")]
 		public LayerMask TargetLayerMask;
+		/// if this is true, the damage will apply on trigger enter
+		[Tooltip("if this is true, the damage will apply on trigger enter")]
+		public bool ApplyDamageOnTriggerEnter = true;
+		/// if this is true, the damage will apply on trigger stay
+		[Tooltip("if this is true, the damage will apply on trigger stay")]
+		public bool ApplyDamageOnTriggerStay = true;
+		
 		/// The min amount of health to remove from the player's health
 		[FormerlySerializedAs("DamageCaused")] 
 		[Tooltip("The min amount of health to remove from the player's health")]
@@ -145,6 +152,8 @@ namespace MoreMountains.CorgiEngine
 
 			_damageOnTouch = _damageArea.AddComponent<DamageOnTouch>();
 			_damageOnTouch.TargetLayerMask = TargetLayerMask;
+			_damageOnTouch.ApplyDamageOnTriggerEnter = ApplyDamageOnTriggerEnter;
+			_damageOnTouch.ApplyDamageOnTriggerStay = ApplyDamageOnTriggerStay;
 			_damageOnTouch.MinDamageCaused = MinDamageCaused;
 			MaxDamageCaused = (MaxDamageCaused <= MinDamageCaused) ? MinDamageCaused : MaxDamageCaused;
 			_damageOnTouch.MaxDamageCaused = MaxDamageCaused;
@@ -337,8 +346,9 @@ namespace MoreMountains.CorgiEngine
 		/// <summary>
 		/// On Disable we unsubscribe from our delegates
 		/// </summary>
-		protected virtual void OnDisable()
+		protected override void OnDisable()
 		{
+			base.OnDisable();
 			if (_damageOnTouch != null)
 			{
 				_damageOnTouch.OnKill -= OnKill;

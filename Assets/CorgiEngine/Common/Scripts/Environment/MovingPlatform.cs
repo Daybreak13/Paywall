@@ -2,6 +2,7 @@
 using System.Collections;
 using MoreMountains.Tools;
 using MoreMountains.Feedbacks;
+using UnityEngine.Events;
 
 namespace MoreMountains.CorgiEngine
 {
@@ -50,10 +51,19 @@ namespace MoreMountains.CorgiEngine
 		[Tooltip("a feedback to trigger when the end of the path is reached")]
 		public MMFeedbacks EndReachedFeedback;
 
+		[Header("Events")] 
+		/// a UnityEvent fired when a character collides with the platform
+		[Tooltip("a UnityEvent fired when a character collides with the platform")]
+		public UnityEvent OnCharacterEnter;
+		/// a UnityEvent fired when a character exits the platform
+		[Tooltip("a UnityEvent fired when a character exits the platform")]
+		public UnityEvent OnCharacterExit;
+
 		protected Collider2D _collider2D;
 		protected float _platformTopY;
 		protected const float _toleranceY = 0.05f;
 		protected bool _scriptActivatedAuthorization = false;
+		protected CorgiController _corgiControllerLastFrame;
 
 		/// <summary>
 		/// Flag inits, initial movement determination, and object positioning
@@ -69,6 +79,28 @@ namespace MoreMountains.CorgiEngine
 			{
 				ScriptActivated = true;
 			}
+		}
+
+		/// <summary>
+		/// On Update, we check if we've started or stopped colliding with a controller, and trigger events if needed
+		/// </summary>
+		protected override void Update()
+		{
+			base.Update();
+
+			if (_collidingController != _corgiControllerLastFrame)
+			{
+				if (_collidingController != null)
+				{
+					OnCharacterEnter?.Invoke();
+				}
+				else
+				{
+					OnCharacterExit?.Invoke();
+				}
+			}
+
+			_corgiControllerLastFrame = _collidingController;
 		}
 
 		/// <summary>

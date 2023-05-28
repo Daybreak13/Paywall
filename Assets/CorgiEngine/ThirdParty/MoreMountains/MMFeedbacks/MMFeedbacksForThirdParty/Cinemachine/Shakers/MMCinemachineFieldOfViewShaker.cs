@@ -122,13 +122,16 @@ namespace MoreMountains.FeedbacksForThirdParty
 				_originalRelativeFieldOfView = RelativeFieldOfView;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeFieldOfView = distortionCurve;
-			RemapFieldOfViewZero = remapMin * feedbacksIntensity;
-			RemapFieldOfViewOne = remapMax * feedbacksIntensity;
-			RelativeFieldOfView = relativeDistortion;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeFieldOfView = distortionCurve;
+				RemapFieldOfViewZero = remapMin * feedbacksIntensity;
+				RemapFieldOfViewOne = remapMax * feedbacksIntensity;
+				RelativeFieldOfView = relativeDistortion;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

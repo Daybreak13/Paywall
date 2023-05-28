@@ -118,6 +118,7 @@ namespace MoreMountains.FeedbacksForThirdParty
 			}
 			else
 			{
+				TargetAutoBlend.TimeScale = (ComputedTimescaleMode == TimescaleModes.Scaled) ? MMGlobalPostProcessingVolumeAutoBlend_URP.TimeScales.Scaled : MMGlobalPostProcessingVolumeAutoBlend_URP.TimeScales.Unscaled;
 				TargetAutoBlend.BlendDuration = FeedbackDuration;
 				TargetAutoBlend.Curve = BlendCurve;
 				TargetAutoBlend.InitialWeight = InitialWeight;

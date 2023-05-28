@@ -119,12 +119,15 @@ namespace MoreMountains.FeedbacksForThirdParty
 				_originalRelativeOrthographicSize = RelativeOrthographicSize;
 			}
 
-			ShakeDuration = duration;
-			ShakeOrthographicSize = distortionCurve;
-			RemapOrthographicSizeZero = remapMin * feedbacksIntensity;
-			RemapOrthographicSizeOne = remapMax * feedbacksIntensity;
-			RelativeOrthographicSize = relativeDistortion;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				ShakeDuration = duration;
+				ShakeOrthographicSize = distortionCurve;
+				RemapOrthographicSizeZero = remapMin * feedbacksIntensity;
+				RemapOrthographicSizeOne = remapMax * feedbacksIntensity;
+				RelativeOrthographicSize = relativeDistortion;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

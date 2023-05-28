@@ -138,7 +138,9 @@ namespace MoreMountains.CorgiEngine
 
 			_horizontalMovement = _horizontalInput;
 
-			if ((AirControl < 1f) && !_controller.State.IsGrounded)
+			if ((AirControl < 1f) 
+			    && !_controller.State.IsGrounded
+			    && (_character.MovementState.CurrentState != CharacterStates.MovementStates.WallClinging))
 			{
 				_horizontalMovement = Mathf.Lerp(_lastGroundedHorizontalMovement, _horizontalInput, AirControl);
 			}

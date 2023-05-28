@@ -25,7 +25,7 @@ namespace MoreMountains.CorgiEngine
 		/// the aim control mode of choice (off : no control, primary movement (typically your left stick), secondary  (right stick), mouse, script : when you want a script to drive your aim (typically for AI, but not only)
 		[Tooltip("the aim control mode of choice (off : no control, primary movement (typically your left stick), secondary  (right stick), mouse, script : when you want a script to drive your aim (typically for AI, but not only)")]
 		public AimControls AimControl = AimControls.SecondaryMovement;
-
+		
 		[Header("Weapon Rotation")]
 		[MMInformation("Here you can define whether the rotation is free, strict in 4 directions (top, bottom, left, right), or 8 directions (same + diagonals). You can also define a rotation speed, and a min and max angle. For example, if you don't want your character to be able to aim in its back, set min angle to -90 and max angle to 90.",MoreMountains.Tools.MMInformationAttribute.InformationType.Info,false)]
 
@@ -38,6 +38,9 @@ namespace MoreMountains.CorgiEngine
 		/// if this is true, a flip will be instant, regardless of the weapon rotation speed
 		[Tooltip("if this is true, a flip will be instant, regardless of the weapon rotation speed")]
 		public bool InstantFlip = false;
+		/// if this is true, you won't be able to aim this weapon's aim while it's in use
+		[Tooltip("if this is true, you won't be able to aim this weapon's aim while it's in use")]
+		public bool PreventAimWhileWeaponIsInUse = false;
 		/// the minimum angle at which the weapon's rotation will be clamped
 		[Range(-180, 180)]
 		[Tooltip("the minimum angle at which the weapon's rotation will be clamped")]
@@ -325,6 +328,15 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		protected virtual void LateUpdate()
 		{
+			if (PreventAimWhileWeaponIsInUse && 
+			    (
+				    (_weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBeforeUse 
+				     || _weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse 
+				     || _weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBetweenUses)))
+			{
+				return;
+			}
+			
 			GetCurrentAim ();
 			DetermineWeaponRotation ();
 			MoveReticle();

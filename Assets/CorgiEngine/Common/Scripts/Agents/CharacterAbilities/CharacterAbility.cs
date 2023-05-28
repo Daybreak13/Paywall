@@ -278,7 +278,7 @@ namespace MoreMountains.CorgiEngine
 		/// <summary>
 		/// Plays the ability start sound effect
 		/// </summary>
-		protected virtual void PlayAbilityStartFeedbacks()
+		public virtual void PlayAbilityStartFeedbacks()
 		{
 			AbilityStartFeedbacks?.PlayFeedbacks(this.transform.position);
 			_startFeedbackIsPlaying = true;
@@ -297,7 +297,7 @@ namespace MoreMountains.CorgiEngine
 		/// <summary>
 		/// Plays the ability stop sound effect
 		/// </summary>
-		protected virtual void PlayAbilityStopFeedbacks()
+		public virtual void PlayAbilityStopFeedbacks()
 		{
 			AbilityStopFeedbacks?.PlayFeedbacks();
 		}

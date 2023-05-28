@@ -72,14 +72,6 @@ namespace MoreMountains.Tools
 	{
 		private static Dictionary<Type, List<MMEventListenerBase>> _subscribersList;
 
-		/// <summary>
-		/// Reset static variables
-		/// </summary>
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-		static void Init() {
-			_subscribersList = new Dictionary<Type, List<MMEventListenerBase>>();
-		}
-
 		static MMEventManager()
 		{
 			_subscribersList = new Dictionary<Type, List<MMEventListenerBase>>();

@@ -12,7 +12,7 @@ namespace MoreMountains.CorgiEngine
 		public string AbilityName;
 	}
     
-	[CustomEditor (typeof(PickableAbility))]
+	[CustomEditor (typeof(PickableAbility), true)]
 	[CanEditMultipleObjects]
 	public class PickableAbilityInspector : Editor
 	{

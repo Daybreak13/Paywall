@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MoreMountains.Feedbacks
 {
 	[CanEditMultipleObjects]
-	[CustomEditor(typeof(MMWiggle))]
+	[CustomEditor(typeof(MMWiggle), true)]
 	public class MMWiggleEditor : Editor
 	{
 		public struct WiggleEditorProperties

@@ -112,13 +112,16 @@ namespace MoreMountains.FeedbacksForThirdParty
 				_originalRelativeDistance = RelativeDistance;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeDistance = distance;
-			RemapDistanceZero = remapMin * attenuation;
-			RemapDistanceOne = remapMax * attenuation;
-			RelativeDistance = relativeDistance;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeDistance = distance;
+				RemapDistanceZero = remapMin * attenuation;
+				RemapDistanceOne = remapMax * attenuation;
+				RelativeDistance = relativeDistance;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

@@ -166,7 +166,7 @@ namespace MoreMountains.Feedbacks
 		/// a Transform this sound can 'attach' to and follow it along as it plays
 		[Tooltip("a Transform this sound can 'attach' to and follow it along as it plays")]
 		public Transform AttachToTransform;
-        
+		
 		[MMFInspectorGroup("Effects", true, 36)]
 		/// Bypass effects (Applied from filter components or global listener filters).
 		[Tooltip("Bypass effects (Applied from filter components or global listener filters).")]

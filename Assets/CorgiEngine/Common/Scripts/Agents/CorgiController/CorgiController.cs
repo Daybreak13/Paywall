@@ -58,11 +58,13 @@ namespace MoreMountains.CorgiEngine
 		/// the possible directions a ray can be cast
 		public enum RaycastDirections { up, down, left, right };
 		/// The possible ways a character can detach from a oneway or moving platform
-		public enum DetachmentMethods { Layer, Object }
+		public enum DetachmentMethods { Layer, Object, LayerChange }
 		/// When a character jumps from a oneway or moving platform, collisions are off for a short moment. You can decide if they should happen on a whole moving/1way platform layer basis or just with the object the character just left
 		[Tooltip("When a character jumps from a oneway or moving platform, collisions are off for a short moment. You can decide if they should happen on a whole moving/1way platform layer basis or just with the object the character just left")]
 		public DetachmentMethods DetachmentMethod = DetachmentMethods.Layer;
-        
+		/// When using the LayerChange detachment method, this is the layer one way and moving platforms will be moved to temporarily
+		[Tooltip("When using the LayerChange detachment method, this is the layer one way and moving platforms will be moved to temporarily")]
+		public MMLayer DetachmentLayer;
 
 		/// gives you the object the character is standing on
 		[Tooltip("gives you the object the character is standing on")]
@@ -1303,10 +1305,7 @@ namespace MoreMountains.CorgiEngine
 		/// If we're in the air and moving up, we cast rays above the character's head to check for collisions
 		/// </summary>
 		protected virtual void CastRaysAbove()
-		{			
-			/*if (_newPosition.y<0)
-				return;*/
-
+		{
 			float rayLength = State.IsGrounded ? RayOffsetVertical : _newPosition.y;
 			rayLength += _boundsHeight / 2;
 
@@ -1665,6 +1664,8 @@ namespace MoreMountains.CorgiEngine
 			PlatformMask=0;
 		}
 
+		protected GameObject _detachmentObject;
+
 		/// <summary>
 		/// Disables the collisions with one way platforms for the specified duration
 		/// </summary>
@@ -1691,6 +1692,13 @@ namespace MoreMountains.CorgiEngine
 					// we turn clear it
 					SetIgnoreCollider(null);
 					break;
+				case DetachmentMethods.LayerChange:
+					_detachmentObject = StandingOnCollider.gameObject;
+					int saveLayer = _detachmentObject.layer;
+					_detachmentObject.layer = DetachmentLayer.LayerIndex;
+					yield return new WaitForSeconds(duration);
+					_detachmentObject.layer = saveLayer;
+					break;
 			}
 		}
 
@@ -1700,23 +1708,28 @@ namespace MoreMountains.CorgiEngine
 		/// <param name="duration">the duration for which the collisions must be disabled</param>
 		public virtual IEnumerator DisableCollisionsWithMovingPlatforms(float duration)
 		{
-			if (DetachmentMethod == DetachmentMethods.Layer)
+			switch (DetachmentMethod)
 			{
-				// we turn the collisions off
-				CollisionsOffWithMovingPlatformsLayer ();
-				// we wait for a few seconds
-				yield return new WaitForSeconds (duration);
-				// we turn them on again
-				CollisionsOn ();
-			}
-			else
-			{
-				// we set our current platform collider as ignored
-				SetIgnoreCollider (StandingOnCollider);
-				// we wait for a few seconds
-				yield return new WaitForSeconds (duration);
-				// we turn clear it
-				SetIgnoreCollider (null);				
+				case DetachmentMethods.Layer:
+					CollisionsOffWithMovingPlatformsLayer ();
+					yield return new WaitForSeconds (duration);
+					CollisionsOn ();
+					break;
+				case DetachmentMethods.Object:
+					// we set our current platform collider as ignored
+					SetIgnoreCollider (StandingOnCollider);
+					// we wait for a few seconds
+					yield return new WaitForSeconds (duration);
+					// we turn clear it
+					SetIgnoreCollider (null);	
+					break;
+				case DetachmentMethods.LayerChange:
+					_detachmentObject = StandingOnCollider.gameObject;
+					int saveLayer = _detachmentObject.layer;
+					_detachmentObject.layer = DetachmentLayer.LayerIndex;
+					yield return new WaitForSeconds(duration);
+					_detachmentObject.layer = saveLayer;
+					break;
 			}
 		}
 

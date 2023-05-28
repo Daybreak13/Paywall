@@ -10,7 +10,7 @@ namespace MoreMountains.Tools
 	/// Custom editor for the MMSoundManager, used to display custom track controls
 	/// </summary>
 	#if UNITY_EDITOR
-	[CustomEditor(typeof(MMSoundManager))]
+	[CustomEditor(typeof(MMSoundManager), true)]
 	[CanEditMultipleObjects]
 	public class MMSoundManagerEditor : Editor
 	{

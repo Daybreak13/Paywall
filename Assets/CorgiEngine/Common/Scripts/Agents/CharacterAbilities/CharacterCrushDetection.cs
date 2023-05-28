@@ -161,7 +161,14 @@ namespace MoreMountains.CorgiEngine
 			{
 				PlayAbilityStartFeedbacks();
 				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Crush);
+				StartCoroutine(DelayedStopStartFeedbacks(DamageTakenInvincibilityDuration));
 			}
+		}
+
+		protected virtual IEnumerator DelayedStopStartFeedbacks(float delay)
+		{
+			yield return MMCoroutine.WaitFor(delay);
+			StopStartFeedbacks();
 		}
         
 		/// <summary>

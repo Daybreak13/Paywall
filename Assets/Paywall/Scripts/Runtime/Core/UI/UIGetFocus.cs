@@ -11,7 +11,7 @@ namespace Paywall {
     /// Gets focus on enable, as well as returning focus when the currentSelectedGameObject is null and Navigate button is hit
     /// </summary>
     public class UIGetFocus : MonoBehaviour {
-        public CorgiEngineInputActions InputActions;
+        public IREInputActions InputActions;
 
         protected virtual void GetFocus(InputAction.CallbackContext context) {
             if ((EventSystem.current.currentSelectedGameObject == null)) {
@@ -25,7 +25,7 @@ namespace Paywall {
 
         protected virtual void OnEnable() {
             if (InputActions == null) {
-                InputActions = new CorgiEngineInputActions();
+                InputActions = new();
             }
             EventSystem.current.SetSelectedGameObject(this.gameObject, null);
             InputActions.Enable();

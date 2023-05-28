@@ -119,13 +119,16 @@ namespace MoreMountains.Feedbacks
 				return;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeReverb = reverbCurve;
-			RemapReverbZero = remapMin * feedbacksIntensity;
-			RemapReverbOne = remapMax * feedbacksIntensity;
-			RelativeReverb = relativeReverb;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeReverb = reverbCurve;
+				RemapReverbZero = remapMin * feedbacksIntensity;
+				RemapReverbOne = remapMax * feedbacksIntensity;
+				RelativeReverb = relativeReverb;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}

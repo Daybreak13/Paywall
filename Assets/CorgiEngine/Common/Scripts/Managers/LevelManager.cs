@@ -260,7 +260,7 @@ namespace MoreMountains.CorgiEngine
 			CheckpointAssignment ();
 
 			// we trigger a level start event
-			CorgiEngineEvent.Trigger(CorgiEngineEventTypes.LevelStart);
+			CorgiEngineEvent.Trigger(CorgiEngineEventTypes.LevelStart, Players[0]);
 			MMGameEvent.Trigger("Load");
 
 			if (SetPlayerAsFeedbackRangeCenter)

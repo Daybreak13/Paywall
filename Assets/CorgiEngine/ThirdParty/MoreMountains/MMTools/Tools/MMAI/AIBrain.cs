@@ -69,7 +69,7 @@ namespace MoreMountains.Tools
 			return decisions;
 		}
 
-		protected void OnEnable()
+		protected virtual void OnEnable()
 		{
 			if (ResetBrainOnEnable)
 			{

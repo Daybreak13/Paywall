@@ -168,7 +168,7 @@ namespace MoreMountains.Tools
 			{
 				newGameObject.transform.SetParent(_waitingPool.transform);	
 			}
-			newGameObject.name=typeOfObject.name;
+			newGameObject.name = typeOfObject.name;
 			_objectPool.PooledGameObjects.Add(newGameObject);
 			return newGameObject;
 		}
@@ -500,11 +500,7 @@ namespace MoreMountains.Tools
 
 				if (GetPoolObject(FindObject(searchedName,_objectPool.PooledGameObjects)).PoolCanExpand)
 				{
-					// we create a new game object of that type, we add it to the pool for further use, and return it.
-					GameObject newGameObject = (GameObject)Instantiate(searchedObject);
-					SceneManager.MoveGameObjectToScene(newGameObject, this.gameObject.scene);
-					_objectPool.PooledGameObjects.Add(newGameObject);
-					return newGameObject;
+					return AddOneObjectToThePool(searchedObject);
 				}
 			}
 

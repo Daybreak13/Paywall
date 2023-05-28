@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MoreMountains.Tools
 {
 	#if UNITY_EDITOR
-	[CustomEditor(typeof(MMAudioAnalyzer))]
+	[CustomEditor(typeof(MMAudioAnalyzer), true)]
 	[CanEditMultipleObjects]
 	public class MMAudioAnalyzerEditor : Editor
 	{

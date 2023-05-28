@@ -233,6 +233,7 @@ namespace MoreMountains.CorgiEngine
 		}
 
 		protected List<InterruptiblesDamageOverTimeCoroutine> _interruptiblesDamageOverTimeCoroutines;
+		protected List<InterruptiblesDamageOverTimeCoroutine> _damageOverTimeCoroutines;
 
 		/// <summary>
 		/// On Awake, we initialize our health
@@ -293,6 +294,7 @@ namespace MoreMountains.CorgiEngine
 			_healthBar = this.gameObject.GetComponent<MMHealthBar>();
 			_collider2D = this.gameObject.GetComponent<Collider2D>();
 			_interruptiblesDamageOverTimeCoroutines = new List<InterruptiblesDamageOverTimeCoroutine>();
+			_damageOverTimeCoroutines = new List<InterruptiblesDamageOverTimeCoroutine>();
 
 			_propertyBlock = new MaterialPropertyBlock();
             
@@ -558,6 +560,8 @@ namespace MoreMountains.CorgiEngine
 			// we prevent further damage
 			DamageDisabled();
 
+			StopAllDamageOverTime();
+
 			// instantiates the destroy effect
 			DeathFeedbacks?.PlayFeedbacks();
 
@@ -726,6 +730,19 @@ namespace MoreMountains.CorgiEngine
 			{
 				StopCoroutine(coroutine.DamageOverTimeCoroutine);
 			}
+			_interruptiblesDamageOverTimeCoroutines.Clear();
+		}
+
+		/// <summary>
+		/// Interrupts all damage over time, even the non interruptible ones (usually on death)
+		/// </summary>
+		public virtual void StopAllDamageOverTime()
+		{
+			foreach (InterruptiblesDamageOverTimeCoroutine coroutine in _damageOverTimeCoroutines)
+			{
+				StopCoroutine(coroutine.DamageOverTimeCoroutine);
+			}
+			_damageOverTimeCoroutines.Clear();
 		}
 
 		/// <summary>
@@ -771,6 +788,8 @@ namespace MoreMountains.CorgiEngine
 			damageOverTime.DamageOverTimeCoroutine = StartCoroutine(DamageOverTimeCo(damage, instigator, flickerDuration,
 				invincibilityDuration, damageDirection, typedDamages, amountOfRepeats, durationBetweenRepeats,
 				interruptible));
+			
+			_damageOverTimeCoroutines.Add(damageOverTime);
 
 			if (interruptible)
 			{

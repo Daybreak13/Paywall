@@ -16,7 +16,6 @@ namespace MoreMountains.CorgiEngine
 		public override string HelpBoxText() { return "Add this component to your character and it'll be able to cling to walls, slowing down its fall. Here you can define the slow factor (close to 0 : super slow, 1 : normal fall) and the tolerance (to account for tiny holes in the wall."; }
 
 		[Header("Wall Clinging")]
-
 		/// the slow factor when wall clinging
 		[Tooltip("the slow factor when wall clinging")]
 		[Range(0.01f, 1)]
@@ -29,10 +28,11 @@ namespace MoreMountains.CorgiEngine
 		public float WallClingingTolerance = 0.3f;
 
 		[Header("Automation")]
-
 		/// if this is set to true, you won't need to press the opposite direction to wall cling, it'll be automatic anytime the character faces a wall
 		[Tooltip("if this is set to true, you won't need to press the opposite direction to wall cling, it'll be automatic anytime the character faces a wall")]
-		public bool InputIndependent = false;        
+		public bool InputIndependent = false;
+		
+		public bool IsFacingRightWhileWallClinging { get; set; }
 
 		protected CharacterStates.MovementStates _stateLastFrame;
 		protected RaycastHit2D _raycast;
@@ -160,6 +160,7 @@ namespace MoreMountains.CorgiEngine
 			}
 
 			_movement.ChangeState(CharacterStates.MovementStates.WallClinging);
+			IsFacingRightWhileWallClinging = _character.IsFacingRight;
 		}
 
 		/// <summary>

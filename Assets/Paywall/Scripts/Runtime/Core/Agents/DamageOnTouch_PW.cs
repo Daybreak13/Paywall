@@ -130,7 +130,7 @@ namespace Paywall {
 		protected Vector2 _lastPosition, _lastDamagePosition, _velocity, _knockbackForce, _damageDirection;
 		protected float _startTime = 0f;
 		protected Collider2D _collidingCollider;
-		protected Health _colliderHealth;
+		protected Health_PW _colliderHealth;
 		protected Rigidbody2D _rigidbody2D;
 		protected Rigidbody2D _colliderRigidbody2D;
 		protected CharacterJump _characterJump;
@@ -268,7 +268,7 @@ namespace Paywall {
 			}
 
 			_collidingCollider = collider;
-			_colliderHealth = collider.gameObject.MMGetComponentNoAlloc<Health>();
+			_colliderHealth = collider.gameObject.MMGetComponentNoAlloc<Health_PW>();
 
 			OnHit?.Invoke();
 

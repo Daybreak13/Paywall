@@ -113,13 +113,16 @@ namespace MoreMountains.Feedbacks
 				_originalRelativeHighPass = RelativeHighPass;
 			}
 
-			TimescaleMode = timescaleMode;
-			ShakeDuration = duration;
-			ShakeHighPass = highPassCurve;
-			RemapHighPassZero = remapMin * feedbacksIntensity;
-			RemapHighPassOne = remapMax * feedbacksIntensity;
-			RelativeHighPass = relativeHighPass;
-			ForwardDirection = forwardDirection;
+			if (!OnlyUseShakerValues)
+			{
+				TimescaleMode = timescaleMode;
+				ShakeDuration = duration;
+				ShakeHighPass = highPassCurve;
+				RemapHighPassZero = remapMin * feedbacksIntensity;
+				RemapHighPassOne = remapMax * feedbacksIntensity;
+				RelativeHighPass = relativeHighPass;
+				ForwardDirection = forwardDirection;
+			}
 
 			Play();
 		}
