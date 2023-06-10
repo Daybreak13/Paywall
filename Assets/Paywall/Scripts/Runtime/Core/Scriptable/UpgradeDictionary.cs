@@ -16,6 +16,9 @@ namespace Paywall {
         public List<UpgradeSubGroup> SubGroups = new();
     }
 
+    /// <summary>
+    /// Archive of all possible upgrades in the game. Set this in PaywallProgressManager.
+    /// </summary>
     [CreateAssetMenu(fileName = "UpgradeDictionary", menuName = "Paywall/Upgrades/Utilities/UpgradeDictionary")]
     public class UpgradeDictionary : ScriptableObject {
         /// The upgrade dictionary

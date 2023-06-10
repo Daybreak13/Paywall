@@ -23,6 +23,9 @@ namespace Paywall.Editors {
         protected const string _transitionSegmentListPropertyName = "TransitionSegmentList";
         protected const string _jumperSegmentListPropertyName = "JumperSegmentList";
         protected const string _firstLevelSegmentPropertyName = "FirstLevelSegment";
+        protected const string _shopLevelSegmentPropertyName = "ShopLevelSegment";
+
+        protected const string _baseLevelLengthSegmentPropertyName = "BaseLevelLength";
 
         protected const string _spawnPoolersPropertyName = "SpawnPoolers";
 
@@ -66,6 +69,9 @@ namespace Paywall.Editors {
         protected SerializedProperty _transitionSegmentListProperty;
         protected SerializedProperty _jumperSegmentListProperty;
         protected SerializedProperty _firstLevelSegmentProperty;
+        protected SerializedProperty _shopLevelSegmentProperty;
+
+        protected SerializedProperty _baseLevelLengthSegmentProperty;
 
         protected SerializedProperty _spawnPoolersProperty;
 
@@ -104,6 +110,7 @@ namespace Paywall.Editors {
         #endregion
 
         protected bool _showLevelSegments;
+        protected bool _showLevelLengths;
         protected bool _showSpawnPoolers;
         protected bool _showTypeWeights;
         protected bool _showGapLengths;
@@ -117,6 +124,9 @@ namespace Paywall.Editors {
             _transitionSegmentListProperty = serializedObject.FindPropertyByAutoPropertyName(_transitionSegmentListPropertyName);
             _jumperSegmentListProperty = serializedObject.FindPropertyByAutoPropertyName(_jumperSegmentListPropertyName);
             _firstLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_firstLevelSegmentPropertyName);
+            _shopLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_shopLevelSegmentPropertyName);
+
+            _baseLevelLengthSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_baseLevelLengthSegmentPropertyName);
 
             _spawnPoolersProperty = serializedObject.FindPropertyByAutoPropertyName(_spawnPoolersPropertyName);
 
@@ -218,10 +228,17 @@ namespace Paywall.Editors {
                 EditorGUILayout.PropertyField(_transitionSegmentListProperty);
                 EditorGUILayout.PropertyField(_jumperSegmentListProperty);
                 EditorGUILayout.PropertyField(_firstLevelSegmentProperty);
+                EditorGUILayout.PropertyField(_shopLevelSegmentProperty);
                 EditorGUILayout.Space(10);
                 if (GUILayout.Button("Rename Pools")) {
                     RenamePools();
                 }
+            }
+
+            EditorGUILayout.Space(10);
+            _showLevelLengths = EditorGUILayout.Foldout(_showLevelLengths, "Level Lengths", true);
+            if (_showLevelLengths) {
+                EditorGUILayout.PropertyField(_baseLevelLengthSegmentProperty);
             }
 
             EditorGUILayout.Space(10);

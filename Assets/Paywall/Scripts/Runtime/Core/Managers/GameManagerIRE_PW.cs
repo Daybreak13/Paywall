@@ -6,7 +6,7 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
-    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW> {
+    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW>, MMEventListener<PaywallDeathEvent>, MMEventListener<PaywallEXChargeEvent> {
 		/// the number of lives the player gets (you lose a life when your character (or your characters all) die.
 		/// lose all lives you lose the game and your points.
 		[Tooltip("the number of lives the player gets (you lose a life when your character (or your characters all) die.")]
@@ -19,8 +19,12 @@ namespace Paywall {
 		[field: Tooltip("the current number of game points")]
 		[field: MMReadOnly]
 		[field: SerializeField] public float Points { get; protected set; }
-		/// the current time scale
-		[field: Tooltip("the current time scale")]
+        /// the current killstreak
+        [field: Tooltip("the current killstreak")]
+        [field: MMReadOnly]
+        [field: SerializeField] public int Streak { get; protected set; }
+        /// the current time scale
+        [field: Tooltip("the current time scale")]
 		[field: SerializeField] public float TimeScale = 1;
 		/// the various states the game can be in
 		public enum GameStatus { BeforeGameStart, GameInProgress, Paused, GameOver, LifeLost, GoalReached };
@@ -51,6 +55,10 @@ namespace Paywall {
 			if ((GUIManagerIRE_PW.Instance as GUIManagerIRE_PW) != null) {
 				(GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).Initialize();
 			}
+		}
+
+		protected virtual void Update() {
+
 		}
 
 		public virtual void SetPointsPerSecond(float newPointsPerSecond) {
@@ -200,8 +208,29 @@ namespace Paywall {
 			MMEventManager.TriggerEvent(new MMGameEvent("Save"));
 		}
 
-		protected virtual void OnDestroy() {
-			StopAllCoroutines();
+        public void OnMMEvent(PaywallDeathEvent deathEvent) {
+			if (deathEvent.IncreaseStreak) {
+				Streak++;
+			}
         }
+
+        public void OnMMEvent(PaywallEXChargeEvent chargeEvent) {
+            
+        }
+
+        protected virtual void OnEnable() {
+			this.MMEventStartListening<PaywallDeathEvent>();
+			this.MMEventStartListening<PaywallEXChargeEvent>();
+		}
+
+		protected virtual void OnDisable() {
+			this.MMEventStopListening<PaywallDeathEvent>();
+			this.MMEventStopListening<PaywallEXChargeEvent>();
+		}
+
+        protected virtual void OnDestroy() {
+            StopAllCoroutines();
+        }
+
     }
 }

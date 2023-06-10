@@ -60,6 +60,15 @@ namespace Paywall {
         /// The very first level segment
         [field: Tooltip("The very first level segment")]
         [field: SerializeField] public LevelSegmentController FirstLevelSegment { get; protected set; }
+        /// The shop level segment
+        [field: Tooltip("The shop level segment")]
+        [field: SerializeField] public LevelSegmentController ShopLevelSegment { get; protected set; }
+
+        [field: Header("Level Lengths")]
+
+        /// The length of the first level, off which all other level lengths are derived
+        [field: Tooltip("The length of the first level, off which all other level lengths are derived")]
+        [field: SerializeField] public float BaseLevelLength { get; protected set; }
 
         [field: Header("Spawn Poolers")]
 

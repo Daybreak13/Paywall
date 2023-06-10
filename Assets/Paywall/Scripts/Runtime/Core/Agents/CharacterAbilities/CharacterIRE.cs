@@ -10,7 +10,10 @@ namespace Paywall {
 	public enum CharacterTypes { Player, AI }
 	public enum InvincibilityTypes { Damage, PowerUp }
 
-    public class CharacterIRE : MonoBehaviour {
+	/// <summary>
+	/// Playable character controller
+	/// </summary>
+    public class CharacterIRE : MonoBehaviour_PW, MMEventListener<PaywallEXChargeEvent> {
 		/// Type of character this is
 		[field: Tooltip("Type of character this is")]
 		[field: SerializeField] public CharacterTypes CharacterType { get; protected set; } = CharacterTypes.AI;
@@ -67,9 +70,37 @@ namespace Paywall {
 		[field: Tooltip("Is the character currently invincible")]
 		[field: SerializeField] public bool Invincible { get; protected set; }
 
-		// State Machines
-		/// the movement state machine 
-		public MMStateMachine<CharacterStates_PW.MovementStates> MovementState { get; protected set; }
+		[field: Header("EX")]
+
+		/// Current EX charge
+		[field: Tooltip("Current EX charge")]
+		[field: SerializeField] public float CurrentEX { get; protected set; }
+        /// Minimum possible EX charge
+        [field: Tooltip("Minimum possible EX charge")]
+        [field: SerializeField] public float MinEX { get; protected set; } = 0f;
+        /// Maximum possible EX charge
+        [field: Tooltip("Maximum possible EX charge")]
+		[field: SerializeField] public float MaxEX { get; protected set; } = 50f;
+		/// Value of a single EX bar
+		[field: Tooltip("Value of a single EX bar")]
+		[field: SerializeField] public float OneEXBarValue { get; protected set; } = 10f;
+        /// EX drain per second acceleration rate. The longer EX drains for, the faster it drains.
+        [field: Tooltip("EX drain per second acceleration rate. The longer EX drains for, the faster it drains.")]
+        [field: SerializeField] public float EXDrainRateAcceleration { get; protected set; } = 2f;
+        /// Block EX gain while EX bar is draining
+        [field: Tooltip("Block EX gain while EX bar is draining")]
+        [field: SerializeField] public bool BlockEXGainWhileDraining { get; protected set; }
+        /// Gain EX passively over time?
+        [field: Tooltip("Gain EX passively over time?")]
+        [field: SerializeField] public bool GainEXOverTime { get; protected set; }
+		/// EX gain rate per second
+		[field: Tooltip("EX gain rate per second")]
+		[field: FieldCondition("GainEXOverTime", true)]
+		[field: SerializeField] public float EXGainPerSecond { get; protected set; } = 2.5f;
+
+        // State Machines
+        /// the movement state machine 
+        public MMStateMachine<CharacterStates_PW.MovementStates> MovementState { get; protected set; }
 		/// the condition state machine
 		public MMStateMachine<CharacterStates_PW.ConditionStates> ConditionState { get; protected set; }
 
@@ -80,8 +111,8 @@ namespace Paywall {
 		[field: MMReadOnly]
 		[field: SerializeField] public bool CollidingRight { get; protected set; }
 		public Animator CharacterAnimator { get; protected set; }
+		public Vector3 InitialPosition { get; protected set; }
 
-		protected Vector3 _initialPosition;
 		protected float _distanceToTheGroundRaycastLength = 10f;
 		protected GameObject _ground;
 		protected LayerMask _collisionMaskSave;
@@ -109,6 +140,9 @@ namespace Paywall {
 		protected Vector2 _boundsBottomRightCorner;
 		protected Vector2 _boundsCenter;
 
+		protected float _exDrainRate;	// EX drain rate per second
+		protected bool _EXDraining;
+
 		protected const string _playerIgnoreTag = "PlayerIgnore";
 
 		CharacterAbilityIRE[] _characterAbilities;
@@ -132,6 +166,9 @@ namespace Paywall {
 			_initialGravity = CharacterRigidBody.gravityScale;
 			CharacterBoxCollider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
 			CacheAbilities();
+			if (GUIManagerIRE_PW.HasInstance) {
+				GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX, MinEX, MaxEX);
+			}
 			_initialized = true;
 		}
 
@@ -147,10 +184,16 @@ namespace Paywall {
 
 		protected virtual void Update() {
 
-			// we determine the distance between the ground and the Jumper
+			// we determine the distance between the ground and the character
 			ComputeDistanceToTheGround();
+			if (Grounded) {
+                MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
+            }
 
-			EarlyProcessAbilities();
+			// Handle EX gain/drain over time
+			HandleEX();
+
+            EarlyProcessAbilities();
 			ProcessAbilities();
 			LateProcessAbilities();
 
@@ -218,7 +261,7 @@ namespace Paywall {
 		/// </summary>
 		/// <param name="initialPosition">Initial position.</param>
 		public virtual void SetInitialPosition(Vector3 initialPosition) {
-			_initialPosition = initialPosition;
+			InitialPosition = initialPosition;
 		}
 
 		public virtual void Die() {
@@ -359,14 +402,35 @@ namespace Paywall {
 		/// </summary>
 		protected virtual void ResetPosition() {
 			if (ShouldResetPosition) {
-				if (!CollidingRight && transform.position.x != _initialPosition.x) {
-					CharacterRigidBody.velocity = new Vector3((_initialPosition.x - transform.position.x) * (ResetPositionSpeed), CharacterRigidBody.velocity.y);
+				if (!CollidingRight && transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
+					CharacterRigidBody.velocity = new Vector3((InitialPosition.x - transform.position.x) * (ResetPositionSpeed), CharacterRigidBody.velocity.y);
 					//CharacterRigidBody.velocity = new Vector3(0, CharacterRigidBody.velocity.y);
 				}
 			}
 		}
 
 		#endregion
+
+		/// <summary>
+		/// External functions can call this to apply force to the character's rigidbody
+		/// Use the CharacterJumpIRE component 
+		/// </summary>
+		/// <param name="force"></param>
+		public virtual void ApplyForce(Vector2 force) {
+			CharacterRigidBody.AddForce(force * CharacterRigidBody.mass);
+		}
+
+		/// <summary>
+		/// External functions can call this to set the rigidbody gravity scale
+		/// </summary>
+		/// <param name="gravityScale"></param>
+		public virtual void SetGravityScale(float gravityScale) {
+			CharacterRigidBody.gravityScale = gravityScale;
+		}
+
+		public virtual void ResetGravityScale() {
+			CharacterRigidBody.gravityScale = _initialGravity;
+		}
 
 		public virtual void SetInvincibility(float duration) {
 			Invincible = true;
@@ -459,14 +523,101 @@ namespace Paywall {
 
 		#endregion
 
+		/// <summary>
+		/// Set max EX
+		/// </summary>
+		/// <param name="newMax"></param>
+		public virtual void SetMaxEX(float newMax) {
+			MaxEX = newMax;
+			GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX, MinEX, newMax);
+		}
+
+		/// <summary>
+		/// Spends EX bar
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool SpendEXBars(int bars) {
+			float EXCost = OneEXBarValue * bars;
+			if (CurrentEX >= EXCost) {
+				CurrentEX -= EXCost;
+				GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX);
+				return true;
+			}
+			return false;
+		}
+
+        /// <summary>
+        /// Spend EX over time (like for supers)
+        /// </summary>
+        /// <param name="rate">Drain rate per second</param>
+        /// <param name="bars">Minimum bars required to activate</param>
+        public virtual void SpendEXOverTime(float rate, int bars) {
+			if (Mathf.FloorToInt(CurrentEX / OneEXBarValue) < bars) {
+				return;
+			}
+			_exDrainRate = rate;
+			_EXDraining = true;
+		}
+
+		/// <summary>
+		/// Handles EX draining and/or increasing every frame
+		/// </summary>
+		protected virtual void HandleEX() {
+			if (_EXDraining) {
+				CurrentEX -= _exDrainRate * Time.deltaTime;		// Drain EX by drain rate
+                _exDrainRate += EXDrainRateAcceleration * Time.deltaTime;	// Increase drain rate
+                if (CurrentEX <= MinEX) {
+					CurrentEX = MinEX;
+					_EXDraining = false;
+					_exDrainRate = 0f;
+				}
+			}
+			if (GainEXOverTime) {
+				CurrentEX += EXGainPerSecond * Time.deltaTime;
+			}
+			GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX);
+		}
+
+		/// <summary>
+		/// Catch charge events, add or set EX charge
+		/// EX gain is blocked while EX is draining
+		/// </summary>
+		/// <param name="chargeEvent"></param>
+		public virtual void OnMMEvent(PaywallEXChargeEvent chargeEvent) {
+			// Add EX amount
+			if (chargeEvent.ChangeAmountMethod == ChangeAmountMethods.Add) {
+				if (BlockEXGainWhileDraining) {
+					if ((chargeEvent.ChargeAmount > 0) && _EXDraining) {
+						return;
+					}
+				}
+				CurrentEX += chargeEvent.ChargeAmount;
+				// If EX overflows, cap it to MaxEX
+				if (CurrentEX > MaxEX) {
+					CurrentEX = MaxEX;
+				}
+            }
+			// Set EX amount
+            else {
+				if (BlockEXGainWhileDraining) {
+					if ((chargeEvent.ChargeAmount > CurrentEX) && _EXDraining) {
+						return;
+					}
+				}
+                CurrentEX = chargeEvent.ChargeAmount;
+            }
+        }
+
 		protected virtual void OnEnable() {
 			if (!_initialized) {
 				Initialization();
 			}
-		}
+            this.MMEventStartListening<PaywallEXChargeEvent>();
+        }
 
-		protected virtual void OnDisable() {
+        protected virtual void OnDisable() {
 			StopAllCoroutines();
+			this.MMEventStopListening<PaywallEXChargeEvent>();
 		}
 
 	}

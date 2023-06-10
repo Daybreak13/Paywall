@@ -85,9 +85,23 @@ namespace Paywall {
         protected virtual void Start() {
             if (PaywallProgressManager.HasInstance) {
                 _credits = PaywallProgressManager.Instance.Credits;
+                UpdateUpgradeButtons();
             }
             if (ErrorMessage != null) {
                 ErrorMessage.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// On start, update the store's upgrade buttons with their current unlock status based on the progress manager's save file
+        /// </summary>
+        protected virtual void UpdateUpgradeButtons() {
+            foreach (KeyValuePair<string, Upgrade> entry in PaywallProgressManager.Instance.Upgrades) {
+                if (_upgradeButtons.TryGetValue(entry.Key, out UpgradeButton button)) {
+                    if (entry.Value.Unlocked) {
+                        button.SetAsUnlocked();
+                    }
+                }
             }
         }
 

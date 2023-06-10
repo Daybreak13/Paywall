@@ -1,63 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1140006250437578632
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 408446194455652612}
-  - component: {fileID: 3685255521174740986}
-  m_Layer: 7
-  m_Name: Hitbox
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &408446194455652612
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1140006250437578632}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5126643435051678289}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &3685255521174740986
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1140006250437578632}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.014594406, y: -0.0145944655}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.66262406, y: 1.0291889}
-  m_EdgeRadius: 0
 --- !u!1 &1796555498356442242
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,6 +126,12 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     OnComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
       m_PersistentCalls:
         m_Calls: []
   DebugActive: 0
@@ -10481,6 +10429,9 @@ MonoBehaviour:
   TimeBetweenUsesReleaseInterruption: 1
   Interruptable: 0
   InitializeOnStart: 1
+  UseBurstMode: 0
+  BurstLength: 3
+  BurstTimeBetweenShots: 0.1
   MagazineBased: 1
   MagazineSize: 4
   AutoReload: 1
@@ -10532,6 +10483,8 @@ MonoBehaviour:
   RecoilOnUseProperties:
     RecoilForceGrounded: 10
     RecoilForceAirborne: 10
+    RecoilAngleModifier: 0
+    DirectionMultiplier: {x: 1, y: 1}
     RecoilStyle: 2
     Delay: 0
     RecoilFeedback: {fileID: 0}
@@ -10539,6 +10492,8 @@ MonoBehaviour:
   RecoilOnHitDamageableProperties:
     RecoilForceGrounded: 10
     RecoilForceAirborne: 10
+    RecoilAngleModifier: 0
+    DirectionMultiplier: {x: 1, y: 1}
     RecoilStyle: 2
     Delay: 0
     RecoilFeedback: {fileID: 0}
@@ -10546,6 +10501,8 @@ MonoBehaviour:
   RecoilOnHitNonDamageableProperties:
     RecoilForceGrounded: 10
     RecoilForceAirborne: 10
+    RecoilAngleModifier: 0
+    DirectionMultiplier: {x: 1, y: 1}
     RecoilStyle: 2
     Delay: 0
     RecoilFeedback: {fileID: 0}
@@ -10553,6 +10510,8 @@ MonoBehaviour:
   RecoilOnMissProperties:
     RecoilForceGrounded: 10
     RecoilForceAirborne: 10
+    RecoilAngleModifier: 0
+    DirectionMultiplier: {x: 1, y: 1}
     RecoilStyle: 2
     Delay: 0
     RecoilFeedback: {fileID: 0}
@@ -10560,6 +10519,8 @@ MonoBehaviour:
   RecoilOnKillProperties:
     RecoilForceGrounded: 10
     RecoilForceAirborne: 10
+    RecoilAngleModifier: 0
+    DirectionMultiplier: {x: 1, y: 1}
     RecoilStyle: 2
     Delay: 0
     RecoilFeedback: {fileID: 0}
@@ -10723,6 +10684,12 @@ MonoBehaviour:
     OnComplete:
       m_PersistentCalls:
         m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
+      m_PersistentCalls:
+        m_Calls: []
   DebugActive: 0
 --- !u!1 &3441806776527657239
 GameObject:
@@ -10834,6 +10801,12 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     OnComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
       m_PersistentCalls:
         m_Calls: []
   DebugActive: 0
@@ -10958,6 +10931,7 @@ GameObject:
   - component: {fileID: 1137474293839774564}
   - component: {fileID: -1772729090732756650}
   - component: {fileID: 6825850847622475078}
+  - component: {fileID: 5123068621732548491}
   m_Layer: 7
   m_Name: Player IRE 1
   m_TagString: Player
@@ -10978,7 +10952,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5621064052192545577}
-  - {fileID: 408446194455652612}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -11020,7 +10993,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 7
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 4
@@ -11042,7 +11015,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <CharacterType>k__BackingField: 0
-  <Model>k__BackingField: {fileID: 0}
+  <Model>k__BackingField: {fileID: 5821070982960601449}
   <FlickerSpriteOnHit>k__BackingField: 0
   <FlickerDuration>k__BackingField: 0.1
   <UseDefaultMecanim>k__BackingField: 1
@@ -11053,6 +11026,14 @@ MonoBehaviour:
   <InitialInvincibilityDuration>k__BackingField: 3
   <TempInvincibilityDuration>k__BackingField: 1
   <Invincible>k__BackingField: 0
+  <CurrentEX>k__BackingField: 0
+  <MinEX>k__BackingField: 0
+  <MaxEX>k__BackingField: 50
+  <OneEXBarValue>k__BackingField: 10
+  <EXDrainRateAcceleration>k__BackingField: 2
+  <BlockEXGainWhileDraining>k__BackingField: 0
+  <GainEXOverTime>k__BackingField: 1
+  <EXGainPerSecond>k__BackingField: 5
   <CollidingRight>k__BackingField: 0
 --- !u!114 &1137474293839774564
 MonoBehaviour:
@@ -11127,3 +11108,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <AbilityPermitted>k__BackingField: 1
+--- !u!114 &5123068621732548491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8783184480488449569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ce91b24803c0647ab00546ac5ba7dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <AbilityPermitted>k__BackingField: 1
+  <DodgeDuration>k__BackingField: 0.18
+  <DodgeForce>k__BackingField: {x: 0, y: 0}
+  <DodgeCooldown>k__BackingField: 0.18
+  <DodgeTimeScaleMultiplier>k__BackingField: 1
+  <DodgeLevelSpeedMultiplier>k__BackingField: 4
+  <CostsEX>k__BackingField: 1

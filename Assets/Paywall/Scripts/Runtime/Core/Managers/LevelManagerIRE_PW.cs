@@ -14,6 +14,9 @@ namespace Paywall {
     /// </summary>
     public enum DeathTypes { Health, OutOfBounds }
 
+    /// <summary>
+    /// Handles distance traveled, level speed, playable character, loading levels
+    /// </summary>
     public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW> {
         public enum Controls { SingleButton, LeftRight, Swipe }
 
@@ -28,7 +31,7 @@ namespace Paywall {
         [field: SerializeField] public float EnemySpeed { get; protected set; }
         /// The distance traveled since the start of the level
         [field: Tooltip("The distance traveled since the start of the level")]
-        [field: SerializeField] public float DistanceTraveled { get; protected set; } 
+        [field: SerializeField] public float DistanceTraveled { get; protected set; }
 
         /// the prefab you want for your player
         [field: Header("Prefabs")]
@@ -66,7 +69,7 @@ namespace Paywall {
         [field: MMReadOnly]
         [field: SerializeField] public float CurrentUnmodifiedSpeed { get; protected set; }
         /// the acceleration (per second) at which the level will go from InitialSpeed to MaximumSpeed
-        [field: SerializeField] public float SpeedAcceleration { get; protected set; }  = 1f;
+        [field: SerializeField] public float SpeedAcceleration { get; protected set; } = 0f;
         /// the global speed for level segments
         [field: Tooltip("the global speed for level segments")]
         [field: SerializeField] public float SegmentSpeed { get; protected set; } = 1f;
@@ -109,6 +112,7 @@ namespace Paywall {
         protected float _temporarySavedSpeed;
 
         protected bool _retainEnemySpeed;
+        protected int _coroutineCount = 0;
 
         public bool TempSpeedSwitchActive { get; protected set; }    // is the temp speed switch active
 
@@ -189,7 +193,7 @@ namespace Paywall {
         /// </summary>
         public virtual void LevelStart() {
             (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetStatus(GameManagerIRE_PW.GameStatus.GameInProgress);
-            (GameManagerIRE_PW.Instance as GameManagerIRE_PW).AutoIncrementScore(true);
+            //(GameManagerIRE_PW.Instance as GameManagerIRE_PW).AutoIncrementScore(true);
             MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
             TempSpeedSwitchOff();
         }
@@ -272,12 +276,23 @@ namespace Paywall {
 
         }
 
+        /// <summary>
+        /// Update points, increment distance traveled, accelerate level speed, handle speed factor
+        /// Only execute if game is in progress
+        /// </summary>
         public virtual void Update() {
+            if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+                return;
+            }
+
             _savedPoints = (GameManagerIRE_PW.Instance as GameManagerIRE_PW).Points;
             _started = DateTime.UtcNow;
 
             // we increment the total distance traveled so far
-            DistanceTraveled += Speed * Time.deltaTime;
+            DistanceTraveled += Speed / 10f * Time.deltaTime;
+            if (GUIManagerIRE_PW.HasInstance) {
+                GUIManagerIRE_PW.Instance.RefreshDistance();
+            }
 
             // if we can still accelerate, we apply the level's speed acceleration
             if ((Speed < MaximumSpeed) && !TempSpeedSwitchActive) {
@@ -302,28 +317,46 @@ namespace Paywall {
         /// <param name="factor"></param>
         /// <param name="duration"></param>
         /// <param name="retainEnemySpeed"></param>
-        public virtual void TemporarilyMultiplySpeed(float factor, float duration, bool retainEnemySpeed) {
+        public virtual void TemporarilyMultiplySpeed(float factor, float duration, bool retainEnemySpeed = false) {
             if (retainEnemySpeed) {
                 _retainEnemySpeed = true;
             }
 
-            _temporarySpeedFactor = factor;
             _temporarySpeedFactorRemainingTime = duration;
 
-            if (!_temporarySpeedFactorActive) {
-                _temporarySavedSpeed = Speed;
-            }
-
-            Speed = _temporarySavedSpeed * _temporarySpeedFactor;
+            Speed *= factor;
             _temporarySpeedFactorActive = true;
+
+            StartCoroutine(SpeedMultiplierCo(factor, duration));
+        }
+
+        /// <summary>
+        /// Maintain speed multiplier for given duration, then turn it off
+        /// </summary>
+        /// <param name="factor"></param>
+        /// <param name="duration"></param>
+        /// <returns></returns>
+        protected virtual IEnumerator SpeedMultiplierCo(float factor, float duration) {
+            _coroutineCount++;
+            yield return new WaitForSeconds(duration);
+            Speed /= factor;
+            _coroutineCount--;
+            if (_coroutineCount == 0) {
+                _temporarySpeedFactorActive = false;
+            }
         }
 
         /// <summary>
         /// Rather than using a duration, multiply speed until switched off
+        /// Cannot activate speed switch if it is already active
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="retainEnemySpeed"></param>
         public virtual void TemporarilyMultiplySpeedSwitch(float factor, bool retainEnemySpeed) {
+            if (TempSpeedSwitchActive) {
+                return;
+            }
+
             _retainEnemySpeed = retainEnemySpeed;
 
             _temporarySpeedFactor = factor;
@@ -332,7 +365,7 @@ namespace Paywall {
                 _temporarySavedSpeed = Speed;
             }
 
-            Speed = _temporarySavedSpeed * _temporarySpeedFactor;
+            Speed *= _temporarySpeedFactor;
             TempSpeedSwitchActive = true;
         }
 
@@ -340,19 +373,19 @@ namespace Paywall {
         /// Handles speed multipliers
         /// </summary>
         protected virtual void HandleSpeedFactor() {
-            if (_temporarySpeedFactorActive && _temporarySpeedFactorRemainingTime <= 0) {
-                _retainEnemySpeed = false;
-            }
+            //if (_temporarySpeedFactorActive && _temporarySpeedFactorRemainingTime <= 0) {
+            //    _retainEnemySpeed = false;
+            //}
 
-            if (_temporarySpeedFactorActive) {
-                if (_temporarySpeedFactorRemainingTime <= 0) {
-                    _temporarySpeedFactorActive = false;
-                    Speed = _temporarySavedSpeed;
-                }
-                else {
-                    _temporarySpeedFactorRemainingTime -= Time.deltaTime;
-                }
-            }
+            //if (_temporarySpeedFactorActive) {
+            //    if (_temporarySpeedFactorRemainingTime <= 0) {
+            //        _temporarySpeedFactorActive = false;
+            //        Speed = _temporarySavedSpeed;
+            //    }
+            //    else {
+            //        _temporarySpeedFactorRemainingTime -= Time.deltaTime;
+            //    }
+            //}
 
             // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
             if (Speed > 0) {
@@ -369,7 +402,7 @@ namespace Paywall {
             if (TempSpeedSwitchActive) {
                 TempSpeedSwitchActive = false;
                 _retainEnemySpeed = false;
-                Speed = _temporarySavedSpeed;
+                Speed /= _temporarySpeedFactor;
             }
         }
 

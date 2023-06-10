@@ -141,7 +141,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Phase",
+                    "name": "Dodge",
                     "type": "Button",
                     "id": "3ad1d052-bd43-406a-a3d3-6fa98ffd994b",
                     "expectedControlType": "Button",
@@ -595,11 +595,11 @@
                 {
                     "name": "",
                     "id": "fb5e823e-a7e9-4cb9-82ac-2e35fa756819",
-                    "path": "",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Phase",
+                    "action": "Dodge",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

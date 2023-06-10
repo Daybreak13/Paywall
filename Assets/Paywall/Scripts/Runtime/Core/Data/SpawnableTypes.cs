@@ -4,6 +4,6 @@ using UnityEngine;
 
 namespace Paywall {
 
-    public enum SpawnablePoolerTypes { Trinket, Brick, Walker }
+    public enum SpawnablePoolerTypes { Trinket, Brick, Walker, PowerUp }
 
 }

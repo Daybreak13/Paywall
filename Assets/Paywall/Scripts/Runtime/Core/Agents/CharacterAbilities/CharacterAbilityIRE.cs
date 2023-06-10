@@ -28,7 +28,9 @@ namespace Paywall {
         public bool AbilityAuthorized {
             get {
                 if (_character != null) {
-
+                    if (_character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal) {
+                        return false;
+                    }
                 }
                 if (GameManagerIRE_PW.HasInstance) {
                     if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {

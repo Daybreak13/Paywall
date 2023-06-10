@@ -5,6 +5,7 @@ using MoreMountains.Tools;
 using TMPro;
 using Paywall.Tools;
 using UnityEngine.UI;
+using System;
 
 namespace Paywall {
 
@@ -25,8 +26,11 @@ namespace Paywall {
 		/// the points counter
 		[Tooltip("the points counter")]
 		[field: SerializeField] public TextMeshProUGUI PointsText { get; protected set; }
-		/// the points counter
-		[Tooltip("the points counter")]
+        /// the distance counter
+        [Tooltip("the distance counter")]
+        [field: SerializeField] public TextMeshProUGUI DistanceText { get; protected set; }
+        /// the trinkets counter
+        [Tooltip("the trinkets counter")]
 		[field: SerializeField] public TextMeshProUGUI TrinketsText { get; protected set; }
 		/// the level display
 		[Tooltip("the level display")]
@@ -58,8 +62,14 @@ namespace Paywall {
 		/// the game object that contains the ammo display
 		[field: Tooltip("the game object that contains the ammo display")]
 		[field: SerializeField] public SegmentedBar AmmoBar { get; protected set; }
-		/// the health bar
-		[field: Tooltip("the health bar")]
+        /// the game object that contains the ammo display
+        [field: Tooltip("the game object that contains the ammo display")]
+        [field: SerializeField] public GameObject EXBarContainer { get; protected set; }
+        /// the game object that contains the EX meter display
+        [field: Tooltip("the game object that contains the EX meter display")]
+        [field: SerializeField] public SegmentedBar EXBar { get; protected set; }
+        /// the health bar
+        [field: Tooltip("the health bar")]
 		[field: SerializeField] public TextMeshProUGUI HealthPoints { get; protected set; }
 		/// the health bar
 		[field: Tooltip("the health bar")]
@@ -74,6 +84,15 @@ namespace Paywall {
 		protected virtual void Initialization() {
 			if ((AmmoBar == null) && (AmmoBarContainer != null)) {
 				AmmoBar = AmmoBarContainer.GetComponentInChildren<SegmentedBar>();
+			}
+			if ((EXBar == null) && (EXBarContainer! != null)) {
+				EXBar = EXBarContainer.GetComponentInChildren<SegmentedBar>();
+			}
+			if (DistanceText != null) {
+				DistanceText.text = "0";
+			}
+			if (TrinketsText != null) {
+				TrinketsText.text = "0";
 			}
 		}
 
@@ -169,6 +188,18 @@ namespace Paywall {
 			//if (gameOverScreenTextObject != null) {
 			//	gameOverScreenTextObject.text = "GAME OVER\nYOUR SCORE : " + Mathf.Round((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Points);
 			//}
+		}
+
+		/// <summary>
+		/// Sets the distance text to the distance traveled in LevelManager
+		/// </summary>
+		public virtual void RefreshDistance() {
+			if (DistanceText == null) {
+				return;
+			}
+
+			int distance = (int)Math.Round(LevelManagerIRE_PW.Instance.DistanceTraveled, 0);
+			DistanceText.text = distance.ToString();
 		}
 
 		/// <summary>
@@ -278,6 +309,27 @@ namespace Paywall {
 		public virtual void UpdateAmmoBar(int currentAmmo) {
 			UpdateAmmoBar(currentAmmo, -1, -1);
         }
+
+		/// <summary>
+		/// Update EX bar
+		/// </summary>
+		/// <param name="currentEX"></param>
+		/// <param name="minEX"></param>
+		/// <param name="maxEX"></param>
+		public virtual void UpdateEXBar(float currentEX, float minEX, float maxEX) {
+			if ((EXBarContainer == null) || (EXBar == null)) { return; }
+			if (minEX >= 0) {
+				EXBar.SetMinimumValue(minEX);
+			}
+			if (maxEX >= 0) {
+				EXBar.SetMaximumValue(maxEX);
+			}
+			EXBar.SetCurrentValue(currentEX);
+		}
+
+		public virtual void UpdateEXBar(float currentEX) {
+			UpdateEXBar(currentEX, -1, -1);
+		}
 
 		public virtual void UpdateTrinketsText(int trinkets) {
 			TrinketsText.text = trinkets.ToString();

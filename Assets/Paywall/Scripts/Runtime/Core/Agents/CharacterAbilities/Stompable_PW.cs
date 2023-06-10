@@ -63,6 +63,11 @@ namespace Paywall {
 				return;
 			}
 
+			if (_character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Parrying) {
+
+				return;
+			}
+
 			// we ask the LevelManager to kill the character
 			LevelManagerIRE_PW.Instance.KillCharacter(_character);
 		}

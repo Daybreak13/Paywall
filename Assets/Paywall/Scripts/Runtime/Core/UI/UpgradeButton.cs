@@ -37,6 +37,10 @@ namespace Paywall {
             PWUIEvent.Trigger(this.gameObject, UIEventTypes.Select);
         }
 
+        /// <summary>
+        /// Set the interactable bool of the button, as well as Unlocked state
+        /// </summary>
+        /// <param name="active"></param>
         public virtual void SetButtonStatus(bool active) {
             Unlocked = active;
             GetComponent<Button>().interactable = active;
@@ -45,7 +49,7 @@ namespace Paywall {
         /// <summary>
         /// Sets the button's unlock status to true and updates the button display
         /// </summary>
-        public virtual void UnlockUpgrade() {
+        public virtual void SetAsUnlocked() {
             Unlocked = true;
             SetButtonStatus(false);
         }

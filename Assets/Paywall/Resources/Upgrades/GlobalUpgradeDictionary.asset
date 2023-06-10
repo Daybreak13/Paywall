@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d558f81e60668a4e8fc5030e1ffd74e, type: 3}
-  m_Name: UpgradeDictionary
+  m_Name: GlobalUpgradeDictionary
   m_EditorClassIdentifier: 
   <GameStoreUpgrades>k__BackingField: []
   <RunnerStoreUpgrades>k__BackingField: []

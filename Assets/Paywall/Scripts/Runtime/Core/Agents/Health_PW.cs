@@ -108,7 +108,7 @@ namespace Paywall {
 			// Trigger EXCharge event if applicable
 			if ((EXChargeOnDamageMultiplier > 0) && instigator.CompareTag(PaywallTagManager.PlayerDamageTag) && instigator.TryGetComponent(out DamageOnTouch_PW damageOnTouch)) {
 				if (damageOnTouch.ChargeAmountGained > 0) {
-					PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained * (previousHealth - CurrentHealth) * EXChargeOnDamageMultiplier);
+					PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained * (previousHealth - CurrentHealth) * EXChargeOnDamageMultiplier, ChangeAmountMethods.Add);
                 }
             }
 
@@ -161,8 +161,9 @@ namespace Paywall {
 							PaywallCreditsEvent.Trigger(MoneyTypes.Trinket, MoneyMethods.Add, Trinkets);
 							PaywallDeathEvent.Trigger(gameObject);
 						}
-					}
-					Kill();
+                        PaywallDeathEvent.Trigger(gameObject, GivesStreakOnKill);
+                    }
+                    Kill();
 				}
 			}
 

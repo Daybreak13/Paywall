@@ -8,7 +8,7 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
-    public class CharacterHandleWeaponIRE : CharacterAbilityIRE {
+    public class CharacterHandleWeaponIRE : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent> {
         [field: Header("Weapon Components")]
 
         /// The projectile weapon prefab
@@ -152,6 +152,11 @@ namespace Paywall {
             }
         }
 
+        /// <summary>
+        /// Air stall coroutine
+        /// </summary>
+        /// <param name="stallTime"></param>
+        /// <returns></returns>
         protected virtual IEnumerator AirStallCo(float stallTime) {
             _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0f);
             _rigidbody2D.gravityScale = 0;
@@ -163,13 +168,25 @@ namespace Paywall {
             CurrentWeapon.CurrentAmmoLoaded = CurrentWeapon.MagazineSize;
         }
 
+        /// <summary>
+        /// When an ammo fragment is picked up, increase fragment count
+        /// </summary>
+        /// <param name="itemPickEvent"></param>
+        public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
+            if ((itemPickEvent.PickedPowerUpType == PowerUpTypes.Ammo) && _character.CompareTag("Player")) {
+
+            }
+        }
+
         protected override void OnEnable() {
             base.OnEnable();
+            this.MMEventStartListening<RunnerItemPickEvent>();
             _inputManager.InputActions.PlayerControls.Attack.performed += AttackPerformed;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
+            this.MMEventStopListening<RunnerItemPickEvent>();
             _inputManager.InputActions.PlayerControls.Attack.performed -= AttackPerformed;
         }
     }

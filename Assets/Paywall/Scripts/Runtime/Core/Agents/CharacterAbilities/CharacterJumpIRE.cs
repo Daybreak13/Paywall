@@ -152,7 +152,6 @@ namespace Paywall {
                         Debug.Log("Calculated low jump time: " + CalculateJumpTime(JumpTypes.Low));
                     }
 
-					_character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
 					_jumping = false;
 					NumberOfJumpsLeft = NumberOfJumpsAllowed;
 				}
@@ -225,6 +224,9 @@ namespace Paywall {
 		/// Handle jump button pressed and released
 		/// </summary>
         protected override void HandleInput() {
+			if (!AbilityAuthorized) {
+				return;
+			}
 
             if (_inputManager.InputActions.PlayerControls.Jump.WasPressedThisFrame()) {
                 if (!UseJumpStartUp) {
@@ -572,7 +574,7 @@ namespace Paywall {
 		/// <param name="height"></param>
 		/// <returns></returns>
 		protected virtual float CalculateJumpForce(float height) {
-			return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale));
+			return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
 		}
 
         //protected override void OnEnable() {

@@ -50,7 +50,7 @@ namespace Paywall {
         protected bool _knockbackApplied;
         protected float _currentKnockbackTime;
         protected Vector2 _knockbackForce;
-        protected float _knockbackDeceleration = 20f;
+        protected float _knockbackDeceleration = 33f;
         protected float _snapBackAcceleration = 2f;
 
         // Divide speed by this to get final velocity
@@ -79,6 +79,7 @@ namespace Paywall {
                 _snapBackAcceleration = Mathf.Abs(_snapBackAcceleration);
                 _knockbackDeceleration = Mathf.Abs(_knockbackDeceleration);
             }
+            //_knockbackDeceleration *= Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
         }
 
         /// <summary>
@@ -154,8 +155,14 @@ namespace Paywall {
                 return;
             }
 
-            // Apply knockback return acceleration if applicable    
+            _knockbackDeceleration *= Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
+
             _currentKnockbackTime += Time.fixedDeltaTime;
+
+            // Apply knockback return acceleration if applicable
+            if (_currentKnockbackTime <= Time.fixedDeltaTime) {
+                //return;
+            }
 
             Vector2 levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
             Vector2 newVelocity;
@@ -216,7 +223,7 @@ namespace Paywall {
             if (ShouldUseRigidBody) {
                 // Determine knockback velocity
                 // force * (3/4) ^ (mass - 1)
-                _knockbackForce = force * Mathf.Pow(3f / 4f, _rigidbody2D.mass - 1f);
+                _knockbackForce = force * Mathf.Pow(0.85f, _rigidbody2D.mass - 1f);
 
                 // Determine knockback velocity
                 float vf = Physics.ElasticCollision(force.x, _rigidbody2D.velocity.x, 1f, _rigidbody2D.mass, ElasticCollisionReturns.VFinal2);

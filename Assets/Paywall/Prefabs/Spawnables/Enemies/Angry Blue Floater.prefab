@@ -175,7 +175,7 @@ MonoBehaviour:
   <LaunchForce>k__BackingField: 10
   <LaunchHeight>k__BackingField: 2
   <RaysToCast>k__BackingField: 5
-  <KillsPlayer>k__BackingField: 0
+  <KillsPlayer>k__BackingField: 1
   <KillsPlayerRegardless>k__BackingField: 0
 --- !u!114 &-2860342381278707712
 MonoBehaviour:
@@ -254,9 +254,9 @@ MonoBehaviour:
   OnlyDamageMaster: 1
   KillOnMasterHealthDeath: 0
   TargetDamageResistanceProcessor: {fileID: 0}
-  <GivesTrinketsOnKill>k__BackingField: 0
-  <Trinkets>k__BackingField: 1
-  <GivesStreakOnKill>k__BackingField: 0
+  <GivesTrinketsOnKill>k__BackingField: 1
+  <Trinkets>k__BackingField: 2
+  <GivesStreakOnKill>k__BackingField: 1
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0
   <PostDamageInvincibilityDuration>k__BackingField: 0

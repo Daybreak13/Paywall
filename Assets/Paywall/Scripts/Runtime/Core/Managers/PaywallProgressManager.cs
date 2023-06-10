@@ -63,7 +63,7 @@ namespace Paywall {
 		/// Credits, readonly, for debug purposes only. Comment out Update for final build.
 		[field: Tooltip("Credits, readonly, for debug purposes only. Comment out Update for final build.")]
 		[field: MMReadOnly]
-		[field: SerializeField] private int displayedCredits;
+		[field: SerializeField] private int DisplayedCredits;
 
 		[field: Header("Currency")]
 
@@ -78,15 +78,18 @@ namespace Paywall {
 
 		[field: Header("Dictionaries")]
 
-		/// Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record.
+		/// Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record. Loaded/saved via script.
 		[field: Tooltip("Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record.")]
 		[field: SerializeField] public EmailDictionary EmailsDictionary { get; private set; }
-		/// Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.
+		/// Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game. Set this in inspector.
 		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.")]
 		[field: SerializeField] public UpgradeDictionary UpgradesDictionary { get; private set; }
 
 		public int CurrentLevelTrinkets { get; private set; }
 		public Dictionary<string, EmailItem> EmailItems { get { return EmailsDictionary.EmailItems; } protected set { } }
+		/// <summary>
+		/// Dictionary of all unlocked upgrades
+		/// </summary>
 		public Dictionary<string, Upgrade> Upgrades { get; private set; } = new();
 		public enum SaveMethods { All, Inventory }
 
@@ -133,7 +136,7 @@ namespace Paywall {
 		/// For debugging only. Comment out for final build.
 		/// </summary>
 		protected virtual void Update() {
-			displayedCredits = Credits;
+			DisplayedCredits = Credits;
         }
 
 		/// <summary>
@@ -155,7 +158,7 @@ namespace Paywall {
 		/// Saves the progress to a file
 		/// </summary>
 		protected virtual void SaveProgress(SaveMethods saveMethod = SaveMethods.All) {
-			Progress progress = new Progress();
+			Progress progress = new();
 
 			if (saveMethod == SaveMethods.All) {
 				progress.CurrentLives = (GameManagerIRE_PW.Instance as GameManagerIRE_PW).CurrentLives;
@@ -324,7 +327,7 @@ namespace Paywall {
 				}
 
 				Upgrades[upgradeEvent.Upgrade.UpgradeName].UnlockUpgrade();
-				upgradeEvent.ButtonComponent.UnlockUpgrade();
+				upgradeEvent.ButtonComponent.SetAsUnlocked();
 				PaywallUpgradeEvent.Trigger(UpgradeMethods.Unlock, null, upgradeEvent.ButtonComponent);
 				PaywallCreditsEvent.Trigger(upgrade.MoneyType, MoneyMethods.Add, -upgradeEvent.Upgrade.Cost);
 				SaveProgress();
@@ -375,11 +378,6 @@ namespace Paywall {
 			this.MMEventStopListening<EmailEvent>();
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 		}
-
-		[RuntimeInitializeOnLoadMethod]
-		void RunOnStart() {
-			SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
 
 	}
 }

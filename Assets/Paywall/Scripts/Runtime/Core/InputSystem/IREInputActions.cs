@@ -165,7 +165,7 @@ namespace Paywall
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Phase"",
+                    ""name"": ""Dodge"",
                     ""type"": ""Button"",
                     ""id"": ""3ad1d052-bd43-406a-a3d3-6fa98ffd994b"",
                     ""expectedControlType"": ""Button"",
@@ -619,11 +619,11 @@ namespace Paywall
                 {
                     ""name"": """",
                     ""id"": ""fb5e823e-a7e9-4cb9-82ac-2e35fa756819"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Phase"",
+                    ""action"": ""Dodge"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1165,7 +1165,7 @@ namespace Paywall
             m_PlayerControls_SwitchWeapon = m_PlayerControls.FindAction("SwitchWeapon", throwIfNotFound: true);
             m_PlayerControls_TimeControl = m_PlayerControls.FindAction("TimeControl", throwIfNotFound: true);
             m_PlayerControls_Restart = m_PlayerControls.FindAction("Restart", throwIfNotFound: true);
-            m_PlayerControls_Phase = m_PlayerControls.FindAction("Phase", throwIfNotFound: true);
+            m_PlayerControls_Dodge = m_PlayerControls.FindAction("Dodge", throwIfNotFound: true);
             m_PlayerControls_Slide = m_PlayerControls.FindAction("Slide", throwIfNotFound: true);
             m_PlayerControls_Up = m_PlayerControls.FindAction("Up", throwIfNotFound: true);
             m_PlayerControls_Down = m_PlayerControls.FindAction("Down", throwIfNotFound: true);
@@ -1259,7 +1259,7 @@ namespace Paywall
         private readonly InputAction m_PlayerControls_SwitchWeapon;
         private readonly InputAction m_PlayerControls_TimeControl;
         private readonly InputAction m_PlayerControls_Restart;
-        private readonly InputAction m_PlayerControls_Phase;
+        private readonly InputAction m_PlayerControls_Dodge;
         private readonly InputAction m_PlayerControls_Slide;
         private readonly InputAction m_PlayerControls_Up;
         private readonly InputAction m_PlayerControls_Down;
@@ -1284,7 +1284,7 @@ namespace Paywall
             public InputAction @SwitchWeapon => m_Wrapper.m_PlayerControls_SwitchWeapon;
             public InputAction @TimeControl => m_Wrapper.m_PlayerControls_TimeControl;
             public InputAction @Restart => m_Wrapper.m_PlayerControls_Restart;
-            public InputAction @Phase => m_Wrapper.m_PlayerControls_Phase;
+            public InputAction @Dodge => m_Wrapper.m_PlayerControls_Dodge;
             public InputAction @Slide => m_Wrapper.m_PlayerControls_Slide;
             public InputAction @Up => m_Wrapper.m_PlayerControls_Up;
             public InputAction @Down => m_Wrapper.m_PlayerControls_Down;
@@ -1344,9 +1344,9 @@ namespace Paywall
                 @Restart.started += instance.OnRestart;
                 @Restart.performed += instance.OnRestart;
                 @Restart.canceled += instance.OnRestart;
-                @Phase.started += instance.OnPhase;
-                @Phase.performed += instance.OnPhase;
-                @Phase.canceled += instance.OnPhase;
+                @Dodge.started += instance.OnDodge;
+                @Dodge.performed += instance.OnDodge;
+                @Dodge.canceled += instance.OnDodge;
                 @Slide.started += instance.OnSlide;
                 @Slide.performed += instance.OnSlide;
                 @Slide.canceled += instance.OnSlide;
@@ -1411,9 +1411,9 @@ namespace Paywall
                 @Restart.started -= instance.OnRestart;
                 @Restart.performed -= instance.OnRestart;
                 @Restart.canceled -= instance.OnRestart;
-                @Phase.started -= instance.OnPhase;
-                @Phase.performed -= instance.OnPhase;
-                @Phase.canceled -= instance.OnPhase;
+                @Dodge.started -= instance.OnDodge;
+                @Dodge.performed -= instance.OnDodge;
+                @Dodge.canceled -= instance.OnDodge;
                 @Slide.started -= instance.OnSlide;
                 @Slide.performed -= instance.OnSlide;
                 @Slide.canceled -= instance.OnSlide;
@@ -1581,7 +1581,7 @@ namespace Paywall
             void OnSwitchWeapon(InputAction.CallbackContext context);
             void OnTimeControl(InputAction.CallbackContext context);
             void OnRestart(InputAction.CallbackContext context);
-            void OnPhase(InputAction.CallbackContext context);
+            void OnDodge(InputAction.CallbackContext context);
             void OnSlide(InputAction.CallbackContext context);
             void OnUp(InputAction.CallbackContext context);
             void OnDown(InputAction.CallbackContext context);
