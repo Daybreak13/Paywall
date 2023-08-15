@@ -97,8 +97,7 @@ namespace MoreMountains.Tools
 			}
 			if (TriggerMask.MMContains (collider.gameObject))
 			{
-				StartCoroutine(EnableCamera(true, 0));
-				OnEnterZoneEvent.Invoke();
+				EnterZone();
 			}
 		}
 
@@ -114,8 +113,7 @@ namespace MoreMountains.Tools
 			}
 			if (TriggerMask.MMContains (collider.gameObject))
 			{
-				StartCoroutine(EnableCamera(false, 0));
-				OnExitZoneEvent.Invoke();
+				ExitZone();
 			}
 		}
 		#endif

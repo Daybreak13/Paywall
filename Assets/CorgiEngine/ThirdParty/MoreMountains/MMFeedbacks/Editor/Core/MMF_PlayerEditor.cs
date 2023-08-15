@@ -24,7 +24,7 @@ namespace MoreMountains.Feedbacks
 		public MMF_Player TargetMmfPlayer;
 		protected SerializedProperty _mmfeedbacksList;
 		protected SerializedProperty _mmfeedbacksInitializationMode;
-		protected SerializedProperty _mmfeedbacksSafeMode;
+		protected SerializedProperty _mmfeedbacksAutoInitialization;
 		protected SerializedProperty _mmfeedbacksAutoPlayOnStart;
 		protected SerializedProperty _mmfeedbacksAutoPlayOnEnable;
 		protected SerializedProperty _mmfeedbacksDirection;
@@ -40,7 +40,7 @@ namespace MoreMountains.Feedbacks
 		protected SerializedProperty _mmfeedbacksCanPlay;
 		protected SerializedProperty _mmfeedbacksCanPlayWhileAlreadyPlaying;
 		protected SerializedProperty _mmfeedbacksPerformanceMode;
-		protected SerializedProperty _mmfeedbacksForceStopFeedbacksOnDisable;
+		protected SerializedProperty _mmfeedbacksStopFeedbacksOnDisable;
 		protected SerializedProperty _mmfeedbacksPlayCount;
 		protected SerializedProperty _mmfeedbacksEvents;
 		protected SerializedProperty _keepPlayModeChanges;
@@ -178,7 +178,7 @@ namespace MoreMountains.Feedbacks
 			TargetMmfPlayer = target as MMF_Player;
 			_mmfeedbacksList = serializedObject.FindProperty("FeedbacksList");
 			_mmfeedbacksInitializationMode = serializedObject.FindProperty("InitializationMode");
-			_mmfeedbacksSafeMode = serializedObject.FindProperty("SafeMode");
+			_mmfeedbacksAutoInitialization = serializedObject.FindProperty("AutoInitialization");
 			_mmfeedbacksAutoPlayOnStart = serializedObject.FindProperty("AutoPlayOnStart");
 			_mmfeedbacksAutoPlayOnEnable = serializedObject.FindProperty("AutoPlayOnEnable");
 			_mmfeedbacksDirection = serializedObject.FindProperty("Direction");
@@ -197,7 +197,7 @@ namespace MoreMountains.Feedbacks
 			_mmfeedbacksFeedbacksIntensity = serializedObject.FindProperty("FeedbacksIntensity");
 			_keepPlayModeChanges = serializedObject.FindProperty("KeepPlayModeChanges");
 			_mmfeedbacksPerformanceMode = serializedObject.FindProperty("PerformanceMode");
-			_mmfeedbacksForceStopFeedbacksOnDisable = serializedObject.FindProperty("ForceStopFeedbacksOnDisable");
+			_mmfeedbacksStopFeedbacksOnDisable = serializedObject.FindProperty("StopFeedbacksOnDisable");
 			_mmfeedbacksPlayCount = serializedObject.FindProperty("PlayCount");
 			_mmfeedbacksChanceToPlay = serializedObject.FindProperty("ChanceToPlay");
 			
@@ -371,6 +371,7 @@ namespace MoreMountains.Feedbacks
 				EditorGUILayout.PropertyField(_mmfeedbacksInitializationMode);
 				EditorGUILayout.PropertyField(_mmfeedbacksAutoPlayOnStart);
 				EditorGUILayout.PropertyField(_mmfeedbacksAutoPlayOnEnable);
+				EditorGUILayout.PropertyField(_mmfeedbacksAutoInitialization);
                 
 				EditorGUILayout.Space(10);
 				EditorGUILayout.LabelField(_directionText, EditorStyles.boldLabel);
@@ -416,7 +417,7 @@ namespace MoreMountains.Feedbacks
 				EditorGUILayout.PropertyField(_mmfeedbacksCanPlay);
 				EditorGUILayout.PropertyField(_mmfeedbacksCanPlayWhileAlreadyPlaying);
 				EditorGUILayout.PropertyField(_mmfeedbacksPerformanceMode);
-				EditorGUILayout.PropertyField(_mmfeedbacksForceStopFeedbacksOnDisable);
+				EditorGUILayout.PropertyField(_mmfeedbacksStopFeedbacksOnDisable);
 				if (Application.isPlaying)
 				{
 					EditorGUILayout.PropertyField(_mmfeedbacksPlayCount);	

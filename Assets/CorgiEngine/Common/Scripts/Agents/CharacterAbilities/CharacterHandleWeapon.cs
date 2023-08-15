@@ -204,9 +204,14 @@ namespace MoreMountains.CorgiEngine
 		/// Gets input and triggers methods based on what's been pressed
 		/// </summary>
 		protected override void HandleInput ()
-		{			
+		{
+			bool shootFromLaddersAuthorized = (CanShootFromLadders &&
+			                                   (_movement.CurrentState ==
+			                                    CharacterStates.MovementStates.LadderClimbing));
+			
 			if (!AbilityAuthorized
-			    || (_condition.CurrentState != CharacterStates.CharacterConditions.Normal)
+			    || ((_condition.CurrentState != CharacterStates.CharacterConditions.Normal)
+			         && !shootFromLaddersAuthorized)
 			    || (CurrentWeapon == null))
 			{
 				return;
@@ -329,7 +334,8 @@ namespace MoreMountains.CorgiEngine
 			if ((CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponReload)
 			    || (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponReloadStart)
 			    || (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponReloadStop)
-			    || (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse))
+			    || (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse)
+			    || (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponInCooldown))
 			{
 				return;
 			}

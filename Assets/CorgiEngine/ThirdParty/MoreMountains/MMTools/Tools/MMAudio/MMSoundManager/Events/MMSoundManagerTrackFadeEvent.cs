@@ -12,6 +12,10 @@ namespace MoreMountains.Tools
 	/// </summary>
 	public struct MMSoundManagerTrackFadeEvent
 	{
+		public enum Modes { PlayFade, StopFade }
+
+		/// whether we are fading a sound, or stopping an existing fade
+		public Modes Mode;
 		/// the track to fade the volume of
 		public MMSoundManager.MMSoundManagerTracks Track;
 		/// the duration of the fade, in seconds
@@ -21,8 +25,9 @@ namespace MoreMountains.Tools
 		/// the tween to use when fading
 		public MMTweenType FadeTween;
         
-		public MMSoundManagerTrackFadeEvent(MMSoundManager.MMSoundManagerTracks track, float fadeDuration, float finalVolume, MMTweenType fadeTween)
+		public MMSoundManagerTrackFadeEvent(Modes mode, MMSoundManager.MMSoundManagerTracks track, float fadeDuration, float finalVolume, MMTweenType fadeTween)
 		{
+			Mode = mode;
 			Track = track;
 			FadeDuration = fadeDuration;
 			FinalVolume = finalVolume;
@@ -30,8 +35,9 @@ namespace MoreMountains.Tools
 		}
 
 		static MMSoundManagerTrackFadeEvent e;
-		public static void Trigger(MMSoundManager.MMSoundManagerTracks track, float fadeDuration, float finalVolume, MMTweenType fadeTween)
+		public static void Trigger(Modes mode, MMSoundManager.MMSoundManagerTracks track, float fadeDuration, float finalVolume, MMTweenType fadeTween)
 		{
+			e.Mode = mode;
 			e.Track = track;
 			e.FadeDuration = fadeDuration;
 			e.FinalVolume = finalVolume;

@@ -52,7 +52,7 @@ namespace MoreMountains.Feedbacks
 				return;
 			}
             
-			MMSoundManagerSoundFadeEvent.Trigger(SoundID, FadeDuration, FinalVolume, FadeTween);
+			MMSoundManagerSoundFadeEvent.Trigger(MMSoundManagerSoundFadeEvent.Modes.PlayFade, SoundID, FadeDuration, FinalVolume, FadeTween);
 		}
 	}
 }

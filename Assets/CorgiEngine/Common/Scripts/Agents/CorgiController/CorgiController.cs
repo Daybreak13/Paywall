@@ -154,7 +154,7 @@ namespace MoreMountains.CorgiEngine
 		public bool SafeSetTransform = false;
 		/// if this is true, this controller will set a number of physics settings automatically on init, to ensure they're correct
 		[Tooltip("if this is true, this controller will set a number of physics settings automatically on init, to ensure they're correct")]
-		public bool AutomaticallySetPhysicsSettings = false;
+		public bool AutomaticallySetPhysicsSettings = true;
 		
 		/// if this is true, gravity ability settings will be automatically set. It's recommended to set that to true.
 		[Tooltip("if this is true, gravity ability settings will be automatically set. It's recommended to set that to true.")]
@@ -449,8 +449,13 @@ namespace MoreMountains.CorgiEngine
 				Physics2D.queriesHitTriggers = true;
 				Physics2D.queriesStartInColliders = true;
 				Physics2D.callbacksOnDisable = true;
-				Physics2D.reuseCollisionCallbacks = false;
-				Physics2D.autoSyncTransforms = true;
+				Physics2D.reuseCollisionCallbacks = true;
+				Physics2D.autoSyncTransforms = false;
+
+				if (PlatformMask.MMContains(this.gameObject.layer))
+				{
+					Physics2D.queriesStartInColliders = false;
+				}
 			}
 		}
 

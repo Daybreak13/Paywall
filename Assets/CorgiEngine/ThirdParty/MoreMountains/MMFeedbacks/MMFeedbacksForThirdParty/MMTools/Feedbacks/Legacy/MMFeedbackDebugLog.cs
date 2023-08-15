@@ -15,7 +15,7 @@ namespace MoreMountains.Feedbacks
 	{
 		/// a static bool used to disable all feedbacks of this type at once
 		public static bool FeedbackTypeAuthorized = true;
-		/// the duration of this feedback is the duration of the light, or 0 if instant
+		/// the duration of this feedback is 0
 		public override float FeedbackDuration { get { return 0f; } }
 
 		/// sets the inspector color for this feedback

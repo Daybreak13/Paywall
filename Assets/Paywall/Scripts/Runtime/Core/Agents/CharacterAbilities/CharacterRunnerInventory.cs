@@ -43,6 +43,7 @@ namespace Paywall {
             switch (itemPickEvent.PickedPowerUpType) {
                 case PowerUpTypes.Health:
                     HealthFragments++;
+                    // If we have a full health unit, increase health
                     if (HealthFragments == MaxHealthFragments) {
                         HealthFragments = 0;
                         GameManagerIRE_PW.Instance.SetLives(GameManagerIRE_PW.Instance.CurrentLives + 1);
@@ -50,9 +51,10 @@ namespace Paywall {
                     break;
                 case PowerUpTypes.Ammo:
                     AmmoFragments++;
+                    // If we have a full ammo unit, increase mag size
                     if (AmmoFragments == MaxAmmoFragments) {
                         AmmoFragments = 0;
-                        HandleWeaponComponent.CurrentWeapon.MagazineSize += 1;
+                        HandleWeaponComponent.SetCurrentWeaponMagSize(HandleWeaponComponent.CurrentWeapon.MagazineSize);
                     }
                     break;
             }

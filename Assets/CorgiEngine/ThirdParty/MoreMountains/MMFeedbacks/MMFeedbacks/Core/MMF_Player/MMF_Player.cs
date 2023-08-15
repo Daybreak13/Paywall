@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MoreMountains.Tools;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MoreMountains.Feedbacks
@@ -25,10 +26,13 @@ namespace MoreMountains.Feedbacks
 		}
 
 		public bool KeepPlayModeChanges = false;
+		/// if this is true, the inspector won't refresh while the feedback plays, this saves on performance but feedback inspectors' progress bars for example won't look as smooth
 		[Tooltip("if this is true, the inspector won't refresh while the feedback plays, this saves on performance but feedback inspectors' progress bars for example won't look as smooth")]
 		public bool PerformanceMode = false;
+		/// if this is true, StopFeedbacks will be called on all feedbacks on Disable
 		[Tooltip("if this is true, StopFeedbacks will be called on all feedbacks on Disable")]
-		public bool ForceStopFeedbacksOnDisable = true;
+		public bool StopFeedbacksOnDisable = false;
+		/// how many times this player has started playing
 		[Tooltip("how many times this player has started playing")]
 		[MMReadOnly]
 		public int PlayCount = 0;
@@ -37,6 +41,7 @@ namespace MoreMountains.Feedbacks
         
 		protected Type _t;
 		protected float _cachedTotalDuration;
+		protected bool _initialized = false;
         
 		#endregion
         
@@ -47,6 +52,11 @@ namespace MoreMountains.Feedbacks
 		/// </summary>
 		protected override void Awake()
 		{
+			if (AutoInitialization && (AutoPlayOnEnable || AutoPlayOnStart))
+			{
+				InitializationMode = InitializationModes.Awake;
+			}
+			
 			// if our MMFeedbacks is in AutoPlayOnEnable mode, we add a little helper to it that will re-enable it if needed if the parent game object gets turned off and on again
 			if (AutoPlayOnEnable)
 			{
@@ -67,6 +77,7 @@ namespace MoreMountains.Feedbacks
 			ExtraInitializationChecks();
 			CheckForLoops();
 			ComputeCachedTotalDuration();
+			PreInitialization();
 		}
 
 		/// <summary>
@@ -152,6 +163,18 @@ namespace MoreMountains.Feedbacks
 			PlayFeedbacks();
 		}
 
+		public virtual void PreInitialization()
+		{
+			int count = FeedbacksList.Count;
+			for (int i = 0; i < count; i++)
+			{
+				if (FeedbacksList[i] != null)
+				{
+					FeedbacksList[i].PreInitialization(this, i);
+				}                
+			}
+		}
+
 		/// <summary>
 		/// A public method to initialize the feedback, specifying an owner that will be used as the reference for position and hierarchy by feedbacks
 		/// </summary>
@@ -169,8 +192,19 @@ namespace MoreMountains.Feedbacks
 				if (FeedbacksList[i] != null)
 				{
 					FeedbacksList[i].Initialization(this, i);
-				}                
+				}
 			}
+
+			_initialized = true;
+		}
+
+		/// <summary>
+		/// When calling the legacy init method that used to specify an owner, we force the MMF Player init to run
+		/// </summary>
+		/// <param name="owner"></param>
+		public override void Initialization(GameObject owner)
+		{
+			Initialization();
 		}
 
 		#endregion
@@ -291,6 +325,14 @@ namespace MoreMountains.Feedbacks
 		/// <param name="feedbacksIntensity"></param>
 		protected override void PlayFeedbacksInternal(Vector3 position, float feedbacksIntensity, bool forceRevert = false)
 		{
+			if (AutoInitialization)
+			{
+				if (!_initialized)
+				{
+					Initialization();
+				}
+			}
+			
 			if (!IsAllowedToPlay(position))
 			{
 				return;
@@ -317,7 +359,6 @@ namespace MoreMountains.Feedbacks
 			IsPlaying = true;
 			PlayCount++;
 			ComputeNewRandomDurationMultipliers();
-			_totalDuration = TotalDuration;
 			CheckForPauses();
             
 			if (Time.frameCount < 2)
@@ -491,7 +532,7 @@ namespace MoreMountains.Feedbacks
 			{
 				if (!_pauseFound)
 				{
-					if (GetTime() - _startTime > _totalDuration)
+					if (GetTime() - _startTime > TotalDuration)
 					{
 						_shouldStop = true;
 					}    
@@ -1255,7 +1296,7 @@ namespace MoreMountains.Feedbacks
 			
 			if (IsPlaying)
 			{
-				if (ForceStopFeedbacksOnDisable)
+				if (StopFeedbacksOnDisable)
 				{
 					StopFeedbacks();    
 				}
@@ -1314,7 +1355,7 @@ namespace MoreMountains.Feedbacks
 		/// <summary>
 		/// Computes the total duration of the player's sequence of feedbacks
 		/// </summary>
-		protected virtual void ComputeCachedTotalDuration()
+		public virtual void ComputeCachedTotalDuration()
 		{
 			float total = 0f;
 			if (FeedbacksList == null)

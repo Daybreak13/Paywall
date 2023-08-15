@@ -38,7 +38,7 @@ namespace MoreMountains.Feedbacks
 		#if UNITY_EDITOR
 		public override Color FeedbackColor { get { return MMFeedbacksInspectorColors.FeedbacksColor; } }
 		#endif
-		/// the duration of this feedback is the duration of the light, or 0 if instant
+		/// the duration of this feedback is the duration of the chain
 		public override float FeedbackDuration 
 		{
 			get
@@ -70,7 +70,7 @@ namespace MoreMountains.Feedbacks
 		public List<PlayerChainItem> Players;
 
 		/// <summary>
-		/// On Play we turn our light on and start an over time coroutine if needed
+		/// On Play we start our chain
 		/// </summary>
 		/// <param name="position"></param>
 		/// <param name="feedbacksIntensity"></param>

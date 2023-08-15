@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 #if MM_CINEMACHINE
 using Cinemachine;
-using MoreMountains.Tools;
 #endif
 using MoreMountains.Feedbacks;
+using MoreMountains.Tools;
 
 namespace MoreMountains.FeedbacksForThirdParty
 {

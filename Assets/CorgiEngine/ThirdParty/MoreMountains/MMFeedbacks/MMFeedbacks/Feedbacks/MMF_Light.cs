@@ -50,7 +50,7 @@ namespace MoreMountains.Feedbacks
 		public bool StartsOff = true;
 		/// if this is true, the light will be disabled when this feedbacks is stopped
 		[Tooltip("if this is true, the light will be disabled when this feedbacks is stopped")] 
-		public bool DisableOnStop = true;
+		public bool DisableOnStop = false;
 		/// whether or not the values should be relative or not
 		[Tooltip("whether or not the values should be relative or not")]
 		[MMFEnumCondition("Mode", (int)Modes.OverTime, (int)Modes.ShakerEvent, (int)Modes.Instant)]

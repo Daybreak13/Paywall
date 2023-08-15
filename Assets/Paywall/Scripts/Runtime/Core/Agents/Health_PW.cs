@@ -36,15 +36,19 @@ namespace Paywall {
         [field: FieldCondition("OverridePostDamageInvincibilityDuration", true)]
         [field: SerializeField] public float PostDamageInvincibilityDuration { get; protected set; }
 
-		/// <summary>
-		/// Apply damage to this Health component
-		/// </summary>
-		/// <param name="damage"></param>
-		/// <param name="instigator"></param>
-		/// <param name="flickerDuration"></param>
-		/// <param name="invincibilityDuration"></param>
-		/// <param name="damageDirection"></param>
-		/// <param name="typedDamages"></param>
+        /// Immune to instant kill?
+        [field: Tooltip("Immune to instant kill?")]
+        [field: SerializeField] public bool ImmuneToIK { get; protected set; }
+
+        /// <summary>
+        /// Apply damage to this Health component
+        /// </summary>
+        /// <param name="damage"></param>
+        /// <param name="instigator"></param>
+        /// <param name="flickerDuration"></param>
+        /// <param name="invincibilityDuration"></param>
+        /// <param name="damageDirection"></param>
+        /// <param name="typedDamages"></param>
         public override void Damage(float damage, GameObject instigator, float flickerDuration, 
             float invincibilityDuration, Vector3 damageDirection, List<TypedDamage> typedDamages = null) {
 
@@ -167,6 +171,69 @@ namespace Paywall {
 				}
 			}
 
+        }
+
+        /// <summary>
+        /// Instantly kill this character
+        /// May or may not give EX
+        /// </summary>
+        /// <param name="instigator"></param>
+        /// <returns>Returns true if IK was successful</returns>
+        public virtual bool InstantKill(GameObject instigator) {
+			if (ImmuneToIK || ImmuneToDamage || PostDamageInvulnerable || Invulnerable || TemporarilyInvulnerable) {
+				return false;
+			}
+
+            // On kill, give trinkets if applicable, and trigger death event
+            if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag) || instigator.CompareTag(PaywallTagManager.PlayerTag)) {
+                if (GivesTrinketsOnKill) {
+                    PaywallCreditsEvent.Trigger(MoneyTypes.Trinket, MoneyMethods.Add, Trinkets);
+                    PaywallDeathEvent.Trigger(gameObject);
+                }
+                PaywallDeathEvent.Trigger(gameObject, GivesStreakOnKill);
+            }
+            Kill();
+			return true;
+		}
+
+        public override void Kill() {
+            if (ImmuneToDamage) {
+                return;
+            }
+
+            SetHealth(0f, this.gameObject);
+
+            // we prevent further damage
+            DamageDisabled();
+
+            StopAllDamageOverTime();
+
+            // instantiates the destroy effect
+            if (DeathFeedbacks != null) {
+				DeathFeedbacks.PlayFeedbacks();
+			}
+
+            // Adds points if needed.
+            if (PointsWhenDestroyed != 0) {
+                // we send a new points event for the GameManager to catch (and other classes that may listen to it too)
+                CorgiEnginePointsEvent.Trigger(PointsMethods.Add, PointsWhenDestroyed);
+            }
+
+            if (_animator != null) {
+                _animator.SetTrigger("Death");
+            }
+
+			OnDeath?.Invoke();
+
+            HealthDeathEvent.Trigger(this);
+
+            if (DelayBeforeDestruction > 0f) {
+                Invoke("DestroyObject", DelayBeforeDestruction);
+            }
+            else {
+                // finally we destroy the object
+                DestroyObject();
+            }
         }
 
     }

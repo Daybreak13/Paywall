@@ -9,7 +9,7 @@ namespace MoreMountains.Tools
 {
 	[RequireComponent(typeof(Text))]
 	[AddComponentMenu("More Mountains/Tools/Time/MMCountdown")]
-	public class MMCountdown : MonoBehaviour
+	public class MMCountdown : MMMonoBehaviour
 	{
 		[Serializable]
 		/// <summary>
@@ -28,16 +28,8 @@ namespace MoreMountains.Tools
 
 		/// the possible directions for this countdown
 		public enum MMCountdownDirections { Ascending, Descending }
-        
-		[Header("Debug")]
-		[MMReadOnly]
-		/// the time left in our countdown 
-		public float CurrentTime;
-		[MMReadOnly]
-		/// the direction of the countdown (going 1, 2, 3 if Ascending, and 3, 2, 1 if Descending)
-		public MMCountdownDirections Direction;
 
-		[Header("Countdown")]
+		[MMInspectorGroup("Countdown", true, 18)]
 		[MMInformation("You can define the bounds of the countdown (how much it should count down from, and to how much, the format it should be displayed in (standard Unity float ToString formatting).", MoreMountains.Tools.MMInformationAttribute.InformationType.Info, false)]
 		/// the time (in seconds) to count down from
 		public float CountdownFrom = 60f;
@@ -48,7 +40,7 @@ namespace MoreMountains.Tools
 
 		public enum FormatMethods { Explicit, Choices }
 
-		[Header("Display")]
+		[MMInspectorGroup("Display", true, 19)]
 		/// the selected format method 
 		public FormatMethods FormatMethod = FormatMethods.Choices;
 		/// whether or not values should be floored before displaying them
@@ -66,8 +58,7 @@ namespace MoreMountains.Tools
 		[MMEnumCondition("FormatMethod", (int)FormatMethods.Choices)]
 		public bool Milliseconds = false;
 
-
-		[Header("Settings")]
+		[MMInspectorGroup("Settings", true, 20)]
 		[MMInformation("You can choose whether or not the countdown should automatically start on its Start, at what frequency (in seconds) it should refresh (0 means every frame), and the countdown's speed multiplier " +
 		               "(2 will be twice as fast, 0.5 half normal speed, etc). Floors are used to define and trigger events when certain floors are reached. For each floor, define a floor value (in seconds). Everytime this floor gets reached, the corresponding event will be triggered." +
 		               "Bind events here to trigger them when the countdown reaches its To destination, or every time it gets refreshed.", MoreMountains.Tools.MMInformationAttribute.InformationType.Info, false)]
@@ -83,20 +74,56 @@ namespace MoreMountains.Tools
 		/// the speed of the countdown (2 : twice the normal speed, 0.5 : twice slower)
 		public float CountdownSpeed = 1f;
 
-		[Header("Floors")]
+		[MMInspectorGroup("Floors", true, 21)]
 		/// a list of floors this countdown will evaluate and trigger if met
 		public List<MMCountdownFloor> Floors;
         
-		[Header("Events")]
+		[MMInspectorGroup("Events", true, 22)]
 		/// an event to trigger when the countdown reaches its destination
 		public UnityEvent CountdownCompleteEvent;
 		/// an event to trigger every time the countdown text gets refreshed
 		public UnityEvent CountdownRefreshEvent;
+        
+		[MMInspectorGroup("Debug", true, 17)] 
+		[MMReadOnly]
+		/// the time left in our countdown 
+		public float CurrentTime;
+		[MMReadOnly]
+		/// the direction of the countdown (going 1, 2, 3 if Ascending, and 3, 2, 1 if Descending)
+		public MMCountdownDirections Direction;
+
+		/// Debug button to stop the countdown
+		[MMInspectorButton("StopCountdown")] 
+		public bool StopCountdownButton;
+		/// Debug button to start the countdown
+		[MMInspectorButton("StartCountdown")] 
+		public bool StartCountdownButton;
+		/// Debug button to reset the countdown
+		[MMInspectorButton("ResetCountdown")] 
+		public bool ResetCountdownButton;
+		/// Debug button to change the direction of the countdown
+		[MMInspectorButton("ChangeDirection")] 
+		public bool ChangeDirectionButton;
+		/// A debug value to which to set the current time when pressing the DebugSetNewCurrentTime button
+		public float DebugNewCurrentTime = 5f;
+		/// Debug button to change the countdown's current time
+		[MMInspectorButton("DebugSetNewCurrentTime")] 
+		public bool DebugSetNewCurrentTimeButton;
+
+		/// <summary>
+		/// Debug method to change the current time to the specified debug value
+		/// </summary>
+		private void DebugSetNewCurrentTime()
+		{
+			SetCurrentTime(DebugNewCurrentTime);
+		}
 
 		protected Text _text;
 		protected float _lastRefreshAt;
 		protected bool _countdowning = false;
 		protected int _lastUnitValue = 0;
+
+		#region INITIALIZATION
 
 		/// <summary>
 		/// On Start, grabs and stores the Text component, and autostarts if needed
@@ -107,6 +134,9 @@ namespace MoreMountains.Tools
 			Initialization();
 		}
 
+		/// <summary>
+		/// On init, initializes the direction, handles auto start and floors
+		/// </summary>
 		protected virtual void Initialization()
 		{
 			_lastUnitValue = (int)CurrentTime;
@@ -124,6 +154,10 @@ namespace MoreMountains.Tools
 			}
 		}
 
+		#endregion
+
+		#region UPDATE
+
 		/// <summary>
 		/// On Update, updates the Time, text, checks for floors and checks for the end of the countdown
 		/// </summary>
@@ -134,7 +168,6 @@ namespace MoreMountains.Tools
 			{
 				return;
 			}
-            
 			// we update our current time
 			UpdateTime();
 			UpdateText();
@@ -273,6 +306,10 @@ namespace MoreMountains.Tools
 			}
 		}
 
+		#endregion
+
+		#region CONTROLS
+
 		/// <summary>
 		/// Starts (or restarts) the countdown
 		/// </summary>
@@ -297,5 +334,27 @@ namespace MoreMountains.Tools
 			CurrentTime = CountdownFrom;
 			Initialization();
 		}
+
+		/// <summary>
+		/// Changes the direction of the countdown from ascending to descending, or from descending to ascending
+		/// </summary>
+		public virtual void ChangeDirection()
+		{
+			Direction = Direction == MMCountdownDirections.Descending
+				? MMCountdownDirections.Ascending
+				: MMCountdownDirections.Descending;
+			(CountdownFrom, CountdownTo) = (CountdownTo, CountdownFrom);
+		}
+
+		/// <summary>
+		/// Sets the current time to the new specified value
+		/// </summary>
+		/// <param name="newCurrentTime"></param>
+		public virtual void SetCurrentTime(float newCurrentTime)
+		{
+			CurrentTime = newCurrentTime;
+		}
+
+		#endregion
 	}
 }

@@ -22,7 +22,7 @@ namespace MoreMountains.Feedbacks
 		public override Color FeedbackColor { get { return MMFeedbacksInspectorColors.FeedbacksColor; } }
 		public override string RequiredTargetText => GameObjectReference != null ? GameObjectReference.name : "";  
 		#endif
-		/// the duration of this feedback is the duration of the light, or 0 if instant
+		/// the duration of this feedback is 0
 		public override float FeedbackDuration => 0f;
 		public override bool DisplayFullHeaderColor => true;
 

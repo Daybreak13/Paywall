@@ -17,7 +17,7 @@ namespace Paywall {
     /// <summary>
     /// Handles distance traveled, level speed, playable character, loading levels
     /// </summary>
-    public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW> {
+    public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW>, MMEventListener<MMGameEvent> {
         public enum Controls { SingleButton, LeftRight, Swipe }
 
         #region Property Fields
@@ -65,11 +65,11 @@ namespace Paywall {
         [field: SerializeField] public float InitialSpeed { get; protected set; } = 10f;
         /// the maximum speed the level will run at
         [field: SerializeField] public float MaximumSpeed { get; protected set; } = 50f;
+        /// the maximum speed the level will run at
+        [field: SerializeField] public float SpeedIncrement { get; protected set; } = 7.5f;
         /// Current speed not counting temp speed modifiers
         [field: MMReadOnly]
         [field: SerializeField] public float CurrentUnmodifiedSpeed { get; protected set; }
-        /// the acceleration (per second) at which the level will go from InitialSpeed to MaximumSpeed
-        [field: SerializeField] public float SpeedAcceleration { get; protected set; } = 0f;
         /// the global speed for level segments
         [field: Tooltip("the global speed for level segments")]
         [field: SerializeField] public float SegmentSpeed { get; protected set; } = 1f;
@@ -106,21 +106,26 @@ namespace Paywall {
         protected float _recycleX;
         protected Bounds _tmpRecycleBounds;
 
-        protected bool _temporarySpeedFactorActive;
-        protected float _temporarySpeedFactor;
+        protected bool _tempSpeedMultiplierActive;
+        protected float _tempSpeedSwitchFactor;
         protected float _temporarySpeedFactorRemainingTime;
         protected float _temporarySavedSpeed;
 
         protected bool _retainEnemySpeed;
         protected int _coroutineCount = 0;
 
-        public bool TempSpeedSwitchActive { get; protected set; }    // is the temp speed switch active
+        protected const string _enterSupplyDepotEventName = "EnterSupplyDepot";
+
+        /// <summary>
+        /// Is the temp speed switch active
+        /// </summary>
+        public bool TempSpeedSwitchActive { get; protected set; }
 
         /// <summary>
 		/// Initialization
 		/// </summary>
 		protected virtual void Start() {
-            Speed = InitialSpeed;
+            Speed = CurrentUnmodifiedSpeed = InitialSpeed;
             DistanceTraveled = 0;
 
             InstantiateCharacters();
@@ -289,18 +294,9 @@ namespace Paywall {
             _started = DateTime.UtcNow;
 
             // we increment the total distance traveled so far
-            DistanceTraveled += Speed / 10f * Time.deltaTime;
+            DistanceTraveled += Speed / 10f * SegmentSpeed * Time.deltaTime;
             if (GUIManagerIRE_PW.HasInstance) {
                 GUIManagerIRE_PW.Instance.RefreshDistance();
-            }
-
-            // if we can still accelerate, we apply the level's speed acceleration
-            if ((Speed < MaximumSpeed) && !TempSpeedSwitchActive) {
-                Speed += SpeedAcceleration * Time.deltaTime;
-            }
-
-            if (!_temporarySpeedFactorActive && !TempSpeedSwitchActive) {
-                CurrentUnmodifiedSpeed = Speed;
             }
 
             HandleSpeedFactor();
@@ -318,6 +314,10 @@ namespace Paywall {
         /// <param name="duration"></param>
         /// <param name="retainEnemySpeed"></param>
         public virtual void TemporarilyMultiplySpeed(float factor, float duration, bool retainEnemySpeed = false) {
+            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                CurrentUnmodifiedSpeed = Speed;
+            }
+
             if (retainEnemySpeed) {
                 _retainEnemySpeed = true;
             }
@@ -325,7 +325,7 @@ namespace Paywall {
             _temporarySpeedFactorRemainingTime = duration;
 
             Speed *= factor;
-            _temporarySpeedFactorActive = true;
+            _tempSpeedMultiplierActive = true;
 
             StartCoroutine(SpeedMultiplierCo(factor, duration));
         }
@@ -342,7 +342,7 @@ namespace Paywall {
             Speed /= factor;
             _coroutineCount--;
             if (_coroutineCount == 0) {
-                _temporarySpeedFactorActive = false;
+                _tempSpeedMultiplierActive = false;
             }
         }
 
@@ -352,20 +352,24 @@ namespace Paywall {
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="retainEnemySpeed"></param>
-        public virtual void TemporarilyMultiplySpeedSwitch(float factor, bool retainEnemySpeed) {
+        public virtual void TemporarilyMultiplySpeedSwitch(float factor, bool retainEnemySpeed = false) {
             if (TempSpeedSwitchActive) {
                 return;
             }
 
+            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                CurrentUnmodifiedSpeed = Speed;
+            }
+
             _retainEnemySpeed = retainEnemySpeed;
 
-            _temporarySpeedFactor = factor;
+            _tempSpeedSwitchFactor = factor;
 
             if (!TempSpeedSwitchActive) {
                 _temporarySavedSpeed = Speed;
             }
 
-            Speed *= _temporarySpeedFactor;
+            Speed *= _tempSpeedSwitchFactor;
             TempSpeedSwitchActive = true;
         }
 
@@ -402,7 +406,7 @@ namespace Paywall {
             if (TempSpeedSwitchActive) {
                 TempSpeedSwitchActive = false;
                 _retainEnemySpeed = false;
-                Speed /= _temporarySpeedFactor;
+                Speed /= _tempSpeedSwitchFactor;
             }
         }
 
@@ -425,7 +429,7 @@ namespace Paywall {
                 (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetStatus(GameManagerIRE_PW.GameStatus.GameOver);
                 MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
             } else {
-                player.GetComponent<CharacterIRE>().ActivateTempInvincibility();
+                player.GetComponent<CharacterIRE>().ActivateDamageInvincibility();
             }
         }
 
@@ -544,17 +548,60 @@ namespace Paywall {
         }
 
         /// <summary>
+        /// Increase current unmodified level speed by given amount
+        /// </summary>
+        /// <param name="amount"></param>
+        public virtual void IncreaseLevelSpeed(float amount) {
+            if (_tempSpeedMultiplierActive) {
+                return;
+            }
+            CurrentUnmodifiedSpeed += amount;
+            if (TempSpeedSwitchActive) {
+                Speed = CurrentUnmodifiedSpeed * _tempSpeedSwitchFactor;
+            }
+            else {
+                Speed = CurrentUnmodifiedSpeed;
+            }
+        }
+
+        /// <summary>
+        /// Increment speed and reset temp speed modifiers when leaving depot
+        /// Only temp speed increase from supers is retained
+        /// </summary>
+        protected virtual void LeaveDepot() {
+            StopAllCoroutines();
+            _tempSpeedMultiplierActive = false;
+            CurrentUnmodifiedSpeed += SpeedIncrement;
+            if (TempSpeedSwitchActive) {
+                Speed = CurrentUnmodifiedSpeed * _tempSpeedSwitchFactor;
+            }
+            else {
+                Speed = CurrentUnmodifiedSpeed;
+            }
+        }
+
+        public virtual void OnMMEvent(MMGameEvent gameEvent) {
+            if (gameEvent.EventName.Equals(_enterSupplyDepotEventName)) {
+                //GameManagerIRE_PW.Instance.Pause();
+            }
+            // When leaving supply depot, reset temp speeds (except for those from super)
+            if (gameEvent.EventName.Equals("LeaveDepot")) {
+                LeaveDepot();
+            }
+        }
+
+        /// <summary>
 	    /// Override this if needed
 	    /// </summary>
 	    protected virtual void OnEnable() {
-
+            this.MMEventStartListening<MMGameEvent>();
         }
 
         /// <summary>
         /// Override this if needed
         /// </summary>
         protected virtual void OnDisable() {
-
+            this.MMEventStopListening<MMGameEvent>();
         }
 
     }

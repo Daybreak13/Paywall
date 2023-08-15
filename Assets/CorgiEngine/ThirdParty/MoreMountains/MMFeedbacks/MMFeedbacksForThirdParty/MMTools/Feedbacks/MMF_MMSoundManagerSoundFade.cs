@@ -53,7 +53,22 @@ namespace MoreMountains.Feedbacks
 				return;
 			}
             
-			MMSoundManagerSoundFadeEvent.Trigger(SoundID, FadeDuration, FinalVolume, FadeTween);
+			MMSoundManagerSoundFadeEvent.Trigger(MMSoundManagerSoundFadeEvent.Modes.PlayFade, SoundID, FadeDuration, FinalVolume, FadeTween);
+		}
+        
+		/// <summary>
+		/// On stop, we stop our fade via a fade event
+		/// </summary>
+		/// <param name="position"></param>
+		/// <param name="feedbacksIntensity"></param>
+		protected override void CustomStopFeedback(Vector3 position, float feedbacksIntensity = 1.0f)
+		{
+			if (!Active || !FeedbackTypeAuthorized)
+			{
+				return;
+			}
+            
+			MMSoundManagerSoundFadeEvent.Trigger(MMSoundManagerSoundFadeEvent.Modes.StopFade, SoundID, FadeDuration, FinalVolume, FadeTween);
 		}
 	}
 }

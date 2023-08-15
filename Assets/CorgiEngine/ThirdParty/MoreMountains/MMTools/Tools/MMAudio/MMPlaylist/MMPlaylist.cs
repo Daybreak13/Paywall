@@ -120,8 +120,16 @@ namespace MoreMountains.Tools
 		[MMReadOnly]
 		public bool Fading = false;
 
+		[MMHidden]
+		public bool _initialized;
+
 		public virtual void Initialization()
 		{
+			if (_initialized)
+			{
+				return;
+			}
+			
 			this.Volume = new Vector2(1f, 1f);
 			this.InitialDelay = Vector2.zero;
 			this.CrossFadeDuration = new Vector2(2f, 2f);
@@ -129,6 +137,7 @@ namespace MoreMountains.Tools
 			this.StereoPan = 0f;
 			this.SpatialBlend = 0f;
 			this.Loop = false;
+			this._initialized = true;
 		}
 	}
 
@@ -376,7 +385,9 @@ namespace MoreMountains.Tools
 			}
             
 			// we stop our current song                        
-			if ((PlaylistState.CurrentState == PlaylistStates.Playing) && (index >= 0 && index < Songs.Count))
+			if ((PlaylistState.CurrentState == PlaylistStates.Playing) 
+			    && (index >= 0 && index < Songs.Count)
+			    && !Songs[index].TargetAudioSource.isPlaying)
 			{
 				StartCoroutine(Fade(CurrentlyPlayingIndex,
 					Random.Range(Songs[index].CrossFadeDuration.x, Songs[index].CrossFadeDuration.y),
@@ -421,7 +432,7 @@ namespace MoreMountains.Tools
 				Random.Range(Songs[index].CrossFadeDuration.x, Songs[index].CrossFadeDuration.y),
 				Songs[index].Volume.x * VolumeMultiplier,
 				Songs[index].Volume.y * VolumeMultiplier,
-				false));
+				false));	
 
 			// starts the new song
 			Songs[index].TargetAudioSource.Play();

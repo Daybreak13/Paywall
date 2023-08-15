@@ -82,8 +82,10 @@ namespace MoreMountains.Tools
 
 		// color  ----------------------------------------------------------------------------------------------------------------------
 		/// the color value to remap the level's 0 to
+		[ColorUsage(true, true)]
 		public Color ColorRemapZero = Color.white;
 		/// the color value to remap the level's 1 to
+		[ColorUsage(true, true)]
 		public Color ColorRemapOne = Color.black;
 
 		/// the current level 

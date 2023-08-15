@@ -83,6 +83,17 @@ namespace MoreMountains.Feedbacks
 		/// The reference time scale, to which the system will go back to after all time is changed
 		[Tooltip("The reference time scale, to which the system will go back to after all time is changed")]
 		public float NormalTimeScale = 1f;
+
+		[Header("Impacted Values")] 
+		/// whether or not to update Time.timeScale when changing time scale
+		[Tooltip("whether or not to update Time.timeScale when changing time scale")]
+		public bool UpdateTimescale = true; 
+		/// whether or not to update Time.fixedDeltaTime when changing time scale
+		[Tooltip("whether or not to update Time.fixedDeltaTime when changing time scale")]
+		public bool UpdateFixedDeltaTime = true; 
+		/// whether or not to update Time.maximumDeltaTime when changing time scale
+		[Tooltip("whether or not to update Time.maximumDeltaTime when changing time scale")]
+		public bool UpdateMaximumDeltaTime = true;
 		
 		[Header("Debug")]
 		/// the current, real time, time scale
@@ -105,6 +116,7 @@ namespace MoreMountains.Feedbacks
 		protected float _initialMaximumDeltaTime = 0f;
 		protected float _startedAt;
 		protected bool _lerpingBackToNormal = false;
+		protected float _timeScaleLastTime = float.NegativeInfinity;
 
 		/// <summary>
 		/// A method used from the inspector to test the system
@@ -217,13 +229,29 @@ namespace MoreMountains.Feedbacks
 		/// <param name="newValue"></param>
 		protected virtual void ApplyTimeScale(float newValue)
 		{
-			Time.timeScale = newValue;
-			if (newValue != 0)
+			// if the new timescale is the same as last time, we don't bother updating it
+			if (newValue == _timeScaleLastTime)
+			{
+				return;
+			}
+			
+			if (UpdateTimescale)
+			{
+				Time.timeScale = newValue;	
+			}
+			
+			if (UpdateFixedDeltaTime && (newValue != 0))
 			{
 				Time.fixedDeltaTime = _initialFixedDeltaTime * newValue;            
 			}
-			Time.maximumDeltaTime = _initialMaximumDeltaTime * newValue;
+
+			if (UpdateMaximumDeltaTime)
+			{
+				Time.maximumDeltaTime = _initialMaximumDeltaTime * newValue;
+			}
+
 			CurrentTimeScale = Time.timeScale;
+			_timeScaleLastTime = CurrentTimeScale;
 		}
 
 		/// <summary>

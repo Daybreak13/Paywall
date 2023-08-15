@@ -9,7 +9,10 @@ using System;
 
 namespace Paywall {
 
-    public class GUIManagerIRE_PW : Singleton_PW<GUIManagerIRE_PW>, MMEventListener<MMGameEvent> {
+	/// <summary>
+	/// Manages GUI elements
+	/// </summary>
+    public class GUIManagerIRE_PW : Singleton_PW<GUIManagerIRE_PW>, MMEventListener<MMGameEvent>, MMEventListener<PaywallPauseEvent> {
         #region Property Fields
 
         [field: Header("Bindings")]
@@ -20,8 +23,11 @@ namespace Paywall {
 		/// the game over screen game object
 		[Tooltip("the game over screen game object")]
 		[field: SerializeField] public GameObject GameOverScreen { get; protected set; }
-		/// the object that will contain lives hearts
-		[Tooltip("the object that will contain lives hearts")]
+        /// the supply depot menu screen game object
+        [Tooltip("the supply depot menu screen game object")]
+        [field: SerializeField] public GameObject SupplyDepotScreen { get; protected set; }
+        /// the object that will contain lives hearts
+        [Tooltip("the object that will contain lives hearts")]
 		[field: SerializeField] public GameObject HeartsContainer { get; protected set; }
 		/// the points counter
 		[Tooltip("the points counter")]
@@ -35,8 +41,11 @@ namespace Paywall {
 		/// the level display
 		[Tooltip("the level display")]
 		[field: SerializeField] public TextMeshProUGUI LevelText { get; protected set; }
-		/// the countdown at the start of a level
-		[Tooltip("the countdown at the start of a level")]
+        /// the stage display
+        [Tooltip("the stage display")]
+        [field: SerializeField] public TextMeshProUGUI StageText { get; protected set; }
+        /// the countdown at the start of a level
+        [Tooltip("the countdown at the start of a level")]
 		[field: SerializeField] public TextMeshProUGUI CountdownText { get; protected set; }
 		/// the screen used for all fades
 		[Tooltip("the screen used for all fades")]
@@ -75,12 +84,18 @@ namespace Paywall {
 		[field: Tooltip("the health bar")]
 		[field: SerializeField] public MMProgressBar[] HealthBars { get; protected set; }
 
-        #endregion
+		#endregion
+
+		protected Color _stageTextColor;
+		protected float _currentFadeTime;
 
         protected virtual void Start() {
 			Initialization();
 		}
 
+		/// <summary>
+		/// Get components
+		/// </summary>
 		protected virtual void Initialization() {
 			if ((AmmoBar == null) && (AmmoBarContainer != null)) {
 				AmmoBar = AmmoBarContainer.GetComponentInChildren<SegmentedBar>();
@@ -94,12 +109,22 @@ namespace Paywall {
 			if (TrinketsText != null) {
 				TrinketsText.text = "0";
 			}
-		}
+			if (PauseScreen == null) {
+				PauseScreen = UICameraCanvasManager.Instance.SystemCanvas;
+			}
+			if (SupplyDepotScreen == null) {
+				SupplyDepotScreen = UICameraCanvasManager.Instance.SupplyDepotMenuCanvas;
+			}
 
-		/// <summary>
-		/// Initialization from external source
-		/// </summary>
-		public virtual void Initialize() {
+			if (StageText != null) {
+                StageText.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Initialization from external source
+        /// </summary>
+        public virtual void Initialize() {
 			RefreshPoints();
 			InitializeLives();
 
@@ -152,12 +177,18 @@ namespace Paywall {
 		}
 
 		/// <summary>
-		/// Sets the pause.
+		/// Sets the pause screen's active state
 		/// </summary>
 		/// <param name="state">If set to <c>true</c>, sets the pause.</param>
-		public virtual void SetPause(bool state) {
-			if (PauseScreen == null) { return; }
-			PauseScreen.SetActive(state);
+		public virtual void SetPause(bool state, PauseScreenMethods pauseScreenMethod) {
+			switch (pauseScreenMethod) {
+				case PauseScreenMethods.PauseScreen:
+                    PauseScreen.SetActiveIfNotNull(state);
+                    break;
+				case PauseScreenMethods.SupplyDepotScreen:
+					SupplyDepotScreen.SetActiveIfNotNull(state);
+					break;
+			}
 		}
 
 		/// <summary>
@@ -331,30 +362,85 @@ namespace Paywall {
 			UpdateEXBar(currentEX, -1, -1);
 		}
 
+		/// <summary>
+		/// Update trinkets display text
+		/// </summary>
+		/// <param name="trinkets"></param>
 		public virtual void UpdateTrinketsText(int trinkets) {
 			TrinketsText.text = trinkets.ToString();
         }
 
+		/// <summary>
+		/// Update, display, and fade stage number text
+		/// </summary>
+		/// <param name="stage"></param>
+		public virtual void UpdateStageText(int stage) {
+			StageText.text = stage.ToString();
+			_stageTextColor = StageText.color;
+            _stageTextColor.a = 1f;
+			StageText.color = _stageTextColor;
+			_currentFadeTime = 0f;
+            StageText.gameObject.SetActive(true);
+            StartCoroutine(FadeStageText(1.5f, 1.5f));
+		}
+
+		/// <summary>
+		/// Fades the stage text out
+		/// </summary>
+		/// <param name="displayTime"></param>
+		/// <param name="fadeTime"></param>
+		/// <returns></returns>
+		protected virtual IEnumerator FadeStageText(float displayTime, float fadeTime) {
+			yield return new WaitForSeconds(displayTime);
+			while (_currentFadeTime < fadeTime) {
+				_stageTextColor.a = Mathf.Lerp(1f, 0f, _currentFadeTime / fadeTime);
+				StageText.color = _stageTextColor;
+                _currentFadeTime += Time.deltaTime;
+				yield return new WaitForEndOfFrame();
+			}
+			StageText.gameObject.SetActive(false);
+		}
+
 		public virtual void OnMMEvent(MMGameEvent gameEvent) {
 			switch (gameEvent.EventName) {
-				case "PauseOn":
-					SetPause(true);
-					break;
-				case "PauseOff":
-					SetPause(false);
-					break;
+				//case "PauseOn":
+				//	SetPause(true);
+				//	break;
+				//case "PauseOff":
+				//	SetPause(false);
+				//	break;
 				case "GameStart":
 					OnGameStart();
 					break;
 			}
 		}
 
+		/// <summary>
+		/// Catch pause events
+		/// If we don't need to show pause screen, do nothing
+		/// </summary>
+		/// <param name="pauseEvent"></param>
+		public virtual void OnMMEvent(PaywallPauseEvent pauseEvent) {
+			if (pauseEvent.PauseScreenMethod != PauseScreenMethods.None) {
+				switch (pauseEvent.PauseMethod) {
+					case PauseMethods.PauseOn:
+						SetPause(true, pauseEvent.PauseScreenMethod);
+						break;
+					case PauseMethods.PauseOff:
+						SetPause(false, pauseEvent.PauseScreenMethod);
+						break;
+				}
+			}
+		}
+
 		protected virtual void OnEnable() {
 			this.MMEventStartListening<MMGameEvent>();
+			this.MMEventStartListening<PaywallPauseEvent>();
 		}
 
 		protected virtual void OnDisable() {
 			this.MMEventStopListening<MMGameEvent>();
+			this.MMEventStopListening<PaywallPauseEvent>();
 		}
 
 	}

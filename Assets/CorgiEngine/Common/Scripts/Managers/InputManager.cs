@@ -473,14 +473,23 @@ namespace MoreMountains.CorgiEngine
 		/// If we lose focus, we reset the states of all buttons
 		/// </summary>
 		/// <param name="hasFocus"></param>
-		protected void OnApplicationFocus(bool hasFocus)
+		protected virtual void OnApplicationFocus(bool hasFocus)
 		{
-			if (!hasFocus && ResetButtonStatesOnFocusLoss)
+			if (!hasFocus && ResetButtonStatesOnFocusLoss && (ButtonList != null))
 			{
-				foreach (MMInput.IMButton button in ButtonList)
-				{
-					button.State.ChangeState(MMInput.ButtonStates.ButtonUp);
-				}
+				ForceAllButtonStatesTo(MMInput.ButtonStates.ButtonUp);
+			}
+		}
+
+		/// <summary>
+		/// Lets you force the state of all buttons in the InputManager to the one specified in parameters
+		/// </summary>
+		/// <param name="newState"></param>
+		public virtual void ForceAllButtonStatesTo(MMInput.ButtonStates newState)
+		{
+			foreach (MMInput.IMButton button in ButtonList)
+			{
+				button.State.ChangeState(newState);
 			}
 		}
 

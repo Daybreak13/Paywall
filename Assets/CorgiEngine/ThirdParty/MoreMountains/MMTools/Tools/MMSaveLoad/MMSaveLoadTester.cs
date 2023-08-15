@@ -21,18 +21,24 @@ namespace MoreMountains.Tools
 	{
 		[Header("Bindings")]
 		/// the text to save
+		[Tooltip("the text to save")]
 		public InputField TargetInputField;
 
 		[Header("Save settings")]
 		/// the chosen save method (json, encrypted json, binary, encrypted binary)
+		[Tooltip("the chosen save method (json, encrypted json, binary, encrypted binary)")]
 		public MMSaveLoadManagerMethods SaveLoadMethod = MMSaveLoadManagerMethods.Binary;
 		/// the name of the file to save
+		[Tooltip("the name of the file to save")]
 		public string FileName = "TestObject";
 		/// the name of the destination folder
+		[Tooltip("the name of the destination folder")]
 		public string FolderName = "MMTest/";
 		/// the extension to use
+		[Tooltip("the extension to use")]
 		public string SaveFileExtension = ".testObject";
 		/// the key to use to encrypt the file (if needed)
+		[Tooltip("the key to use to encrypt the file (if needed)")]
 		public string EncryptionKey = "ThisIsTheKey";
 
 		/// Test button
@@ -98,7 +104,7 @@ namespace MoreMountains.Tools
 					(_saveLoadManagerMethod as MMSaveLoadManagerEncrypter).Key = EncryptionKey;
 					break;
 			}
-			MMSaveLoadManager.saveLoadMethod = _saveLoadManagerMethod;
+			MMSaveLoadManager.SaveLoadMethod = _saveLoadManagerMethod;
 		}
 	}
 }

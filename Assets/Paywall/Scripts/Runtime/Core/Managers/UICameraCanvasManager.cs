@@ -5,6 +5,9 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
+    /// <summary>
+    /// Stores references to UI canvases, toggles them on and off in editor
+    /// </summary>
     public class UICameraCanvasManager : MMSingleton<UICameraCanvasManager> {
         [Header("Canvases")]
 
@@ -20,6 +23,9 @@ namespace Paywall {
         /// The dialogue canvas
         [Tooltip("The dialogue canvas")]
         public GameObject DialogueCanvas;
+        /// The supply depot menu canvas
+        [Tooltip("The supply depot menu canvas")]
+        public GameObject SupplyDepotMenuCanvas;
         /// The game over canvas
         [Tooltip("The game over canvas")]
         public GameObject GameOverCanvas;
@@ -48,6 +54,9 @@ namespace Paywall {
             }
             if (DialogueCanvas != null) {
                 _menuList.Add(DialogueCanvas);
+            }
+            if (SupplyDepotMenuCanvas != null) {
+                _menuList.Add(SupplyDepotMenuCanvas);
             }
             if (GameOverCanvas != null) {
                 _menuList.Add(GameOverCanvas);

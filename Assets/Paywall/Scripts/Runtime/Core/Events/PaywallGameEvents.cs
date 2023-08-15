@@ -101,13 +101,52 @@ namespace Paywall {
     /// </summary>
     public struct RunnerItemPickEvent {
         public PowerUpTypes PickedPowerUpType;
+        public int Amount;
 
-        public RunnerItemPickEvent(PowerUpTypes powerUpType) {
+        public RunnerItemPickEvent(PowerUpTypes powerUpType, int amount) {
             PickedPowerUpType = powerUpType;
+            Amount = amount;
         }
         static RunnerItemPickEvent e;
-        public static void Trigger(PowerUpTypes powerUpType) {
+        public static void Trigger(PowerUpTypes powerUpType, int amount) {
             e.PickedPowerUpType = powerUpType;
+            e.Amount = amount;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
+
+    public enum PauseMethods { PauseOn, PauseOff }
+    public enum PauseScreenMethods { PauseScreen, SupplyDepotScreen, None }
+
+    public struct PaywallPauseEvent {
+        public PauseMethods PauseMethod;
+        public PauseScreenMethods PauseScreenMethod;
+
+        public PaywallPauseEvent(PauseMethods pauseMethod, PauseScreenMethods pauseScreenMethod = PauseScreenMethods.PauseScreen) {
+            PauseMethod = pauseMethod;
+            PauseScreenMethod = pauseScreenMethod;
+        }
+        static PaywallPauseEvent e;
+        public static void Trigger(PauseMethods pauseMethod, PauseScreenMethods pauseScreenMethod = PauseScreenMethods.PauseScreen) {
+            e.PauseMethod = pauseMethod;
+            e.PauseScreenMethod = pauseScreenMethod;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
+
+    public enum DialogueEventTypes { Open, Close }
+    public struct PaywallDialogueEvent {
+        public DialogueEventTypes DialogueEventType;
+        public List<DialogueLine> DialogueLines;
+
+        public PaywallDialogueEvent(DialogueEventTypes dialogueEventType, List<DialogueLine> dialogueLines) {
+            DialogueEventType = dialogueEventType;
+            DialogueLines = dialogueLines;
+        }
+        static PaywallDialogueEvent e;
+        public static void Trigger(DialogueEventTypes dialogueEventType, List<DialogueLine> dialogueLines) {
+            e.DialogueEventType = dialogueEventType;
+            e.DialogueLines = dialogueLines;
             MMEventManager.TriggerEvent(e);
         }
     }

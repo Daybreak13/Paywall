@@ -184,7 +184,7 @@ namespace MoreMountains.CorgiEngine
 		/// <summary>
 		/// Flip the projectile
 		/// </summary>
-		protected virtual void Flip()
+		public virtual void Flip()
 		{
 			if (_spriteRenderer != null)
 			{

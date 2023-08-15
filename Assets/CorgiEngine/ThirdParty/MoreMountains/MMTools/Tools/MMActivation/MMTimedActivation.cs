@@ -126,7 +126,7 @@ namespace MoreMountains.Tools
 		/// On trigger enter 2D, we start our countdown if needed
 		/// </summary>
 		/// <param name="collider"></param>
-		protected virtual void OnTriggerEnter2d(Collider2D collider)
+		protected virtual void OnTriggerEnter2D(Collider2D collider)
 		{
 			if ((ActivationMode == ActivationModes.OnTriggerEnter2D) && (CorrectTagOrLayer(collider.gameObject)))
 			{
@@ -138,7 +138,7 @@ namespace MoreMountains.Tools
 		/// On trigger exit 2D, we start our countdown if needed
 		/// </summary>
 		/// <param name="collider"></param>
-		protected virtual void OnTriggerExit2d(Collider2D collider)
+		protected virtual void OnTriggerExit2D(Collider2D collider)
 		{
 			if ((ActivationMode == ActivationModes.OnTriggerExit2D) && (CorrectTagOrLayer(collider.gameObject)))
 			{

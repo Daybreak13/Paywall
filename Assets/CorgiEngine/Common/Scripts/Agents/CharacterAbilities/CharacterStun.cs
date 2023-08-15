@@ -32,6 +32,11 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		public virtual void Stun()
 		{
+			if (!AbilityAuthorized)
+            {
+				return;
+            }
+
 			if (_condition.CurrentState != CharacterStates.CharacterConditions.Stunned)
 			{
 				_previousCondition = _condition.CurrentState;	

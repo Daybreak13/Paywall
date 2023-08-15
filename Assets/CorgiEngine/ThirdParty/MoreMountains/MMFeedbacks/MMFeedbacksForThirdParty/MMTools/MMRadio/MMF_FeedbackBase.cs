@@ -41,6 +41,9 @@ namespace MoreMountains.Feedbacks
 		/// whether or not that target property should be turned off on start
 		[Tooltip("whether or not that target property should be turned off on start")]
 		public bool StartsOff = false;
+		/// whether or not that target property should be turned off once the feedback is done playing
+		[Tooltip("whether or not that target property should be turned off once the feedback is done playing")]
+		public bool EndsOff = false;
 		/// whether or not the values should be relative or not
 		[Tooltip("whether or not the values should be relative or not")]
 		public bool RelativeValues = true;
@@ -206,7 +209,7 @@ namespace MoreMountains.Feedbacks
 				yield return null;
 			}
 			SetValues(FinalNormalizedTime, feedbacksIntensity, position);
-			if (StartsOff)
+			if (EndsOff)
 			{
 				Turn(false);
 			}

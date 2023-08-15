@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using MoreMountains.Tools;
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 using UnityEngine.InputSystem;
@@ -120,6 +122,7 @@ namespace MoreMountains.CorgiEngine
 		public Vector2 CurrentAimMultiplier { get; set; }
 
 		protected Weapon _weapon;
+		protected List<Weapon> _weapons;
 		protected Vector3 _currentAim = Vector3.zero;
 		protected Quaternion _lookRotation;
 		protected Vector3 _direction;
@@ -149,6 +152,8 @@ namespace MoreMountains.CorgiEngine
 		protected virtual void Initialization()
 		{
 			_weapon = this.gameObject.GetComponent<Weapon> ();
+			_weapons = this.gameObject.GetComponents<Weapon>().ToList();
+			
 			if (_weapon.Owner != null)
 			{
 				_characterGravity = _weapon.Owner?.FindAbility<CharacterGravity> ();
@@ -328,11 +333,18 @@ namespace MoreMountains.CorgiEngine
 		/// </summary>
 		protected virtual void LateUpdate()
 		{
-			if (PreventAimWhileWeaponIsInUse && 
-			    (
-				    (_weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBeforeUse 
-				     || _weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse 
-				     || _weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBetweenUses)))
+			bool weaponInUse = false;
+			foreach (Weapon weapon in _weapons)
+			{
+				if (weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBeforeUse
+				    || weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse
+				    || weapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBetweenUses)
+				{
+					weaponInUse = true;
+				}
+			}
+			
+			if (PreventAimWhileWeaponIsInUse && weaponInUse)
 			{
 				return;
 			}

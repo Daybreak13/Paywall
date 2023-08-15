@@ -100,10 +100,6 @@ namespace MoreMountains.CorgiEngine
 
 			if (RespawnOnPlayerRespawn)
 			{
-				if (_health != null)
-				{
-					_health.Revive();
-				}
 				Revive ();
 			}
 			

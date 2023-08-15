@@ -11,6 +11,10 @@ namespace Paywall {
     /// Gets focus on enable, as well as returning focus when the currentSelectedGameObject is null and Navigate button is hit
     /// </summary>
     public class UIGetFocus : MonoBehaviour {
+        /// If true, set UI focus to this object when it is enabled
+        [field: Tooltip("If true, set UI focus to this object when it is enabled")]
+        [field: SerializeField] public bool GetFocusOnEnable { get; protected set; } = true;
+
         public IREInputActions InputActions;
 
         protected virtual void GetFocus(InputAction.CallbackContext context) {
@@ -27,7 +31,9 @@ namespace Paywall {
             if (InputActions == null) {
                 InputActions = new();
             }
-            EventSystem.current.SetSelectedGameObject(this.gameObject, null);
+            if (GetFocusOnEnable) {
+                EventSystem.current.SetSelectedGameObject(this.gameObject, null);
+            }
             InputActions.Enable();
             InputActions.UI.Navigate.performed += GetFocus;
         }

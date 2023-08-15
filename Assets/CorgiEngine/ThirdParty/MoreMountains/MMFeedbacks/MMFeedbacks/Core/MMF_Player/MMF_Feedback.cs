@@ -397,7 +397,17 @@ namespace MoreMountains.Feedbacks
 		#region Initialization
 
 		/// <summary>
-		/// Initializes the feedback and its timing related variables
+		/// Runs at Awake, lets you preinitialize your custom feedback before Initialization
+		/// </summary>
+		/// <param name="owner"></param>
+		/// <param name="index"></param>
+		public virtual void PreInitialization(MMF_Player owner, int index)
+		{
+			_channelData = new MMChannelData(ChannelMode, Channel, MMChannelDefinition);
+		}
+
+		/// <summary>
+		/// Typically runs on Start, Initializes the feedback and its timing related variables
 		/// </summary>
 		/// <param name="owner"></param>
 		public virtual void Initialization(MMF_Player owner, int index)
@@ -511,8 +521,9 @@ namespace MoreMountains.Feedbacks
 
 			if (!_initialized)
 			{
-				Debug.LogWarning("The " + this +
-				                 " feedback is being played without having been initialized. Call Initialization() first.");
+				string feedbackName = this.ToString().Replace("MoreMountains.Feedbacks.", "");
+				Debug.LogWarning("The " + feedbackName +
+				                 " feedback on "+Owner.gameObject.name+" is being played without having been initialized. Always call the Initialization() method first. This can be done manually, or on Start or Awake (automatically on Start is the default). If you're auto playing your feedback on Start or on Enable, initialize on Awake (which runs before Start and Enable). You can change that setting on your MMF Player, unfold the Settings foldout at the top, and change the Initialization Mode.", Owner.gameObject);
 			}
 
 			// we check the cooldown

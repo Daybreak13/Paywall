@@ -955,7 +955,6 @@ MonoBehaviour:
   <Persistent>k__BackingField: 1
   ResetThisInventorySaveOnStart: 0
   <DrawContentInInspector>k__BackingField: 0
-  <EmailDisplayContainer>k__BackingField: {fileID: 0}
 --- !u!4 &208366125
 Transform:
   m_ObjectHideFlags: 0
@@ -1248,6 +1247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de799e64a2cb50429195483d8b4f12e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <GetFocusOnEnable>k__BackingField: 1
 --- !u!1 &271891901
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,8 +1292,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a6647ec0faf0140ad364c443177540, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TotalLives: 0
+  <TotalLives>k__BackingField: 3
+  <CurrentLives>k__BackingField: 0
+  <Points>k__BackingField: 0
+  <Streak>k__BackingField: 0
   TimeScale: 1
+  <Status>k__BackingField: 0
 --- !u!1 &273398105
 GameObject:
   m_ObjectHideFlags: 0
@@ -2240,18 +2244,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 202266413580346674}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &983904161 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 202266414492928662, guid: abaadab6a01791c459664056a5fce587,
-    type: 3}
-  m_PrefabInstance: {fileID: 202266413580346674}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 983904159}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7aff36e5f1462dd4f8d4361b978abc29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &991031427
 GameObject:
   m_ObjectHideFlags: 0
@@ -3359,26 +3351,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90236062f67ce2644aa3c0d7175f1e66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartingPosition: {fileID: 0}
-  PlayableCharacters: []
-  DistanceBetweenCharacters: 1
-  PointsPerSecond: 20
-  InstructionsText: 
-  RecycleBounds:
+  <Speed>k__BackingField: 0
+  <EnemySpeed>k__BackingField: 0
+  <DistanceTraveled>k__BackingField: 0
+  <StartingPosition>k__BackingField: {fileID: 0}
+  <PlayableCharacters>k__BackingField: []
+  <CurrentPlayableCharacters>k__BackingField: []
+  <DistanceBetweenCharacters>k__BackingField: 1
+  <RunningTime>k__BackingField: 0
+  <PointsPerUnit>k__BackingField: 1
+  <RecycleBounds>k__BackingField:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
-  DeathBounds:
+  <DeathBounds>k__BackingField:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
-  InitialSpeed: 10
-  MaximumSpeed: 50
-  SpeedAcceleration: 1
-  IntroFadeDuration: 1
-  OutroFadeDuration: 1
-  StartCountdown: 0
-  StartText: 
-  ControlScheme: 0
-  LifeLostExplosion: {fileID: 0}
+  <SpawnBarrier>k__BackingField: {fileID: 0}
+  <InitialSpeed>k__BackingField: 10
+  <MaximumSpeed>k__BackingField: 50
+  <SpeedIncrement>k__BackingField: 7.5
+  <CurrentUnmodifiedSpeed>k__BackingField: 0
+  <SegmentSpeed>k__BackingField: 1
+  <IntroFadeDuration>k__BackingField: 1
+  <OutroFadeDuration>k__BackingField: 1
+  <StartCountdown>k__BackingField: 0
+  <StartText>k__BackingField: 
+  <ControlScheme>k__BackingField: 0
+  <LifeLostExplosion>k__BackingField: {fileID: 0}
 --- !u!1001 &1578711576
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4283,6 +4282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de799e64a2cb50429195483d8b4f12e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <GetFocusOnEnable>k__BackingField: 1
 --- !u!1 &1890980703
 GameObject:
   m_ObjectHideFlags: 0
@@ -4623,11 +4623,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 202266412729243289, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 202266412729243291, guid: abaadab6a01791c459664056a5fce587,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -4778,86 +4773,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StoreCanvas
       objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 983904161}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ClickCancelButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Paywall.StoreMenuManager, Paywall
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003013005426, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 728830003571959363, guid: abaadab6a01791c459664056a5fce587,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2602097517866612344}
-    - target: {fileID: 728830003771646381, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 983904161}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ClickBuyButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Paywall.StoreMenuManager, Paywall
-      objectReference: {fileID: 0}
-    - target: {fileID: 728830003775844550, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 2910451467803946479, guid: abaadab6a01791c459664056a5fce587,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -4948,12 +4868,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4483366219282130064, guid: abaadab6a01791c459664056a5fce587,
-        type: 3}
-      propertyPath: <Upgrade>k__BackingField
-      value: 
-      objectReference: {fileID: 11400000, guid: 0f909069e04da4e448f3f18d2fc5d7f0,
-        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: abaadab6a01791c459664056a5fce587, type: 3}
 --- !u!1001 &532940697078634524
@@ -5341,6 +5255,8 @@ MonoBehaviour:
   TargetInventoryContainer: {fileID: 2602097516877222312}
   TargetInventoryDisplay: {fileID: 0}
   Overlay: {fileID: 2602097517497692682}
+  OverlayActiveOpacity: 0.85
+  OverlayInactiveOpacity: 0
   HideContainerOnStart: 1
   InputOnlyWhenOpen: 1
   ToggleInventoryKey: 105
@@ -5692,6 +5608,6 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: UI
+  m_DefaultActionMap: PlayerControls
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}

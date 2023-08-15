@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.InfiniteRunnerEngine;
+using UnityEngine.InputSystem;
 
 namespace Paywall {
 
@@ -48,6 +49,16 @@ namespace Paywall {
         }
 
         /// <summary>
+        /// Handles pauses when the game is not in progress (that is handled by CharacterPauseIRE)
+        /// </summary>
+        /// <param name="ctx"></param>
+        protected virtual void PauseButtonDown(InputAction.CallbackContext ctx) {
+            if (GameManagerIRE_PW.HasInstance && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
+                GameManagerIRE_PW.Instance.Pause();
+            }
+        }
+
+        /// <summary>
         /// On enable we enable our input actions
         /// </summary>
         protected virtual void OnEnable() {
@@ -55,12 +66,14 @@ namespace Paywall {
                 Initialization();
             }
             InputActions.Enable();
+            InputActions.PlayerControls.Pause.performed += PauseButtonDown;
         }
 
         /// <summary>
         /// On disable we disable our input actions
         /// </summary>
         protected virtual void OnDisable() {
+            InputActions.PlayerControls.Pause.performed -= PauseButtonDown;
             InputActions.Disable();
         }
     }

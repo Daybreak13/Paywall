@@ -31,6 +31,10 @@ namespace MoreMountains.Feedbacks
 		/// the gameobject we want to change the active state of
 		[Tooltip("the game object we want to destroy")]
 		public GameObject TargetGameObject;
+		/// the optional list of extra gameobjects we want to change the active state of
+		[Tooltip("the optional list of extra gameobjects we want to change the active state of")]
+		public List<GameObject> ExtraTargetGameObjects;
+		
 		/// the selected destruction mode 
 		[Tooltip("the selected destruction mode")]
 		public Modes Mode;
@@ -49,6 +53,10 @@ namespace MoreMountains.Feedbacks
 				return;
 			}
 			ProceedWithDestruction(TargetGameObject);
+			foreach (GameObject go in ExtraTargetGameObjects)
+			{
+				ProceedWithDestruction(go);
+			}
 		}
         
 		/// <summary>

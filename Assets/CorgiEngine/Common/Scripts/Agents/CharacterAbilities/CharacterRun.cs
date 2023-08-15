@@ -20,6 +20,14 @@ namespace MoreMountains.CorgiEngine
 		[Tooltip("the speed of the character when it's running")]
 		public float RunSpeed = 16f;
 
+		/// whether or not to stop the character from running when at low speeds
+		[Tooltip("whether or not to stop the character from running when at low speeds")]
+		public bool StopRunAtLowSpeed = false;
+		/// if StopRunAtLowSpeed is true, the absolute speed under which to stop running
+		[Tooltip("if StopRunAtLowSpeed is true, the absolute speed under which to stop running")]
+		[MMCondition("StopRunAtLowSpeed", true)]
+		public float RunLowSpeedThreshold = 1f;
+
 		[Header("Input")]
 		/// if this is set to false, will ignore input (use methods via script instead)
 		[Tooltip("if this is set to false, will ignore input (use methods via script instead)")]
@@ -99,19 +107,21 @@ namespace MoreMountains.CorgiEngine
 				StopFeedbacks ();
 			}
 
-			// if we're not moving fast enough, we go back to idle
+			if (StopRunAtLowSpeed)
+			{
+				// if we're not moving fast enough, we go back to idle
 
-			float movingSpeed = _controller.Speed.x;
-			if (_controller.CurrentSurfaceModifier != null)
-			{
-				movingSpeed -= _controller.CurrentSurfaceModifier.AddedForce.x;
-				movingSpeed = Mathf.Clamp(movingSpeed, 0f, Single.MaxValue);
-			}
-			
-			if ((Mathf.Abs(movingSpeed) < RunSpeed / 10) && (_movement.CurrentState == CharacterStates.MovementStates.Running) && _startFeedbackIsPlaying)
-			{
-				_movement.ChangeState (CharacterStates.MovementStates.Idle);
-				StopFeedbacks ();
+				float movingSpeed = Mathf.Abs(_controller.WorldSpeed.x);
+				if (_controller.CurrentSurfaceModifier != null)
+				{
+					movingSpeed -= Mathf.Abs(_controller.CurrentSurfaceModifier.AddedForce.x);
+				}
+				
+				if ((movingSpeed < RunLowSpeedThreshold) && (_movement.CurrentState == CharacterStates.MovementStates.Running) && _startFeedbackIsPlaying)
+				{
+					_movement.ChangeState (CharacterStates.MovementStates.Idle);
+					StopFeedbacks ();
+				}	
 			}
 
 			if ((!_controller.State.IsGrounded) && _startFeedbackIsPlaying)

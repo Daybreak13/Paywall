@@ -35,6 +35,9 @@ namespace MoreMountains.Feedbacks
 		/// the float controller to trigger a one time play on
 		[Tooltip("the float controller to trigger a one time play on")]
 		public FloatController TargetFloatController;
+		/// a list of extra and optional float controllers to trigger a one time play on
+		[Tooltip("a list of extra and optional float controllers to trigger a one time play on")]
+		public List<FloatController> ExtraTargetFloatControllers;
 		/// whether this should revert to original at the end
 		[Tooltip("whether this should revert to original at the end")]
 		public bool RevertToInitialValueAfterEnd = false;
@@ -121,31 +124,45 @@ namespace MoreMountains.Feedbacks
 			}
             
 			float intensityMultiplier = ComputeIntensity(feedbacksIntensity, position);
-			TargetFloatController.RevertToInitialValueAfterEnd = RevertToInitialValueAfterEnd;
+			HandleFloatController(TargetFloatController, intensityMultiplier);
+			foreach (FloatController floatController in ExtraTargetFloatControllers)
+			{
+				HandleFloatController(floatController, intensityMultiplier);
+			}
+		}
+
+		/// <summary>
+		/// Applies values to and triggers the target float controller
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="intensityMultiplier"></param>
+		protected virtual void HandleFloatController(FloatController target, float intensityMultiplier)
+		{
+			target.RevertToInitialValueAfterEnd = RevertToInitialValueAfterEnd;
 
 			if (Mode == Modes.OneTime)
 			{
-				TargetFloatController.OneTimeDuration = FeedbackDuration;
-				TargetFloatController.OneTimeAmplitude = OneTimeAmplitude;
-				TargetFloatController.OneTimeCurve = OneTimeCurve;
+				target.OneTimeDuration = FeedbackDuration;
+				target.OneTimeAmplitude = OneTimeAmplitude;
+				target.OneTimeCurve = OneTimeCurve;
 				if (NormalPlayDirection)
 				{
-					TargetFloatController.OneTimeRemapMin = OneTimeRemapMin * intensityMultiplier;
-					TargetFloatController.OneTimeRemapMax = OneTimeRemapMax * intensityMultiplier;
+					target.OneTimeRemapMin = OneTimeRemapMin * intensityMultiplier;
+					target.OneTimeRemapMax = OneTimeRemapMax * intensityMultiplier;
 				}
 				else
 				{
-					TargetFloatController.OneTimeRemapMin = OneTimeRemapMax * intensityMultiplier;
-					TargetFloatController.OneTimeRemapMax = OneTimeRemapMin * intensityMultiplier;   
+					target.OneTimeRemapMin = OneTimeRemapMax * intensityMultiplier;
+					target.OneTimeRemapMax = OneTimeRemapMin * intensityMultiplier;   
 				}
-				TargetFloatController.OneTime();
+				target.OneTime();
 			}
 			if (Mode == Modes.ToDestination)
 			{
-				TargetFloatController.ToDestinationCurve = ToDestinationCurve;
-				TargetFloatController.ToDestinationDuration = FeedbackDuration;
-				TargetFloatController.ToDestinationValue = ToDestinationValue;
-				TargetFloatController.ToDestination();
+				target.ToDestinationCurve = ToDestinationCurve;
+				target.ToDestinationDuration = FeedbackDuration;
+				target.ToDestinationValue = ToDestinationValue;
+				target.ToDestination();
 			}
 		}
 
@@ -157,16 +174,25 @@ namespace MoreMountains.Feedbacks
 			base.CustomReset();
 			if (Active && FeedbackTypeAuthorized && (TargetFloatController != null))
 			{
-				TargetFloatController.OneTimeDuration = _oneTimeDurationStorage;
-				TargetFloatController.OneTimeAmplitude = _oneTimeAmplitudeStorage;
-				TargetFloatController.OneTimeCurve = _oneTimeCurveStorage;
-				TargetFloatController.OneTimeRemapMin = _oneTimeRemapMinStorage;
-				TargetFloatController.OneTimeRemapMax = _oneTimeRemapMaxStorage;
-				TargetFloatController.ToDestinationCurve = _toDestinationCurveStorage;
-				TargetFloatController.ToDestinationDuration = _toDestinationDurationStorage;
-				TargetFloatController.ToDestinationValue = _toDestinationValueStorage;
-				TargetFloatController.RevertToInitialValueAfterEnd = _revertToInitialValueAfterEndStorage;
+				ResetFloatController(TargetFloatController);
+				foreach (FloatController controller in ExtraTargetFloatControllers)
+				{
+					ResetFloatController(controller);
+				}
 			}
+		}
+
+		protected virtual void ResetFloatController(FloatController controller)
+		{
+			controller.OneTimeDuration = _oneTimeDurationStorage;
+			controller.OneTimeAmplitude = _oneTimeAmplitudeStorage;
+			controller.OneTimeCurve = _oneTimeCurveStorage;
+			controller.OneTimeRemapMin = _oneTimeRemapMinStorage;
+			controller.OneTimeRemapMax = _oneTimeRemapMaxStorage;
+			controller.ToDestinationCurve = _toDestinationCurveStorage;
+			controller.ToDestinationDuration = _toDestinationDurationStorage;
+			controller.ToDestinationValue = _toDestinationValueStorage;
+			controller.RevertToInitialValueAfterEnd = _revertToInitialValueAfterEndStorage;
 		}
 
 
@@ -185,6 +211,10 @@ namespace MoreMountains.Feedbacks
 			if (TargetFloatController != null)
 			{
 				TargetFloatController.Stop();
+				foreach (FloatController controller in ExtraTargetFloatControllers)
+				{
+					controller.Stop();
+				}
 			}
 		}
 		
@@ -198,6 +228,10 @@ namespace MoreMountains.Feedbacks
 				return;
 			}
 			TargetFloatController.RestoreInitialValues();
+			foreach (FloatController controller in ExtraTargetFloatControllers)
+			{
+				controller.RestoreInitialValues();
+			}
 		}
 	}
 }

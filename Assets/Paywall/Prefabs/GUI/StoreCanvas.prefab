@@ -476,19 +476,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 202266412729243294}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 202266412729243288}
-        m_TargetAssemblyTypeName: Paywall.UpgradeButton, Paywall
-        m_MethodName: TryUnlockUpgrade
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &202266412729243288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2317,19 +2305,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4483366219282130067}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4483366219282130064}
-        m_TargetAssemblyTypeName: Paywall.UpgradeButton, Paywall
-        m_MethodName: TryUnlockUpgrade
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &4483366219282130064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2342,7 +2318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d27051608a7cb1c4789091ee36f861e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Upgrade>k__BackingField: {fileID: 11400000, guid: 25febbc46d6aa8d4c949108803c248ad,
+  <Upgrade>k__BackingField: {fileID: 11400000, guid: 0f909069e04da4e448f3f18d2fc5d7f0,
     type: 2}
 --- !u!1001 &202266412625785875
 PrefabInstance:
@@ -2351,6 +2327,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 202266412762228805}
     m_Modifications:
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 202266414492928662}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ClickBuyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Paywall.StoreMenuManager, Paywall
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1277224052639863854, guid: f619b26558d3a0448be69f277a0bafd1,
         type: 3}
       propertyPath: m_text
@@ -2527,6 +2538,11 @@ PrefabInstance:
       propertyPath: m_Navigation.m_SelectOnLeft
       value: 
       objectReference: {fileID: 728830003516463465}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_Navigation.m_SelectOnRight
+      value: 
+      objectReference: {fileID: 728830003571959363}
     - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -2743,6 +2759,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
         type: 3}
+      propertyPath: m_Navigation.m_SelectOnLeft
+      value: 
+      objectReference: {fileID: 728830003405872759}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
       propertyPath: m_Navigation.m_SelectOnRight
       value: 
       objectReference: {fileID: 728830003516463465}
@@ -2938,6 +2959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4de799e64a2cb50429195483d8b4f12e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <GetFocusOnEnable>k__BackingField: 1
 --- !u!114 &202266413366534809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3191,6 +3213,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 202266412762228805}
     m_Modifications:
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 202266414492928662}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ClickCancelButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Paywall.StoreMenuManager, Paywall
+      objectReference: {fileID: 0}
+    - target: {fileID: 636075439239578837, guid: f619b26558d3a0448be69f277a0bafd1,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1277224052639863854, guid: f619b26558d3a0448be69f277a0bafd1,
         type: 3}
       propertyPath: m_text

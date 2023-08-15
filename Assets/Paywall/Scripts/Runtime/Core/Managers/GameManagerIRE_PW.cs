@@ -6,7 +6,7 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
-    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW>, MMEventListener<PaywallDeathEvent>, MMEventListener<PaywallEXChargeEvent> {
+    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW>, MMEventListener<PaywallDeathEvent>, MMEventListener<PaywallEXChargeEvent>, MMEventListener<MMGameEvent> {
 		/// the number of lives the player gets (you lose a life when your character (or your characters all) die.
 		/// lose all lives you lose the game and your points.
 		[Tooltip("the number of lives the player gets (you lose a life when your character (or your characters all) die.")]
@@ -44,10 +44,14 @@ namespace Paywall {
 		protected GameStatus _statusBeforePause;
 		protected Coroutine _autoIncrementCoroutine;
 
-		/// <summary>
-		/// Initialization
-		/// </summary>
-		protected virtual void Start() {
+		protected PauseScreenMethods _currentPauseScreenMethod;
+		protected bool _supplyDepotMenuOpen;
+		protected const string _enterSupplyDepotEventName = "EnterDepot";
+
+        /// <summary>
+        /// Initialization
+        /// </summary>
+        protected virtual void Start() {
 			Application.targetFrameRate = 300;
 			CurrentLives = TotalLives;
 			_savedTimeScale = TimeScale;
@@ -175,31 +179,53 @@ namespace Paywall {
 		/// <summary>
 		/// Pauses the game
 		/// </summary>
-		public virtual void Pause() {
-			// if time is not already stopped		
+		public virtual void Pause(PauseScreenMethods pauseScreenMethod = PauseScreenMethods.PauseScreen) {
+			_currentPauseScreenMethod = pauseScreenMethod;
+
+			// if time is not already stopped, pause the game
 			if (Time.timeScale > 0.0f) {
 				Instance.SetTimeScale(0.0f);
 				_statusBeforePause = Instance.Status;
 				Instance.SetStatus(GameStatus.Paused);
+				if (pauseScreenMethod == PauseScreenMethods.SupplyDepotScreen) {
+					_supplyDepotMenuOpen = true;
+				}
 
-				MMEventManager.TriggerEvent(new MMGameEvent("PauseOn"));
+				PaywallPauseEvent.Trigger(PauseMethods.PauseOn, pauseScreenMethod);
+				//MMEventManager.TriggerEvent(new MMGameEvent("PauseOn"));
 			}
+			// Unpause
 			else {
+				// If supply depot menu is open and we're not trying to exit it, deactivate pause menu but do not reset time scale
+				if (_supplyDepotMenuOpen) {
+					if (pauseScreenMethod == PauseScreenMethods.SupplyDepotScreen) {
+                        _supplyDepotMenuOpen = false;
+                    }
+					// Deactivate pause menu without resetting time scale or status
+                    else {
+                        PaywallPauseEvent.Trigger(PauseMethods.PauseOff);
+                        return;
+					}
+				}
 				StartCoroutine(UnPauseDelay());
 			}
 		}
 
 		/// <summary>
 		/// Unpauses the game
+		/// Does not check for open menus (supply depot). Use Pause() if unsure.
 		/// </summary>
 		public virtual void UnPause() {
-			Instance.ResetTimeScale();
-			Instance.SetStatus(_statusBeforePause);
+			if (_statusBeforePause != GameStatus.Paused) {
+                Instance.ResetTimeScale();
+                Instance.SetStatus(_statusBeforePause);
+            }
 
-			MMEventManager.TriggerEvent(new MMGameEvent("PauseOff"));
-		}
+            PaywallPauseEvent.Trigger(PauseMethods.PauseOff, _currentPauseScreenMethod);
+            //MMEventManager.TriggerEvent(new MMGameEvent("PauseOff"));
+        }
 
-		protected virtual IEnumerator UnPauseDelay() {
+        protected virtual IEnumerator UnPauseDelay() {
 			yield return new WaitForEndOfFrame();
 			UnPause();
         }
@@ -218,14 +244,22 @@ namespace Paywall {
             
         }
 
+        public virtual void OnMMEvent(MMGameEvent gameEvent) {
+            if (gameEvent.EventName.Equals(_enterSupplyDepotEventName)) {
+				Instance.Pause(PauseScreenMethods.SupplyDepotScreen);
+			}
+        }
+
         protected virtual void OnEnable() {
 			this.MMEventStartListening<PaywallDeathEvent>();
 			this.MMEventStartListening<PaywallEXChargeEvent>();
+			this.MMEventStartListening<MMGameEvent>();
 		}
 
 		protected virtual void OnDisable() {
 			this.MMEventStopListening<PaywallDeathEvent>();
 			this.MMEventStopListening<PaywallEXChargeEvent>();
+			this.MMEventStopListening<MMGameEvent>();
 		}
 
         protected virtual void OnDestroy() {

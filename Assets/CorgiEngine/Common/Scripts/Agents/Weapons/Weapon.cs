@@ -47,12 +47,20 @@ namespace MoreMountains.CorgiEngine
 		/// the possible use modes for the trigger
 		public enum TriggerModes { SemiAuto, Auto }
 		/// the possible states the weapon can be in
-		public enum WeaponStates { WeaponIdle, WeaponStart, WeaponDelayBeforeUse, WeaponUse, WeaponDelayBetweenUses, WeaponStop, WeaponReloadNeeded, WeaponReloadStart, WeaponReload, WeaponReloadStop, WeaponInterrupted }
+		public enum WeaponStates { WeaponIdle, WeaponStart, WeaponDelayBeforeUse, WeaponUse, WeaponDelayBetweenUses, WeaponStop, WeaponReloadNeeded, WeaponReloadStart, WeaponReload, WeaponReloadStop, WeaponInterrupted, WeaponInCooldown }
 
 		[MMInspectorGroup("General Settings", true, 12)]
 		/// is this weapon on semi or full auto ?
 		[Tooltip("is this weapon on semi or full auto ?")]
 		public TriggerModes TriggerMode = TriggerModes.Auto;
+		/// whether or not this weapon can be interrupted 
+		[Tooltip("whether or not this weapon can be interrupted ")]
+		public bool Interruptable = false;
+		/// If this is true, the weapon will initialize itself on start, otherwise it'll have to be init manually, usually by the CharacterHandleWeapon class
+		[Tooltip("If this is true, the weapon will initialize itself on start, otherwise it'll have to be init manually, usually by the CharacterHandleWeapon class")]
+		public bool InitializeOnStart = false;
+		
+		[Header("Delays")]
 		/// the delay before use, that will be applied for every shot
 		[Tooltip("the delay before use, that will be applied for every shot")]
 		public float DelayBeforeUse = 0f;
@@ -65,12 +73,9 @@ namespace MoreMountains.CorgiEngine
 		/// whether or not the time between uses can be interrupted by releasing the shoot button (if true, releasing the button will cancel the time between uses)
 		[Tooltip("whether or not the time between uses can be interrupted by releasing the shoot button (if true, releasing the button will cancel the time between uses)")]
 		public bool TimeBetweenUsesReleaseInterruption = true;
-		/// whether or not this weapon can be interrupted 
-		[Tooltip("whether or not this weapon can be interrupted ")]
-		public bool Interruptable = false;
-		/// If this is true, the weapon will initialize itself on start, otherwise it'll have to be init manually, usually by the CharacterHandleWeapon class
-		[Tooltip("If this is true, the weapon will initialize itself on start, otherwise it'll have to be init manually, usually by the CharacterHandleWeapon class")]
-		public bool InitializeOnStart = false;
+		/// a duration, in seconds, at the end of the weapon's life cycle and before going back to Idle
+		[Tooltip("a duration, in seconds, at the end of the weapon's life cycle and before going back to Idle")]
+		public float CooldownDuration = 0f;
 		
 		[MMInspectorGroup("Burst Mode", true, 18)]
 		/// if this is true, the weapon will activate repeatedly for every shoot request
@@ -172,6 +177,12 @@ namespace MoreMountains.CorgiEngine
 		[MMCondition("SetForceWhileInUse", true)]
 		[Tooltip("the force to apply when the weapon is in use, if SetForceWhileInUse is true")]
 		public Vector2 ForceWhileInUse =  Vector2.zero;
+		/// whether or not to disable gravity while the weapon is in use
+		[Tooltip("whether or not to disable gravity while the weapon is in use")]
+		public bool DisableGravityWhileInUse = false;
+		/// whether or not to disable flip while the weapon is in use
+		[Tooltip("whether or not to disable flip while the weapon is in use")]
+		public bool PreventFlipWhileInUse = false;
 
 
 		[MMInspectorGroup("Animation", true, 20)]
@@ -207,6 +218,9 @@ namespace MoreMountains.CorgiEngine
 		/// the name of the weapon's delay between each use animation parameter : true when the weapon is in use
 		[Tooltip("the name of the weapon's delay between each use animation parameter : true when the weapon is in use")]
 		public string DelayBetweenUsesAnimationParameter;
+		/// the name of the weapon's in cooldown animation parameter : true when the weapon is in cooldown
+		[Tooltip("the name of the weapon's in cooldown animation parameter : true when the weapon is in cooldown")]
+		public string InCooldownAnimationParameter;
 		/// the name of the weapon stop animation parameter : true after a shot and before the next one or the weapon's stop 
 		[Tooltip("the name of the weapon stop animation parameter : true after a shot and before the next one or the weapon's stop ")]
 		public string StopAnimationParameter;
@@ -323,6 +337,7 @@ namespace MoreMountains.CorgiEngine
 
 		protected float _delayBeforeUseCounter = 0f;
 		protected float _delayBetweenUsesCounter = 0f;
+		protected float _delayCooldownCounter = 0f;
 		protected float _reloadingCounter = 0f;
 		protected bool _triggerReleased = false;
 		protected bool _reloading = false;
@@ -347,6 +362,7 @@ namespace MoreMountains.CorgiEngine
 		protected int _singleUseAnimationParameter;
 		protected int _useAnimationParameter;
 		protected int _delayBetweenUsesAnimationParameter;
+		protected int _inCooldownAnimationParameter;
 		protected int _stopAnimationParameter;
 		protected int _reloadStartAnimationParameter;
 		protected int _reloadAnimationParameter;
@@ -357,7 +373,10 @@ namespace MoreMountains.CorgiEngine
 		protected int _comboInProgressAnimationParameter;
 		protected Vector2 _recoilDirection;
 		protected bool _characterHorizontalMovementNotNull = false;
+		protected bool _controllerNotNull = false;
 		protected float _lastTurnWeaponOnAt = -float.MaxValue;
+		protected bool _gravityBeforeUse = true;
+		protected bool _canFlipBeforeUse = true;
 
 		#region Initialization
 
@@ -447,6 +466,7 @@ namespace MoreMountains.CorgiEngine
 				_characterHorizontalMovement = Owner?.FindAbility<CharacterHorizontalMovement>();
 				_characterHorizontalMovementNotNull = (_characterHorizontalMovement != null);
 				_controller = Owner.GetComponent<CorgiController>();
+				_controllerNotNull = (_controller != null);
 
 				if (CharacterHandleWeapon.AutomaticallyBindAnimator)
 				{
@@ -558,7 +578,17 @@ namespace MoreMountains.CorgiEngine
 				_characterHorizontalMovement.SetHorizontalMove(0f);
 				_characterHorizontalMovement.MovementForbidden = true;
 			}
+			if (DisableGravityWhileInUse)
+			{
+				_gravityBeforeUse = _controller.IsGravityActive;
+				_controller.GravityActive(false);
+			}
 
+			if (PreventFlipWhileInUse)
+			{
+				_canFlipBeforeUse = Owner.CanFlip;
+				Owner.CanFlip = false;
+			}
 			if (SetForceWhileInUse)
 			{
 				_applyForceWhileInUse = true;
@@ -600,6 +630,14 @@ namespace MoreMountains.CorgiEngine
 			if (PreventHorizontalAirMovementWhileInUse && _characterHorizontalMovementNotNull)
 			{
 				_characterHorizontalMovement.MovementForbidden = false;
+			}
+			if (DisableGravityWhileInUse && _controllerNotNull)
+			{
+				_controller.GravityActive(_gravityBeforeUse);
+			}
+			if (PreventFlipWhileInUse)
+			{
+				Owner.CanFlip = _canFlipBeforeUse;
 			}
 			if (SetForceWhileInUse)
 			{
@@ -673,6 +711,10 @@ namespace MoreMountains.CorgiEngine
 
 				case WeaponStates.WeaponStop:
 					CaseWeaponStop();
+					break;
+				
+				case WeaponStates.WeaponInCooldown:
+					CaseWeaponInCooldown();
 					break;
 
 				case WeaponStates.WeaponReloadNeeded:
@@ -755,7 +797,17 @@ namespace MoreMountains.CorgiEngine
 
 		protected virtual void CaseWeaponStop()
 		{
-			WeaponState.ChangeState(WeaponStates.WeaponIdle);
+			_delayCooldownCounter = CooldownDuration;
+			WeaponState.ChangeState(WeaponStates.WeaponInCooldown);
+		}
+
+		protected virtual void CaseWeaponInCooldown()
+		{
+			_delayCooldownCounter -= Time.deltaTime;
+			if (_delayCooldownCounter <= 0)
+			{
+				WeaponState.ChangeState(WeaponStates.WeaponIdle);
+			}
 		}
 
 		protected virtual void CaseWeaponReloadNeeded()
@@ -1232,6 +1284,7 @@ namespace MoreMountains.CorgiEngine
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, StartAnimationParameter, out _startAnimationParameter, AnimatorControllerParameterType.Bool, list);
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, DelayBeforeUseAnimationParameter, out _delayBeforeUseAnimationParameter, AnimatorControllerParameterType.Bool, list);
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, DelayBetweenUsesAnimationParameter, out _delayBetweenUsesAnimationParameter, AnimatorControllerParameterType.Bool, list);
+			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, InCooldownAnimationParameter, out _inCooldownAnimationParameter, AnimatorControllerParameterType.Bool, list);
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, StopAnimationParameter, out _stopAnimationParameter, AnimatorControllerParameterType.Bool, list);
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, ReloadStartAnimationParameter, out _reloadStartAnimationParameter, AnimatorControllerParameterType.Bool, list);
 			MMAnimatorExtensions.AddAnimatorParameterIfExists(animator, ReloadStopAnimationParameter, out _reloadStopAnimationParameter, AnimatorControllerParameterType.Bool, list);
@@ -1272,6 +1325,7 @@ namespace MoreMountains.CorgiEngine
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _useAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBeforeUse || WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse || WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBetweenUses), list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _singleUseAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponUse), list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _delayBetweenUsesAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponDelayBetweenUses), list);
+			MMAnimatorExtensions.UpdateAnimatorBool(animator, _inCooldownAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponInCooldown), list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _stopAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponStop), list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _reloadStartAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponReloadStart), list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _reloadAnimationParameter, (WeaponState.CurrentState == Weapon.WeaponStates.WeaponReload), list);
@@ -1324,6 +1378,7 @@ namespace MoreMountains.CorgiEngine
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _useAnimationParameter, false, list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _singleUseAnimationParameter, false, list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _delayBetweenUsesAnimationParameter, false, list);
+			MMAnimatorExtensions.UpdateAnimatorBool(animator, _inCooldownAnimationParameter, false, list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _stopAnimationParameter, false, list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _reloadStartAnimationParameter, false, list);
 			MMAnimatorExtensions.UpdateAnimatorBool(animator, _reloadAnimationParameter, false, list);
@@ -1335,9 +1390,12 @@ namespace MoreMountains.CorgiEngine
 
 		public virtual void ResetAnimatorParameters()
 		{
-			for (int i = 0; i < Animators.Count; i++)
+			if (_animatorParameters != null)
 			{
-				ResetAnimatorParameters(Animators[i], _animatorParameters[i]);
+				for (int i = 0; i < Animators.Count; i++)
+				{
+					ResetAnimatorParameters(Animators[i], _animatorParameters[i]);
+				}	
 			}
 
 			if ((_ownerAnimator != null) && (WeaponState != null) && (_ownerAnimatorParameters != null))

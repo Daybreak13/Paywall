@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 #if MM_CINEMACHINE
 using Cinemachine;
 #endif
@@ -52,14 +53,32 @@ namespace MoreMountains.Tools
 		/// a debug button used to setup the confiner on click
 		[MMInspectorButton("ManualSetupConfiner")]
 		public bool GenerateConfinerSetup;
-        
-		[Header("Events")]
+		
+		[Header("State")]
+		/// whether this room is the current room or not
+		[Tooltip("whether this room is the current room or not")]
+		[MMReadOnly]
+		public bool CurrentRoom = false;
+		/// whether this room has already been visited or not
+		[Tooltip("whether this room has already been visited or not")]
+		public bool RoomVisited = false;
+
+		[Header("Events")] 
+		/// a UnityEvent to trigger when entering the zone for the first time
+		[Tooltip("a UnityEvent to trigger when entering the zone for the first time")]
+		public UnityEvent OnEnterZoneForTheFirstTimeEvent;
 		/// a UnityEvent to trigger when entering the zone
 		[Tooltip("a UnityEvent to trigger when entering the zone")]
 		public UnityEvent OnEnterZoneEvent;
 		/// a UnityEvent to trigger when exiting the zone
 		[Tooltip("a UnityEvent to trigger when exiting the zone")]
 		public UnityEvent OnExitZoneEvent;
+
+		[Header("Activation")]
+
+		/// a list of gameobjects to enable when entering the zone, and disable when exiting it
+		[Tooltip("a list of gameobjects to enable when entering the zone, and disable when exiting it")]
+		public List<GameObject> ActivationList;
 
 		[Header("Debug")] 
 		/// whether or not to draw shape gizmos to help visualize the zone's bounds
@@ -113,6 +132,11 @@ namespace MoreMountains.Tools
 			if (SetupConfinerOnStart)
 			{
 				SetupConfinerGameObject();	
+			}
+            
+			foreach (GameObject go in ActivationList)
+			{
+				go.SetActive(false);
 			}
 		}
 
@@ -207,6 +231,35 @@ namespace MoreMountains.Tools
 			else if (Mode == Modes.Priority)
 			{
 				VirtualCamera.Priority = state ? EnabledPriority : DisabledPriority;
+			}
+		}
+
+		protected virtual void EnterZone()
+		{
+			if (!RoomVisited)
+			{
+				OnEnterZoneForTheFirstTimeEvent.Invoke();	
+			}
+			
+			CurrentRoom = true;
+			RoomVisited = true;
+
+			OnEnterZoneEvent.Invoke();
+			StartCoroutine(EnableCamera(true, 0));
+			foreach(GameObject go in ActivationList)
+			{
+				go.SetActive(true);
+			}
+		}
+
+		protected virtual void ExitZone()
+		{
+			CurrentRoom = false;
+			OnExitZoneEvent.Invoke();
+			StartCoroutine(EnableCamera(false, 0));
+			foreach (GameObject go in ActivationList)
+			{
+				go.SetActive(false);
 			}
 		}
 

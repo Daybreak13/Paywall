@@ -39,9 +39,6 @@ namespace MoreMountains.Feedbacks
 		/// whether the particle system should be cached or created on demand the first time
 		[Tooltip("whether the particle system should be cached or created on demand the first time")]
 		public Modes Mode = Modes.Cached;
-		/// the duration for the player to consider. This won't impact your particle system, but is a way to communicate to the MMF Player the duration of this feedback. Usually you'll want it to match your actual particle system, and setting it can be useful to have this feedback work with holding pauses.
-		[Tooltip("the duration for the player to consider. This won't impact your particle system, but is a way to communicate to the MMF Player the duration of this feedback. Usually you'll want it to match your actual particle system, and setting it can be useful to have this feedback work with holding pauses.")]
-		public float DeclaredDuration = 0f;
 		
 		/// the initial and planned size of this object pool
 		[Tooltip("the initial and planned size of this object pool")]
@@ -72,6 +69,9 @@ namespace MoreMountains.Feedbacks
 		/// if this is true, the particle system will be stopped every time the feedback is reset - usually before play
 		[Tooltip("if this is true, the particle system will be stopped every time the feedback is reset - usually before play")]
 		public bool StopOnReset = false;
+		/// the duration for the player to consider. This won't impact your particle system, but is a way to communicate to the MMF Player the duration of this feedback. Usually you'll want it to match your actual particle system, and setting it can be useful to have this feedback work with holding pauses.
+		[Tooltip("the duration for the player to consider. This won't impact your particle system, but is a way to communicate to the MMF Player the duration of this feedback. Usually you'll want it to match your actual particle system, and setting it can be useful to have this feedback work with holding pauses.")]
+		public float DeclaredDuration = 0f;
 
 		[MMFInspectorGroup("Position", true, 29)]
 		/// the selected position mode
@@ -98,6 +98,15 @@ namespace MoreMountains.Feedbacks
 		/// whether or not to also apply scale
 		[Tooltip("whether or not to also apply scale")]
 		public bool ApplyScale = false;
+
+		[MMFInspectorGroup("Simulation Speed", true, 43, false)]
+		/// whether or not to force a specific simulation speed on the target particle system(s)
+		[Tooltip("whether or not to force a specific simulation speed on the target particle system(s)")]
+		public bool ForceSimulationSpeed = false;
+		/// The min and max values at which to randomize the simulation speed, if ForceSimulationSpeed is true. A new value will be randomized every time this feedback plays
+		[Tooltip("The min and max values at which to randomize the simulation speed, if ForceSimulationSpeed is true. A new value will be randomized every time this feedback plays")]
+		[MMFCondition("ForceSimulationSpeed", true)]
+		public Vector2 ForcedSimulationSpeed = new Vector2(0.1f,1f);
 
 		protected ParticleSystem _instantiatedParticleSystem;
 		protected List<ParticleSystem> _instantiatedRandomParticleSystems;
@@ -386,7 +395,7 @@ namespace MoreMountains.Feedbacks
 				}
 				_instantiatedParticleSystem.Stop();
 				_instantiatedParticleSystem.transform.position = GetPosition(position);
-				_instantiatedParticleSystem.Play();
+				PlayTargetParticleSystem(_instantiatedParticleSystem);
 			}
 
 			if ((_instantiatedRandomParticleSystems != null) && (_instantiatedRandomParticleSystems.Count > 0))
@@ -402,10 +411,27 @@ namespace MoreMountains.Feedbacks
 					system.transform.position = GetPosition(position);
 				}
 				int random = Random.Range(0, _instantiatedRandomParticleSystems.Count);
-				_instantiatedRandomParticleSystems[random].Play();
+				PlayTargetParticleSystem(_instantiatedRandomParticleSystems[random]);
 			}
 		}
 
+		/// <summary>
+		/// Forces the sim speed if needed, then plays the target particle system
+		/// </summary>
+		/// <param name="targetParticleSystem"></param>
+		protected virtual void PlayTargetParticleSystem(ParticleSystem targetParticleSystem)
+		{
+			if (ForceSimulationSpeed)
+			{
+				ParticleSystem.MainModule main = targetParticleSystem.main;
+				main.simulationSpeed = Random.Range(ForcedSimulationSpeed.x, ForcedSimulationSpeed.y);
+			}
+			targetParticleSystem.Play();
+		}
+
+		/// <summary>
+		/// Grabs and stores a random particle prefab
+		/// </summary>
 		protected virtual void GrabCachedParticleSystem()
 		{
 			if (RandomParticlePrefabs.Count > 0)

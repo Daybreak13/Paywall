@@ -79,7 +79,7 @@ namespace MoreMountains.Feedbacks
 		/// <param name="channel"></param>
 		public virtual void OnMMCameraOrthographicSizeShakeEvent(AnimationCurve distortionCurve, float duration, float remapMin, float remapMax, bool relativeDistortion = false,
 			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, 
-			bool forwardDirection = true, bool stop = false, bool restore = false)
+			bool forwardDirection = true, TimescaleModes timescaleMode = TimescaleModes.Scaled, bool stop = false, bool restore = false)
 		{
 			if (!CheckEventAllowed(channelData))
 			{
@@ -117,6 +117,7 @@ namespace MoreMountains.Feedbacks
 
 			if (!OnlyUseShakerValues)
 			{
+				TimescaleMode = timescaleMode;
 				ShakeDuration = duration;
 				ShakeOrthographicSize = distortionCurve;
 				RemapOrthographicSizeZero = remapMin * feedbacksIntensity;
@@ -180,13 +181,15 @@ namespace MoreMountains.Feedbacks
 		static public void Unregister(Delegate callback) { OnEvent -= callback; }
 
 		public delegate void Delegate(AnimationCurve animCurve, float duration, float remapMin, float remapMax, bool relativeValue = false,
-			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, bool stop = false, bool restore = false);
+			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, 
+			TimescaleModes timescaleMode = TimescaleModes.Scaled, bool stop = false, bool restore = false);
 
 		static public void Trigger(AnimationCurve animCurve, float duration, float remapMin, float remapMax, bool relativeValue = false,
-			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, bool stop = false, bool restore = false)
+			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, 
+			TimescaleModes timescaleMode = TimescaleModes.Scaled, bool stop = false, bool restore = false)
 		{
 			OnEvent?.Invoke(animCurve, duration, remapMin, remapMax, relativeValue,
-				feedbacksIntensity, channelData, resetShakerValuesAfterShake, resetTargetValuesAfterShake, forwardDirection, stop, restore);
+				feedbacksIntensity, channelData, resetShakerValuesAfterShake, resetTargetValuesAfterShake, forwardDirection, timescaleMode, stop, restore);
 		}
 	}
 }

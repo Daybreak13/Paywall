@@ -4,6 +4,7 @@ using UnityEngine;
 using MoreMountains.Tools;
 using Weighted_Randomizer;
 using Paywall.Tools;
+using UnityEditor;
 
 namespace Paywall {
 
@@ -37,7 +38,7 @@ namespace Paywall {
     /// <summary>
     /// Generates level segments randomly
     /// </summary>
-    public class ProceduralLevelGenerator : Singleton_PW<ProceduralLevelGenerator> {
+    public class ProceduralLevelGenerator : Singleton_PW<ProceduralLevelGenerator>, MMEventListener<MMGameEvent> {
 
         #region Property Fields
 
@@ -64,11 +65,15 @@ namespace Paywall {
         [field: Tooltip("The shop level segment")]
         [field: SerializeField] public LevelSegmentController ShopLevelSegment { get; protected set; }
 
-        [field: Header("Level Lengths")]
+        [field: Header("Stages")]
 
-        /// The length of the first level, off which all other level lengths are derived
-        [field: Tooltip("The length of the first level, off which all other level lengths are derived")]
-        [field: SerializeField] public float BaseLevelLength { get; protected set; }
+        /// The length of the first stage, off which all other stage lengths are derived
+        [field: Tooltip("The length of the first stage, off which all other stage lengths are derived")]
+        [field: SerializeField] public float BaseStageLength { get; protected set; }
+        /// The current stage we are on
+        [field: Tooltip("The current stage we are on")]
+        [field: MMReadOnly]
+        [field: SerializeField] public int CurrentStage { get; protected set; } = 1;
 
         [field: Header("Spawn Poolers")]
 
@@ -143,11 +148,11 @@ namespace Paywall {
 
         [field: Header("Global Settings")]
 
-        /// The maximum number of active segments to maintain
-        [field: Tooltip("The maximum number of active segments to maintain")]
+        /// Global chance for a spawn point to spawn nothing
+        [field: Tooltip("Global chance for a spawn point to spawn nothing")]
         [field: SerializeField] public float NoneChance { get; protected set; } = 5;
-        /// The game's current difficulty
-        [field: Tooltip("The game's current difficulty")]
+        /// Launch height used by launch pads
+        [field: Tooltip("Launch height used by launch pads")]
         [field: SerializeField] public float MediumLaunchHeight { get; protected set; } = 2.5f;
 
         [field: Header("Other Settings")]
@@ -170,8 +175,8 @@ namespace Paywall {
         /// Enable debug mode? Generate a predetermined sequence of levels
         [field: Tooltip("Enable debug mode? Generate a predetermined sequence of levels")]
         [field: SerializeField] public bool DebugMode { get; protected set; }
-        /// Override gap length
-        [field: Tooltip("Override gap length")]
+        /// Override gap length and just use ShortestGapLength
+        [field: Tooltip("Override gap length and just use ShortestGapLength")]
         [field: SerializeField] public bool OverrideGapLength { get; protected set; }
         /// Ordered list of level segments
         [field: Tooltip("Ordered list of level segments")]
@@ -205,6 +210,9 @@ namespace Paywall {
         protected bool _shouldStart;
         protected Coroutine _startCoroutine;
         protected CharacterJumpIRE _characterJump;
+        protected float _currentStageLength;
+        protected float _previousStageCutoff;   // Distance at which previous stage ended
+        protected bool _blockSpawn;
 
         protected int _sequenceIndex = 0;
         protected bool _initialized;
@@ -289,10 +297,13 @@ namespace Paywall {
                 }
             }
 
-            _initialized = true;
             if (FirstLevelSegment.GetComponent<MovingRigidbody>() != null) {
                 FirstLevelSegment.GetComponent<MovingRigidbody>().enabled = false;
             }
+
+            _currentStageLength = BaseStageLength;
+
+            _initialized = true;
 
         }
 
@@ -301,7 +312,8 @@ namespace Paywall {
         /// </summary>
         protected virtual void Update() {
             // If the game is not in progress, do nothing
-            if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+            if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress
+                || _blockSpawn) {
                 return;
             } else {
                 if (!_shouldStart) {
@@ -318,9 +330,48 @@ namespace Paywall {
                     if ((LevelManagerIRE_PW.Instance.RecycleBounds.max.x - _currentSegment.RightOut.position.x) < 10f) {
                         return;
                     }
+
+                    // Handle stage. If we are spawning the shop segment, do not spawn anything else this frame
+                    if (HandleStage()) {
+                        return;
+                    }
                 }
                 SpawnNextSegment();
             }
+        }
+
+        /// <summary>
+        /// Manages stage count and depot spawn. If we've reached the end of the stage, handle it, advance to next stage.
+        /// </summary>
+        protected virtual bool HandleStage() {
+            float charPos = LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].transform.position.x;
+            float farRight = _currentSegment.RightOut.position.x;
+            // Distance traveled since entered stage = total distance - distance entered current stage
+            if (LevelManagerIRE_PW.Instance.DistanceTraveled - _previousStageCutoff + (farRight - charPos) >= _currentStageLength) {
+                //_previousStageCutoff = LevelManagerIRE_PW.Instance.DistanceTraveled;
+                IncrementStage();
+                GetNextStageLength();
+
+                if (ShopLevelSegment != null) {
+                    _previousSegment = _currentSegment;
+                    _currentSegment = ShopLevelSegment;
+                    SpawnCurrentSegment();
+                    _blockSpawn = true;
+                }
+
+                return true;
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Handles what happens when stage number is incremented
+        /// </summary>
+        protected virtual void IncrementStage() {
+            CurrentStage++;
+            GUIManagerIRE_PW.Instance.UpdateStageText(CurrentStage);
+            IncrementDifficulty(1);
         }
 
         /// <summary>
@@ -384,9 +435,15 @@ namespace Paywall {
         /// <summary>
         /// Activates the current LevelSegmentController gameobject and sets its position based on the previous segment
         /// </summary>
-        protected virtual void SpawnCurrentSegment() {
+        /// <param name="useDefaultHeight">If true, use the segment's current height</param>
+        protected virtual void SpawnCurrentSegment(bool useDefaultHeight = false) {
             float xPos = _previousSegment.RightOut.position.x + GetGapLength() - _currentSegment.LeftIn.localPosition.x;
-            float yPos = _previousSegment.transform.position.y + GetHeightDelta();
+            float yPos;
+            if (useDefaultHeight) {
+                yPos = _currentSegment.transform.position.y;
+            } else {
+                yPos = _previousSegment.transform.position.y + GetHeightDelta();
+            }
             _currentSegment.transform.position = new Vector3(xPos, yPos);
 
             _currentSegment.gameObject.SetActive(true);
@@ -506,13 +563,43 @@ namespace Paywall {
         }
 
         /// <summary>
+        /// Gets the length of the next stage based on a formula
+        /// Sets _currentStageLength
+        /// </summary>
+        protected virtual void GetNextStageLength() {
+            _currentStageLength = BaseStageLength * Mathf.Pow(1.75f, CurrentStage - 1);
+        }
+
+        protected virtual void EnterShop() {
+            _previousStageCutoff = LevelManagerIRE_PW.Instance.DistanceTraveled;
+        }
+
+        protected virtual void LeaveShop() {
+            _blockSpawn = false;
+        }
+
+        /// <summary>
         /// Called by a spawned segment when it is recycled (OutOfBoundsRecycle_PW)
         /// </summary>
         public virtual void DecrementActiveObjects() {
             _activeSegments--;
         }
 
+        public void OnMMEvent(MMGameEvent gameEvent) {
+            if (gameEvent.EventName.Equals("EnterDepot")) {
+                EnterShop();
+            }
+            if (gameEvent.EventName.Equals("LeaveDepot")) {
+                LeaveShop();
+            }
+        }
+
+        protected virtual void OnEnable() {
+            this.MMEventStartListening<MMGameEvent>();
+        }
+
         protected virtual void OnDisable() {
+            this.MMEventStopListening<MMGameEvent>();
             StopAllCoroutines();
         }
 

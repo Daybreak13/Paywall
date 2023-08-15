@@ -91,7 +91,7 @@ namespace Paywall {
             _initialLayer = _character.gameObject.layer;
             _character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily
             //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
-            _character.SetInvincibility(DodgeDuration);
+            _character.SetInvincibilityDuration(DodgeDuration);
             _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
             _character.ApplyForce(DodgeForce);
             _currentDodgeTime = 0f;

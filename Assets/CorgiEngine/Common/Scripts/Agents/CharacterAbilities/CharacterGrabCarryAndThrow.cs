@@ -247,9 +247,12 @@ namespace MoreMountains.CorgiEngine
 		{
 			base.ResetAbility();
 			Throw();
-			MMAnimatorExtensions.UpdateAnimatorBool(_animator, _grabbingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
-			MMAnimatorExtensions.UpdateAnimatorBool(_animator, _throwingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
-			MMAnimatorExtensions.UpdateAnimatorBool(_animator, _carryingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
+			if (_animator != null)
+			{
+				MMAnimatorExtensions.UpdateAnimatorBool(_animator, _grabbingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
+				MMAnimatorExtensions.UpdateAnimatorBool(_animator, _throwingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
+				MMAnimatorExtensions.UpdateAnimatorBool(_animator, _carryingAnimationParameter, false, _character._animatorParameters, _character.PerformAnimatorSanityChecks);
+			}
 		}
 	}
 }

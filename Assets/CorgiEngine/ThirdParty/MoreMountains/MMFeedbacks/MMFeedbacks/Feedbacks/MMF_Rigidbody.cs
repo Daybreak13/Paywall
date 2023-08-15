@@ -29,6 +29,9 @@ namespace MoreMountains.Feedbacks
 		/// the rigidbody to target on play
 		[Tooltip("the rigidbody to target on play")]
 		public Rigidbody TargetRigidbody;
+		/// a list of extra rigidbodies to target on play
+		[Tooltip("a list of extra rigidbodies to target on play")]
+		public List<Rigidbody> ExtraTargetRigidbodies;
 		/// the selected mode for this feedback
 		[Tooltip("the selected mode for this feedback")]
 		public Modes Mode = Modes.AddForce;
@@ -64,20 +67,33 @@ namespace MoreMountains.Feedbacks
 			{
 				_force *= feedbacksIntensity;
 			}
-            
+			
+			ApplyForce(TargetRigidbody);
+			foreach (Rigidbody rb in ExtraTargetRigidbodies)
+			{
+				ApplyForce(rb);
+			}
+		}
+
+		/// <summary>
+		/// Applies the computed force to the target rigidbody
+		/// </summary>
+		/// <param name="rb"></param>
+		protected virtual void ApplyForce(Rigidbody rb)
+		{
 			switch (Mode)
 			{
 				case Modes.AddForce:
-					TargetRigidbody.AddForce(_force, AppliedForceMode);
+					rb.AddForce(_force, AppliedForceMode);
 					break;
 				case Modes.AddRelativeForce:
-					TargetRigidbody.AddRelativeForce(_force, AppliedForceMode);
+					rb.AddRelativeForce(_force, AppliedForceMode);
 					break;
 				case Modes.AddTorque:
-					TargetRigidbody.AddTorque(_force, AppliedForceMode);
+					rb.AddTorque(_force, AppliedForceMode);
 					break;
 				case Modes.AddRelativeTorque:
-					TargetRigidbody.AddRelativeTorque(_force, AppliedForceMode);
+					rb.AddRelativeTorque(_force, AppliedForceMode);
 					break;
 			}
 		}

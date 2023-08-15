@@ -1,17 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.CorgiEngine;
 using MoreMountains.Tools;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using Paywall.Tools;
+using System;
 
 namespace Paywall {
 
-    /// Class containing dialogue lines
+    /// Class containing one dialogue line and associated data
     [System.Serializable]
-    public class DialogueUILines {
+    public class DialogueLine {
         [TextArea]
         public string Line;
         public string CharacterName;
@@ -21,44 +23,44 @@ namespace Paywall {
     /// <summary>
     /// Plays lines of dialogue
     /// </summary>
-    public class DialogueManager : MonoBehaviour {
-        [Header("Properties")]
+    public class DialogueManager : MonoBehaviour, MMEventListener<PaywallDialogueEvent> {
+        [field: Header("Properties")]
         /// If true, set dialogue canvas to inactive at start
-        [Tooltip("If true, set dialogue canvas to inactive at start")]
-        public bool DisableOnStart = true;
+        [field: Tooltip("If true, set dialogue canvas to inactive at start")]
+        [field: SerializeField] public bool DisableOnStart { get; protected set; } = true;
         /// The speed at which text is displayed, in characters per second
-        [Tooltip("The speed at which text is displayed, in characters per second")]
-        public float TextSpeed = 30f;
+        [field: Tooltip("The speed at which text is displayed, in characters per second")]
+        [field: SerializeField] public float TextSpeed { get; protected set; } = 30f;
         /// If true, requires the player to hit a button to advance dialogue. Otherwise, advance automatically.
-        [Tooltip("If true, requires the player to hit a button to advance dialogue. Otherwise, advance automatically.")]
-        public bool RequireInput;
+        [field: Tooltip("If true, requires the player to hit a button to advance dialogue. Otherwise, advance automatically.")]
+        [field: SerializeField] public bool RequireInput { get; protected set; }
         /// If advancing automatically, the delay before advancing.
-        [Tooltip("If advancing automatically, the delay before advancing.")]
-        [MMCondition("RequireInput", true, true)]
-        public float AdvanceDelay = 1.5f;
+        [field: Tooltip("If advancing automatically, the delay before advancing.")]
+        [field: FieldCondition("RequireInput", true, true)]
+        [field: SerializeField] public float AdvanceDelay { get; protected set; } = 1.5f;
 
-        [Header("Components")]
+        [field: Header("Components")]
         /// The canvas group containing the dialogue components
-        [Tooltip("The canvas group containing the dialogue components")]
-        public GameObject DialogueCanvasGroup;
+        [field: Tooltip("The canvas group containing the dialogue components")]
+        [field: SerializeField] public GameObject DialogueCanvasGroup { get; protected set; }
         /// Dialogue screen background (fullscreen)
-        [Tooltip("Dialogue screen background (fullscreen)")]
-        public GameObject Background;
+        [field: Tooltip("Dialogue screen background (fullscreen)")]
+        [field: SerializeField] public GameObject Background { get; protected set; }
         /// Text object displaying the name of the character speaking
-        [Tooltip("Text object displaying the name of the character speaking")]
-        public TextMeshProUGUI NameDisplay;
+        [field: Tooltip("Text object displaying the name of the character speaking")]
+        [field: SerializeField] public TextMeshProUGUI NameDisplay { get; protected set; }
         /// Image object displaying the portrait of the character speaking
-        [Tooltip("Image object displaying the portrait of the character speaking")]
-        public GameObject Portrait;
+        [field: Tooltip("Image object displaying the portrait of the character speaking")]
+        [field: SerializeField] public GameObject Portrait { get; protected set; }
         /// The textmeshpro component
-        [Tooltip("The textmeshpro component for the dialogue canvas")]
-        public TextMeshProUGUI DialogueText;
+        [field: Tooltip("The textmeshpro component for the dialogue canvas")]
+        [field: SerializeField] public TextMeshProUGUI DialogueText { get; protected set; }
 
-        [Header("Dialogue Lines")]
+        [field: Header("Dialogue Lines")]
         /// The list of text lines to be typed out
-        [Tooltip("The list of text lines to be typed out")]
-        [MMReadOnly]
-        public List<DialogueUILines> TextLines = new List<DialogueUILines>();
+        [field: Tooltip("The list of text lines to be typed out")]
+        [field: MMReadOnly]
+        [field: SerializeField] public List<DialogueLine> TextLines { get; protected set; } = new List<DialogueLine>();
 
         public IREInputActions InputActions;
 
@@ -68,30 +70,26 @@ namespace Paywall {
         protected bool _textComplete;
         // The index of currently displayed dialogue in TextLines
         protected int _currentLine;
-        // The input system manager
-        protected InputSystemManager _inputSystemManager;
         // Typing coroutine
         protected Coroutine _typingCoroutine;
+        // 
         protected bool _playingDialogue;
+        protected int _maxChars = 100;
 
         protected virtual void Awake() {
             InputActions = new();
-            foreach (Transform child in DialogueCanvasGroup.transform) {
-                //child.gameObject.SetActive(false);
-            }
         }
 
         protected virtual void Start() {
-            _inputSystemManager = FindObjectOfType<InputSystemManager>();
             if (DisableOnStart) {
-                DialogueCanvasGroup.SetActive(false);
+                DialogueCanvasGroup.SetActiveIfNotNull(false);
             }
         }
 
         /// <summary>
         /// Advances the dialogue. If the dialogue is not done typing, complete the dialogue. Otherwise, go to the next set of dialogue.
         /// </summary>
-        protected virtual void Advance() {
+        protected virtual void Advance(InputAction.CallbackContext ctx) {
             // If the line is done playing, advance to the next line
             if (_textComplete) {
                 // If there are no more lines, end the dialogue
@@ -107,7 +105,7 @@ namespace Paywall {
                         _typingCoroutine = StartCoroutine(TypeCharacters());
                     }
                 }
-                _currentLine++;
+                //_currentLine++;
             }
             // Reveal the rest of the dialogue line immediately
             else {
@@ -132,19 +130,33 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Plays given list of dialogue lines
+        /// Clears current dialogue and plays given list of dialogue lines in order
         /// </summary>
         /// <param name="lines"></param>
-        public virtual void OpenDialogue(List<DialogueUILines> lines) {
+        public virtual void OpenDialogue(List<DialogueLine> lines) {
             if (_playingDialogue) {
                 StopAllCoroutines();
             }
             _playingDialogue = true;
             _currentLine = 0;
             TextLines = lines;
-            InputActions.Enable();
-            DialogueCanvasGroup.SetActive(true);
+            if (RequireInput) {
+                EventSystem.current.sendNavigationEvents = true;
+                InputActions.Enable();
+                InputActions.UI.Submit.started += Advance;
+            }
+            DialogueCanvasGroup.SetActiveIfNotNull(true);
             _typingCoroutine = StartCoroutine(TypeCharacters());
+        }
+
+        /// <summary>
+        /// Add dialogue lines to the queue of lines to display
+        /// </summary>
+        /// <param name="lines"></param>
+        public virtual void AddDialogue(List<DialogueLine> lines) {
+            foreach (DialogueLine line in lines) {
+                TextLines.Add(line);
+            }
         }
 
         /// <summary>
@@ -153,11 +165,52 @@ namespace Paywall {
         /// </summary>
         public virtual void CloseDialogue() {
             _playingDialogue = false;
+            TextLines.Clear();
             StopAllCoroutines();
-            EventSystem.current.sendNavigationEvents = false;
-            DialogueCanvasGroup.SetActive(false);
-            MMGameEvent.Trigger("dialogueCloses");
-            InputActions.Disable();
+            DialogueCanvasGroup.SetActiveIfNotNull(false);
+            if (RequireInput) {
+                InputActions.Disable();
+                InputActions.UI.Submit.started -= Advance;
+            }
+            PaywallDialogueEvent.Trigger(DialogueEventTypes.Close, null);
+        }
+
+        /// <summary>
+        /// Reorganizes the list of dialogue lines to be played. Splits lines that are too long into separate lines.
+        /// </summary>
+        /// <param name="lines"></param>
+        protected virtual void SplitLines(List<DialogueLine> lines) {
+            List<DialogueLine> newLines = new();
+            foreach (DialogueLine line in lines) {
+                if (line.Line.Length > _maxChars) {
+                    string remainingLine = line.Line;
+                    string newLine;
+
+                    // Split the line until it doesn't exceed max chars
+                    while (remainingLine.Length > _maxChars) {
+                        int idx = 0;
+                        int spaceIndex = 0;
+
+                        // Find the index of the nearest SPC character
+                        while (idx < _maxChars) {
+                            spaceIndex = line.Line.IndexOf(' ', idx);
+                            idx = spaceIndex + 1;
+                        }
+
+                        // Add the new line to the list of dialogue lines
+                        newLine = remainingLine[..spaceIndex];
+                        DialogueLine dialogueLine = line;
+                        dialogueLine.Line = newLine;
+                        newLines.Add(dialogueLine);
+
+                        remainingLine = remainingLine[spaceIndex..];
+                    }
+
+                } else {
+                    newLines.Add(line);
+                }
+            }
+            TextLines = newLines;
         }
 
         /// <summary>
@@ -169,7 +222,9 @@ namespace Paywall {
             if (TextSpeed <= 0) {
                 TextSpeed = 30f;
             }
-            NameDisplay.text = TextLines[_currentLine].CharacterName;
+            if ((TextLines[_currentLine].CharacterName != null) && (NameDisplay != null)) {
+                NameDisplay.text = TextLines[_currentLine].CharacterName;
+            }
             DialogueText.text = TextLines[_currentLine].Line;
 
             int totalVisibleCharacters = DialogueText.text.Length;
@@ -178,21 +233,34 @@ namespace Paywall {
             while (counter <= totalVisibleCharacters) {
                 DialogueText.maxVisibleCharacters = counter;
                 counter += 1;
-                yield return new WaitForSeconds(1f / TextSpeed);
+                yield return new WaitForSecondsRealtime(1f / TextSpeed);
             }
-            //_currentLine++;
+            _currentLine++;
             _textComplete = true;
+        }
+
+        public virtual void OnMMEvent(PaywallDialogueEvent dialogueEvent) {
+            if (dialogueEvent.DialogueEventType == DialogueEventTypes.Open) {
+                OpenDialogue(dialogueEvent.DialogueLines);
+            } else {
+
+            }
         }
 
         protected virtual void OnEnable() {
             if (RequireInput) {
-                InputActions.UI.Submit.started += context => Advance();
+                InputActions.Enable();
+                InputActions.UI.Submit.started += Advance;
             }
+            this.MMEventStartListening<PaywallDialogueEvent>();
         }
 
         protected virtual void OnDisable() {
-            InputActions.Disable();
-            InputActions.UI.Submit.started -= context => Advance();
+            if (RequireInput) {
+                InputActions.Disable();
+                InputActions.UI.Submit.started -= Advance;
+            }
+            this.MMEventStopListening<PaywallDialogueEvent>();
         }
     }
 }

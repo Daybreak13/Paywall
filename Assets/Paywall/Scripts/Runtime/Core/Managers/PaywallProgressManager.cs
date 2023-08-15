@@ -30,9 +30,10 @@ namespace Paywall {
 		public int CurrentLives = 0;
 		public int Credits = 0;
 		public int Trinkets = 0;
-		public Dictionary<string, Upgrade> Upgrades = new Dictionary<string, Upgrade>();
-		public Dictionary<string, Upgrade> RunnerUpgrades = new Dictionary<string, Upgrade>();
-		public Dictionary<string, EmailItem> EmailItems = new Dictionary<string, EmailItem>();
+		public Dictionary<string, Upgrade> Upgrades = new();
+		public Dictionary<string, Upgrade> RunnerUpgrades = new();
+		public Dictionary<string, EmailItem> EmailItems = new();
+		public EventFlagManager EventFlags;
 		public SerializedInventory serializedInventory;
 		public PaywallScene[] Scenes;
 	}
@@ -82,7 +83,7 @@ namespace Paywall {
 		[field: Tooltip("Scriptable dictionary for emails. Shared by all components that require email information, so that when emails are updated every component has an updated record.")]
 		[field: SerializeField] public EmailDictionary EmailsDictionary { get; private set; }
 		/// Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game. Set this in inspector.
-		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game.")]
+		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game. Set this in inspector.")]
 		[field: SerializeField] public UpgradeDictionary UpgradesDictionary { get; private set; }
 
 		public int CurrentLevelTrinkets { get; private set; }
@@ -91,6 +92,7 @@ namespace Paywall {
 		/// Dictionary of all unlocked upgrades
 		/// </summary>
 		public Dictionary<string, Upgrade> Upgrades { get; private set; } = new();
+		public EventFlagManager EventFlags { get; protected set; } = new();
 		public enum SaveMethods { All, Inventory }
 
 		protected EmailInventory _emailInventory;
@@ -168,6 +170,7 @@ namespace Paywall {
 				progress.Trinkets = Trinkets;
 				progress.Upgrades = Upgrades;
 				progress.EmailItems = EmailItems;
+				progress.EventFlags = EventFlags;
 			}
 			if (saveMethod == SaveMethods.Inventory) {
 
@@ -263,6 +266,12 @@ namespace Paywall {
 					Upgrades = progress.Upgrades;
 				}
 				EmailsDictionary.SetDictionary(progress.EmailItems);
+				if (progress.EventFlags == null) {
+					EventFlags = new();
+				}
+				else {
+					EventFlags = progress.EventFlags;
+				}
 			}
 			else {
 				InitialCurrentLives = (GameManagerIRE_PW.Instance as GameManagerIRE_PW).CurrentLives;

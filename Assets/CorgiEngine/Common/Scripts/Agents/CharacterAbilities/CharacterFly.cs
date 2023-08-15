@@ -23,6 +23,8 @@ namespace MoreMountains.CorgiEngine
 		/// whether or not the Character should stop flying on death
 		[Tooltip("whether or not the Character should stop flying on death")]
 		public bool StopFlyingOnDeath = true;
+		/// whether or not the Character is currently flying		
+		public bool IsFlying => _flying;
 
 		protected float _horizontalMovement;
 		protected float _verticalMovement;

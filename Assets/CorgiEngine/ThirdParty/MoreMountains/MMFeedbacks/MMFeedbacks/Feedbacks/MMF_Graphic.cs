@@ -48,7 +48,7 @@ namespace MoreMountains.Feedbacks
 		public bool StartsOff = false;
 		/// if this is true, the target will be disabled when this feedbacks is stopped
 		[Tooltip("if this is true, the target will be disabled when this feedbacks is stopped")] 
-		public bool DisableOnStop = true;
+		public bool DisableOnStop = false;
         
 		/// if this is true, calling that feedback will trigger it, even if it's in progress. If it's false, it'll prevent any new Play until the current one is over
 		[Tooltip("if this is true, calling that feedback will trigger it, even if it's in progress. If it's false, it'll prevent any new Play until the current one is over")] 

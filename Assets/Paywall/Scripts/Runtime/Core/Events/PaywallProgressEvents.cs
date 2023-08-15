@@ -34,6 +34,9 @@ namespace Paywall {
 
 	public enum UpgradeMethods { Unlock, Lock, Error, TryUnlock }
 
+	/// <summary>
+	/// Upgrade event, includes the scriptable upgrade and its button object
+	/// </summary>
 	public struct PaywallUpgradeEvent {
 		public UpgradeMethods UpgradeMethod;
 		public ScriptableUpgrade Upgrade;

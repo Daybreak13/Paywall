@@ -69,6 +69,8 @@ namespace MoreMountains.Tools
 		/// if this is true, this path has gone through its Initialization method
 		public virtual bool Initialized { get; set; }
 
+		public virtual int Direction => _direction;
+
 		protected bool _active=false;
 		protected IEnumerator<Vector3> _currentPoint;
 		protected int _direction = 1;

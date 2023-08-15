@@ -8,6 +8,10 @@ using Paywall.Tools;
 
 namespace Paywall {
 
+    /// <summary>
+    /// Add this component to a store button to assist with UI navigation
+    /// Only the top bar buttons should have this component
+    /// </summary>
     public class StoreButtonNavigator : MonoBehaviour, MMEventListener<MMGameEvent> {
         /// The list of buttons that will be selected when the down button is pressed
         [field: Tooltip("The list of buttons that will be selected when the down button is pressed")]
@@ -30,9 +34,12 @@ namespace Paywall {
 
         protected virtual void Start() {
             GetActiveButton();
-            SetOnDownSelect();
+            SetSelectOnDown();
         }
 
+        /// <summary>
+        /// Get the first active button of the upgrade buttons grid
+        /// </summary>
         protected virtual void GetActiveButton() {
             if (SetSpecificButton) {
                 foreach (Button button in Buttons) {
@@ -50,17 +57,24 @@ namespace Paywall {
             }
         }
 
-        public virtual void SetOnDownSelect() {
+        /// <summary>
+        /// Set the button's navigation mode to explicit, and set the SelectOnDown object
+        /// </summary>
+        public virtual void SetSelectOnDown() {
             Navigation nav = _thisButton.navigation;
-            nav.mode = Navigation.Mode.Explicit;
+            //nav.mode = Navigation.Mode.Explicit;
             nav.selectOnDown = _activeButton;
             _thisButton.navigation = nav;
         }
 
+        /// <summary>
+        /// When the upgrade button grid is changed to a different one (upgrade page change), set the new navigation
+        /// </summary>
+        /// <param name="gameEvent"></param>
         public virtual void OnMMEvent(MMGameEvent gameEvent) {
             if (gameEvent.EventName.Equals("MenuChange")) {
                 GetActiveButton();
-                SetOnDownSelect();
+                SetSelectOnDown();
             }
         }
 

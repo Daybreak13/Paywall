@@ -30,6 +30,9 @@ namespace MoreMountains.Feedbacks
 		/// the gameobject we want to change the active state of
 		[Tooltip("the gameobject we want to change the active state of")]
 		public Behaviour TargetBehaviour;
+		/// a list of extra gameobjects we want to change the active state of
+		[Tooltip("a list of extra gameobjects we want to change the active state of")]
+		public List<Behaviour> ExtraTargetBehaviours;
 		/// whether or not we should alter the state of the target object on init
 		[Tooltip("whether or not we should alter the state of the target object on init")]
 		public bool SetStateOnInit = false;
@@ -142,17 +145,31 @@ namespace MoreMountains.Feedbacks
 		/// <param name="state"></param>
 		protected virtual void SetStatus(PossibleStates state)
 		{
-			_initialState = TargetBehaviour.enabled;
+			SetStatus(state, TargetBehaviour);
+			foreach (Behaviour extra in ExtraTargetBehaviours)
+			{
+				SetStatus(state, extra);
+			}
+		}
+
+		/// <summary>
+		/// Sets the specified status on the target Behaviour
+		/// </summary>
+		/// <param name="state"></param>
+		/// <param name="target"></param>
+		protected virtual void SetStatus(PossibleStates state, Behaviour target)
+		{
+			_initialState = target.enabled;
 			switch (state)
 			{
 				case PossibleStates.Enabled:
-					TargetBehaviour.enabled = NormalPlayDirection ? true : false;
+					target.enabled = NormalPlayDirection ? true : false;
 					break;
 				case PossibleStates.Disabled:
-					TargetBehaviour.enabled = NormalPlayDirection ? false : true;
+					target.enabled = NormalPlayDirection ? false : true;
 					break;
 				case PossibleStates.Toggle:
-					TargetBehaviour.enabled = !TargetBehaviour.enabled;
+					target.enabled = !target.enabled;
 					break;
 			}
 		}
@@ -168,6 +185,10 @@ namespace MoreMountains.Feedbacks
 			}
 			
 			TargetBehaviour.enabled = _initialState;
+			foreach (Behaviour extra in ExtraTargetBehaviours)
+			{
+				extra.enabled = _initialState;
+			}
 		}
 	}
 }

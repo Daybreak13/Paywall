@@ -13,7 +13,7 @@ namespace Paywall {
 	/// <summary>
 	/// Playable character controller
 	/// </summary>
-    public class CharacterIRE : MonoBehaviour_PW, MMEventListener<PaywallEXChargeEvent> {
+    public class CharacterIRE : MonoBehaviour_PW, MMEventListener<PaywallEXChargeEvent>, MMEventListener<RunnerItemPickEvent> {
 		/// Type of character this is
 		[field: Tooltip("Type of character this is")]
 		[field: SerializeField] public CharacterTypes CharacterType { get; protected set; } = CharacterTypes.AI;
@@ -432,12 +432,29 @@ namespace Paywall {
 			CharacterRigidBody.gravityScale = _initialGravity;
 		}
 
-		public virtual void SetInvincibility(float duration) {
+		/// <summary>
+		/// Sets the invincibility duration
+		/// </summary>
+		/// <param name="duration"></param>
+		public virtual void SetInvincibilityDuration(float duration) {
 			Invincible = true;
 			_remainingInvincibility = duration;
 		}
 
-		public virtual void ActivateTempInvincibility() {
+		/// <summary>
+		/// Toggles invincibility
+		/// If we have temp duration invincibility, turn it off
+		/// </summary>
+		/// <param name="state"></param>
+		public virtual void ToggleInvincibility(bool state) {
+			_remainingInvincibility = 0f;
+			Invincible = state;
+		}
+
+		/// <summary>
+		/// Temporary invincibility activated after taking damage. Flicker sprite.
+		/// </summary>
+		public virtual void ActivateDamageInvincibility() {
 			Invincible = true;
 			_remainingInvincibility = TempInvincibilityDuration;
 			if (_flickerCoroutine != null) {
@@ -446,12 +463,17 @@ namespace Paywall {
 			_flickerCoroutine = StartCoroutine(MMImage.Flicker(Model, _initialColor, _flickerColor, FlickerDuration, _remainingInvincibility));
 		}
 
+		/// <summary>
+		/// Called every frame to handle invincibility frames
+		/// If invincibility duration has expired, turn invincibility off
+		/// </summary>
 		protected virtual void HandleInvincibility() {
 			if (_remainingInvincibility > 0) {
 				_remainingInvincibility -= Time.deltaTime;
-			}
-			else {
-				Invincible = false;
+				if (_remainingInvincibility <= 0) {
+                    _remainingInvincibility = -1f;
+                    Invincible = false;
+                }
 			}
 		}
 
@@ -546,34 +568,59 @@ namespace Paywall {
 			return false;
 		}
 
+		/// <summary>
+		/// Adds EX to current EX
+		/// </summary>
+		/// <param name="amount"></param>
+		public virtual void AddEX(float amount) {
+			if ((BlockEXGainWhileDraining && _EXDraining && (amount > 0))
+				|| (CurrentEX == MaxEX && amount > 0)
+				|| (CurrentEX == MinEX && amount < 0)) {
+				return;
+			}
+			CurrentEX += amount;
+			if (CurrentEX > MaxEX) {
+				CurrentEX = MaxEX;
+			}
+			if (CurrentEX < MinEX) {
+				CurrentEX = MinEX;
+			}
+            GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX);
+        }
+
         /// <summary>
         /// Spend EX over time (like for supers)
         /// </summary>
         /// <param name="rate">Drain rate per second</param>
         /// <param name="bars">Minimum bars required to activate</param>
-        public virtual void SpendEXOverTime(float rate, int bars) {
+        public virtual bool SpendEXOverTime(float rate, int bars) {
 			if (Mathf.FloorToInt(CurrentEX / OneEXBarValue) < bars) {
-				return;
+				return false;
 			}
 			_exDrainRate = rate;
 			_EXDraining = true;
+			return true;
 		}
 
 		/// <summary>
 		/// Handles EX draining and/or increasing every frame
+		/// Do nothing if game is not in progress
 		/// </summary>
 		protected virtual void HandleEX() {
+			if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+				return;
+			}
 			if (_EXDraining) {
-				CurrentEX -= _exDrainRate * Time.deltaTime;		// Drain EX by drain rate
+				AddEX(_exDrainRate * Time.deltaTime);		// Drain EX by drain rate
                 _exDrainRate += EXDrainRateAcceleration * Time.deltaTime;	// Increase drain rate
                 if (CurrentEX <= MinEX) {
-					CurrentEX = MinEX;
 					_EXDraining = false;
 					_exDrainRate = 0f;
 				}
 			}
-			if (GainEXOverTime) {
-				CurrentEX += EXGainPerSecond * Time.deltaTime;
+			// Gain EX over time. Do not gain EX if EX is draining
+			if (GainEXOverTime && !_EXDraining) {
+				AddEX(EXGainPerSecond * Time.deltaTime);
 			}
 			GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX);
 		}
@@ -586,20 +633,17 @@ namespace Paywall {
 		public virtual void OnMMEvent(PaywallEXChargeEvent chargeEvent) {
 			// Add EX amount
 			if (chargeEvent.ChangeAmountMethod == ChangeAmountMethods.Add) {
-				if (BlockEXGainWhileDraining) {
+				// If the game is paused when EX is added, that means it was added from the depot, so do not block
+				if (BlockEXGainWhileDraining && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.Paused)) {
 					if ((chargeEvent.ChargeAmount > 0) && _EXDraining) {
 						return;
 					}
 				}
-				CurrentEX += chargeEvent.ChargeAmount;
-				// If EX overflows, cap it to MaxEX
-				if (CurrentEX > MaxEX) {
-					CurrentEX = MaxEX;
-				}
+				AddEX(chargeEvent.ChargeAmount);
             }
 			// Set EX amount
             else {
-				if (BlockEXGainWhileDraining) {
+				if (BlockEXGainWhileDraining && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.Paused)) {
 					if ((chargeEvent.ChargeAmount > CurrentEX) && _EXDraining) {
 						return;
 					}
@@ -608,16 +652,28 @@ namespace Paywall {
             }
         }
 
+		/// <summary>
+		/// When a powerup is picked, apply its effects to the player
+		/// </summary>
+		/// <param name="itemPickEvent"></param>
+		public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
+			if (itemPickEvent.PickedPowerUpType == PowerUpTypes.EX) {
+                AddEX(itemPickEvent.Amount);
+            }
+		}
+
 		protected virtual void OnEnable() {
 			if (!_initialized) {
 				Initialization();
 			}
             this.MMEventStartListening<PaywallEXChargeEvent>();
+            this.MMEventStartListening<RunnerItemPickEvent>();
         }
 
         protected virtual void OnDisable() {
 			StopAllCoroutines();
 			this.MMEventStopListening<PaywallEXChargeEvent>();
+			this.MMEventStopListening<RunnerItemPickEvent>();
 		}
 
 	}

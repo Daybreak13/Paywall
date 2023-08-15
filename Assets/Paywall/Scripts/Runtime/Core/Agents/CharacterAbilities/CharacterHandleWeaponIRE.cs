@@ -126,6 +126,14 @@ namespace Paywall {
             WeaponComponent.WeaponInputStart();
         }
 
+        public virtual void SetCurrentWeaponMagSize(int size) {
+            if (!CurrentWeapon.MagazineBased) {
+                return;
+            }
+            CurrentWeapon.MagazineSize = size;
+            UpdateAmmoDisplay();
+        }
+
         protected virtual void UpdateAmmoDisplay() {
             if ((GUIManagerIRE_PW.HasInstance) && (_character != null)) {
                 (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);

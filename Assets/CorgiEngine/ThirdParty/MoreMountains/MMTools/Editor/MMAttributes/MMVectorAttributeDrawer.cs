@@ -28,37 +28,37 @@ namespace MoreMountains.Tools
 			if (property.propertyType == SerializedPropertyType.Vector2)
 			{
 				float[] fieldArray = new float[] { property.vector2Value.x, property.vector2Value.y };
-				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector);
+				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector, guiContent);
 				property.vector2Value = new Vector2(fieldArray[0], fieldArray[1]);
 			}
 			else if (property.propertyType == SerializedPropertyType.Vector3)
 			{
 				float[] fieldArray = new float[] { property.vector3Value.x, property.vector3Value.y, property.vector3Value.z };
-				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector);
+				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector, guiContent);
 				property.vector3Value = new Vector3(fieldArray[0], fieldArray[1], fieldArray[2]);
 			}
 			else if (property.propertyType == SerializedPropertyType.Vector4)
 			{
 				float[] fieldArray = new float[] { property.vector4Value.x, property.vector4Value.y, property.vector4Value.z, property.vector4Value.w };
-				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector);
+				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.FloatField, vector, guiContent);
 				property.vector4Value = new Vector4(fieldArray[0], fieldArray[1], fieldArray[2]);
 			}
 			else if (property.propertyType == SerializedPropertyType.Vector2Int)
 			{
 				int[] fieldArray = new int[] { property.vector2IntValue.x, property.vector2IntValue.y };
-				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.IntField, vector);
+				fieldArray = DrawFields(rect, fieldArray, ObjectNames.NicifyVariableName(property.name), EditorGUI.IntField, vector, guiContent);
 				property.vector2IntValue = new Vector2Int(fieldArray[0], fieldArray[1]);
 			}
 			else if (property.propertyType == SerializedPropertyType.Vector3Int)
 			{
 				int[] array = new int[] { property.vector3IntValue.x, property.vector3IntValue.y, property.vector3IntValue.z };
-				array = DrawFields(rect, array, ObjectNames.NicifyVariableName(property.name), EditorGUI.IntField, vector);
+				array = DrawFields(rect, array, ObjectNames.NicifyVariableName(property.name), EditorGUI.IntField, vector, guiContent);
 				property.vector3IntValue = new Vector3Int(array[0], array[1], array[2]);
 			}
 		}
 		#endif
 
-		protected T[] DrawFields<T>(Rect rect, T[] vector, string mainLabel, System.Func<Rect, GUIContent, T, T> fieldDrawer, MMVectorAttribute vectors)
+		protected T[] DrawFields<T>(Rect rect, T[] vector, string mainLabel, System.Func<Rect, GUIContent, T, T> fieldDrawer, MMVectorAttribute vectors, GUIContent originalGuiContent)
 		{
 			T[] result = vector;
 
@@ -83,8 +83,12 @@ namespace MoreMountains.Tools
 				fieldRect.x += mainLabelRect.width;
 				fieldRect.width = (rect.width - mainLabelRect.width) / vector.Length;
 			}
+			
+			GUIContent mainLabelContent = new GUIContent();
+			mainLabelContent.text = mainLabel;
+			mainLabelContent.tooltip = originalGuiContent.tooltip;
 
-			EditorGUI.LabelField(mainLabelRect, mainLabel);
+			EditorGUI.LabelField(mainLabelRect, mainLabelContent);
 
 			for (int i = 0; i < vector.Length; i++)
 			{

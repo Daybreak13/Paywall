@@ -18,6 +18,8 @@ namespace Paywall {
 		[field: Tooltip("The FMOD StudioEventEmitter playing the sound effect")]
 		[field: SerializeField] public StudioEventEmitter FMODStudioEventEmitter { get; protected set; }
 
+		protected GameObject _picker;
+
         protected virtual void Awake() {
             if (FMODStudioEventEmitter == null) {
                 FMODStudioEventEmitter = GetComponent<StudioEventEmitter>();
@@ -45,9 +47,12 @@ namespace Paywall {
 		/// </summary>
 		/// <param name="collider">Other.</param>
 		protected virtual void TriggerEnter(GameObject collidingObject) {
-			// if what's colliding with the coin ain't a characterBehavior, we do nothing and exit
-			if (collidingObject.GetComponent<CharacterIRE>() == null)
+			// if what's colliding with this object isn't the player, we do nothing and exit
+			if (collidingObject.GetComponent<CharacterIRE>() == null) {
 				return;
+			}
+
+			_picker = collidingObject;
 
 			// adds an instance of the effect at the coin's position
 			if (PickEffect != null) {

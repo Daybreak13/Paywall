@@ -255,7 +255,7 @@ namespace MoreMountains.Tools
 			base.OnPointerUp(data);
 			
 			ResetJoystick();
-			_knobTransform.position = BackgroundCanvasGroup.transform.position;
+			_knobTransform.position = _backgroundPositionTarget;
 
 			if (ResetPositionToInitialOnRelease)
 			{

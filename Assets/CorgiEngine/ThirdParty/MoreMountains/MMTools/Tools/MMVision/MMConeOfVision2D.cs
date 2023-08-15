@@ -43,6 +43,8 @@ namespace MoreMountains.Tools
 		public float VisionRadius = 5f;
 		[Range(0f, 360f)]
 		public float VisionAngle = 20f;
+		[Range(0f, 360f)]
+		public float AngleOffset = 0f;
 		[MMReadOnly]
 		public Vector3 Direction;
 		[MMReadOnly]
@@ -105,6 +107,7 @@ namespace MoreMountains.Tools
 		{
 			Direction = direction;
 			EulerAngles = eulerAngles;
+			EulerAngles.y += AngleOffset;
 		}
         
 		protected virtual void ScanForTargets()

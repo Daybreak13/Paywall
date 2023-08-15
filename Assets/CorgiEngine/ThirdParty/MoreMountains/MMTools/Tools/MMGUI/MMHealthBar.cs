@@ -178,19 +178,48 @@ namespace MoreMountains.Tools
 		{
 			_finalHideStarted = false;
 
+			SetInitialActiveState();
+		}
+
+		/// <summary>
+		/// Forces the bar into its initial active state (hiding it if AlwaysVisible is false)
+		/// </summary>
+		public virtual void SetInitialActiveState()
+		{
 			if (!AlwaysVisible && (_progressBar != null))
 			{
-				_progressBar.gameObject.SetActive(false);
+				ShowBar(false);
 			}
 		}
 
+		/// <summary>
+		/// Shows or hides the bar by changing its object's active state
+		/// </summary>
+		/// <param name="state"></param>
+		public virtual void ShowBar(bool state)
+		{
+			_progressBar.gameObject.SetActive(state);
+		}
+
+		/// <summary>
+		/// Whether or not the bar is currently active
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool BarIsShown()
+		{
+			return _progressBar.gameObject.activeInHierarchy;
+		}
+
+		/// <summary>
+		/// Initializes the bar (handles visibility, parenting, initial value
+		/// </summary>
 		public virtual void Initialization()
 		{
 			_finalHideStarted = false;
 
 			if (_progressBar != null)
 			{
-				_progressBar.gameObject.SetActive(AlwaysVisible);
+				ShowBar(AlwaysVisible);
 				return;
 			}
 
@@ -218,7 +247,7 @@ namespace MoreMountains.Tools
 
 			if (!AlwaysVisible)
 			{
-				_progressBar.gameObject.SetActive(false);
+				ShowBar(false);
 			}
 
 			if (_progressBar != null)
@@ -349,7 +378,7 @@ namespace MoreMountains.Tools
 
 			if (_showBar)
 			{
-				_progressBar.gameObject.SetActive(true);
+				ShowBar(true);
 				float currentTime = (TimeScale == TimeScales.UnscaledTime) ? Time.unscaledTime : Time.time;
 				if (currentTime - _lastShowTimestamp > DisplayDurationOnHit)
 				{
@@ -358,7 +387,10 @@ namespace MoreMountains.Tools
 			}
 			else
 			{
-				_progressBar.gameObject.SetActive(false);				
+				if (BarIsShown())
+				{
+					ShowBar(false);	
+				}
 			}
 		}
 
@@ -377,7 +409,7 @@ namespace MoreMountains.Tools
 			if (HideBarAtZeroDelay == 0)
 			{
 				_showBar = false;
-				_progressBar.gameObject.SetActive(false);
+				ShowBar(false);
 				yield return null;
 			}
 			else

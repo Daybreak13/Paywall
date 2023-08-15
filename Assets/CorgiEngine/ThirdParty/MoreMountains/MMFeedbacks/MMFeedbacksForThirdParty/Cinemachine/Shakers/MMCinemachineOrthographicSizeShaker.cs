@@ -83,7 +83,8 @@ namespace MoreMountains.FeedbacksForThirdParty
 		/// <param name="feedbacksIntensity"></param>
 		/// <param name="channel"></param>
 		public virtual void OnMMCameraOrthographicSizeShakeEvent(AnimationCurve distortionCurve, float duration, float remapMin, float remapMax, bool relativeDistortion = false,
-			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, bool stop = false, bool restore = false)
+			float feedbacksIntensity = 1.0f, MMChannelData channelData = null, bool resetShakerValuesAfterShake = true, bool resetTargetValuesAfterShake = true, bool forwardDirection = true, 
+			TimescaleModes timescaleMode = TimescaleModes.Scaled, bool stop = false, bool restore = false)
 		{
 			if (!CheckEventAllowed(channelData))
 			{
@@ -121,6 +122,7 @@ namespace MoreMountains.FeedbacksForThirdParty
 
 			if (!OnlyUseShakerValues)
 			{
+				TimescaleMode = timescaleMode;
 				ShakeDuration = duration;
 				ShakeOrthographicSize = distortionCurve;
 				RemapOrthographicSizeZero = remapMin * feedbacksIntensity;

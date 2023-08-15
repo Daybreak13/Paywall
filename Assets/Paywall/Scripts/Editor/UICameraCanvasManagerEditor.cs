@@ -24,6 +24,7 @@ namespace Paywall.Editors {
             if (uICameraCanvasManager.SystemCanvas != null) _menus.Add(uICameraCanvasManager.SystemCanvas);
             if (uICameraCanvasManager.InventoryCanvas != null) _menus.Add(uICameraCanvasManager.InventoryCanvas);
             if (uICameraCanvasManager.DialogueCanvas != null) _menus.Add(uICameraCanvasManager.DialogueCanvas);
+            if (uICameraCanvasManager.SupplyDepotMenuCanvas != null) _menus.Add(uICameraCanvasManager.SupplyDepotMenuCanvas);
             if (uICameraCanvasManager.GameOverCanvas != null) _menus.Add(uICameraCanvasManager.GameOverCanvas);
         }
 
@@ -77,6 +78,16 @@ namespace Paywall.Editors {
                     }
 				}
 			}
+            if (GUILayout.Button(new GUIContent("Toggle Supply Depot Menu Canvas"))) {
+                foreach (GameObject menu in _menus) {
+                    if (menu == uICameraCanvasManager.SupplyDepotMenuCanvas) {
+                        menu.SetActive(true);
+                    }
+                    else {
+                        menu.SetActive(false);
+                    }
+                }
+            }
             if (GUILayout.Button(new GUIContent("Toggle Game Over Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu == uICameraCanvasManager.GameOverCanvas) {

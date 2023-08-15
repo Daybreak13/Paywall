@@ -19,7 +19,7 @@ namespace MoreMountains.Feedbacks
 		public override Color FeedbackColor { get { return MMFeedbacksInspectorColors.FeedbacksColor; } }
 		public override string RequiredTargetText => RequiredChannelText;
 		#endif
-		/// the duration of this feedback is the duration of the light, or 0 if instant
+		/// the duration of this feedback is the duration of our target feedback
 		public override float FeedbackDuration 
 		{
 			get
@@ -81,7 +81,7 @@ namespace MoreMountains.Feedbacks
 		}
 
 		/// <summary>
-		/// On Play we turn our light on and start an over time coroutine if needed
+		/// On Play we trigger our target feedback or trigger a feedback shake event to shake feedbacks in the area
 		/// </summary>
 		/// <param name="position"></param>
 		/// <param name="feedbacksIntensity"></param>

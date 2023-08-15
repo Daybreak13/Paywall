@@ -91,6 +91,14 @@ namespace MoreMountains.Feedbacks
 		}
 
 		/// <summary>
+		/// Call this externally if you need to force a new initialization
+		/// </summary>
+		public virtual void ForceInitialization()
+		{
+			Initialization();
+		}
+
+		/// <summary>
 		/// Starts shaking the values
 		/// </summary>
 		public virtual void StartShaking()

@@ -200,6 +200,7 @@ namespace MoreMountains.CorgiEngine
 
 		public float LastDamage { get; set; }
 		public Vector3 LastDamageDirection { get; set; }
+		public bool Initialized => _initialized;
 
 		// respawn
 		public delegate void OnHitDelegate();
@@ -303,6 +304,10 @@ namespace MoreMountains.CorgiEngine
 			DamageEnabled();
 			DisablePostDamageInvulnerability();
 			UpdateHealthBar(false);
+			if (_healthBar != null)
+			{
+				_healthBar.SetInitialActiveState();
+			}
 		}
 		
 		/// <summary>
@@ -316,7 +321,14 @@ namespace MoreMountains.CorgiEngine
 			}
 			else
 			{
-				CurrentHealth = MasterHealth.CurrentHealth;
+				if (MasterHealth.Initialized)
+				{
+					SetHealth(MasterHealth.CurrentHealth, this.gameObject);
+				}
+				else
+				{
+					SetHealth(MasterHealth.InitialHealth, this.gameObject);
+				}
 			}
 		}
 
@@ -694,6 +706,10 @@ namespace MoreMountains.CorgiEngine
 			}
 
 			UpdateHealthBar(false);
+			if (_healthBar != null)
+			{
+				_healthBar.SetInitialActiveState();
+			}
 			if (OnRevive != null)
 			{
 				OnRevive.Invoke();
@@ -778,7 +794,7 @@ namespace MoreMountains.CorgiEngine
 			float invincibilityDuration, Vector3 damageDirection, List<TypedDamage> typedDamages = null,
 			int amountOfRepeats = 0, float durationBetweenRepeats = 1f, bool interruptible = true, DamageType damageType = null)
 		{
-			if (damage == 0)
+			if (ComputeDamageOutput(damage, typedDamages, false) == 0)
 			{
 				return;
 			}

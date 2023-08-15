@@ -35,12 +35,12 @@ namespace MoreMountains.Feedbacks
 			return false;
 		}
 		public override string RequiredTargetText { get { return SceneName;  } }
-		public override string RequiresSetupText { get { return "This feedback requires that you specify a DestinationSceneName below. Make sure you also add that destination scene to your Build Settings."; } }
+		public override string RequiresSetupText { get { return "This feedback requires that you specify a SceneName below. Make sure you also add that destination scene to your Build Settings."; } }
 		#endif
         
 		public enum Methods { BuildIndex, SceneName }
 
-		[Header("Unload Scene")] 
+		[MMFInspectorGroup("Unload Scene", true, 43, false)]
         
 		/// whether to unload a scene by build index or by name
 		[Tooltip("whether to unload a scene by build index or by name")]

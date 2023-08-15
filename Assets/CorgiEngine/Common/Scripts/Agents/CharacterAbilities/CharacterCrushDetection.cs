@@ -149,7 +149,7 @@ namespace MoreMountains.CorgiEngine
 			{
 				return;
 			}
-			if (DieWhenCrushed && (_character.CharacterType == Character.CharacterTypes.Player))
+			if (DieWhenCrushed )
 			{
 				_character.CharacterHealth.Kill();
 			}
@@ -161,7 +161,14 @@ namespace MoreMountains.CorgiEngine
 			{
 				PlayAbilityStartFeedbacks();
 				MMCharacterEvent.Trigger(_character, MMCharacterEventTypes.Crush);
-				StartCoroutine(DelayedStopStartFeedbacks(DamageTakenInvincibilityDuration));
+				if (this.gameObject.activeInHierarchy)
+				{
+					StartCoroutine(DelayedStopStartFeedbacks(DamageTakenInvincibilityDuration));	
+				}
+				else
+				{
+					StopStartFeedbacks();
+				}
 			}
 		}
 

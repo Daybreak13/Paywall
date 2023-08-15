@@ -14,7 +14,7 @@ namespace MoreMountains.Feedbacks
 	{
 		/// a static bool used to disable all feedbacks of this type at once
 		public static bool FeedbackTypeAuthorized = true;
-		/// the duration of this feedback is the duration of the light, or 0 if instant
+		/// the duration of this feedback is 0
 		public override float FeedbackDuration { get { return 0f; } }
 		/// sets the inspector color for this feedback
 		#if UNITY_EDITOR
@@ -50,7 +50,7 @@ namespace MoreMountains.Feedbacks
 		}
 
 		/// <summary>
-		/// On Play we turn our light on and start an over time coroutine if needed
+		/// On Play we trigger our feedback shake event
 		/// </summary>
 		/// <param name="position"></param>
 		/// <param name="feedbacksIntensity"></param>

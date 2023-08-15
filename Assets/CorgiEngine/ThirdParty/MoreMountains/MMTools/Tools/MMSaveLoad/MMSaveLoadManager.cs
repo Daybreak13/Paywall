@@ -28,7 +28,7 @@ namespace MoreMountains.Tools
 	public static class MMSaveLoadManager
 	{
 		/// the method to use when saving and loading files (has to be the same at both times of course)
-		public static IMMSaveLoadManagerMethod saveLoadMethod = new MMSaveLoadManagerMethodBinary();
+		public static IMMSaveLoadManagerMethod SaveLoadMethod = new MMSaveLoadManagerMethodBinary();
 		/// the default top level folder the system will use to save the file
 		private const string _baseFolderName = "/MMData/";
 		/// the name of the save folder if none is provided
@@ -88,7 +88,7 @@ namespace MoreMountains.Tools
 
 			FileStream saveFile = File.Create(savePath + saveFileName);
 
-			saveLoadMethod.Save(saveObject, saveFile);
+			SaveLoadMethod.Save(saveObject, saveFile);
 			saveFile.Close();
 		}
 
@@ -111,7 +111,7 @@ namespace MoreMountains.Tools
 			}
 
 			FileStream saveFile = File.Open(saveFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-			returnObject = saveLoadMethod.Load(objectType, saveFile);
+			returnObject = SaveLoadMethod.Load(objectType, saveFile);
 			saveFile.Close();
 
 			return returnObject;
@@ -129,6 +129,10 @@ namespace MoreMountains.Tools
 			if (File.Exists(savePath + saveFileName))
 			{
 				File.Delete(savePath + saveFileName);
+			}	
+			if (File.Exists(savePath + saveFileName + ".meta"))
+			{
+				File.Delete(savePath + saveFileName + ".meta");
 			}			
 		}
 
@@ -139,6 +143,25 @@ namespace MoreMountains.Tools
 		public static void DeleteSaveFolder(string folderName = _defaultFolderName)
 		{
 			string savePath = DetermineSavePath(folderName);
+			if (Directory.Exists(savePath))
+			{
+				DeleteDirectory(savePath);
+			}
+		}
+		
+		/// <summary>
+		/// Deletes all save files saved by this MMSaveLoadManager
+		/// </summary>
+		public static void DeleteAllSaveFiles()
+		{
+			string savePath = DetermineSavePath("");
+
+			savePath = savePath.Substring(0, savePath.Length - 1);
+			if (savePath.EndsWith("/"))
+			{
+				savePath = savePath.Substring(0, savePath.Length - 1);
+			}
+
 			if (Directory.Exists(savePath))
 			{
 				DeleteDirectory(savePath);
@@ -166,6 +189,11 @@ namespace MoreMountains.Tools
 			}
 
 			Directory.Delete(target_dir, false);
+
+			if (File.Exists(target_dir + ".meta"))
+			{
+				File.Delete(target_dir + ".meta");
+			}
 		}
 	}
 }

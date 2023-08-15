@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Paywall.Tools;
 
 namespace Paywall.Editors {
 
@@ -44,51 +45,51 @@ namespace Paywall.Editors {
             if (GUILayout.Button(new GUIContent("Toggle Main Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu != mainMenuManager.MainCanvas) {
-                        menu.gameObject.SetActive(false);
+                        menu.SetActiveIfNotNull(false);
                     }
                 }
 
-                mainMenuManager.MainCanvas.SetActive(true);
+                mainMenuManager.MainCanvas.SetActiveIfNotNull(true);
             }
             // Turn dialogue canvas on and all others off
             if (GUILayout.Button(new GUIContent("Toggle Dialogue Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu != mainMenuManager.DialogueCanvas) {
-                        menu.gameObject.SetActive(false);
+                        menu.SetActiveIfNotNull(false);
                     }
                 }
 
-                mainMenuManager.DialogueCanvas.SetActive(true);
+                mainMenuManager.DialogueCanvas.SetActiveIfNotNull(true);
             }
             // Turn inventory canvas on and all others off
             if (GUILayout.Button(new GUIContent("Toggle Inventory Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu != mainMenuManager.InventoryCanvas) {
-                        menu.gameObject.SetActive(false);
+                        menu.SetActiveIfNotNull(false);
                     }
                 }
 
-                mainMenuManager.InventoryCanvas.SetActive(true);
+                mainMenuManager.InventoryCanvas.SetActiveIfNotNull(true);
             }
             // Turn store canvas on and all others off
             if (GUILayout.Button(new GUIContent("Toggle Store Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu != mainMenuManager.StoreCanvas) {
-                        menu.gameObject.SetActive(false);
+                        menu.SetActiveIfNotNull(false);
                     }
                 }
 
-                mainMenuManager.StoreCanvas.SetActive(true);
+                mainMenuManager.StoreCanvas.SetActiveIfNotNull(true);
             }
             // Turn email canvas on and all others off
             if (GUILayout.Button(new GUIContent("Toggle Email Canvas"))) {
                 foreach (GameObject menu in _menus) {
                     if (menu != mainMenuManager.EmailCanvas) {
-                        menu.gameObject.SetActive(false);
+                        menu.SetActiveIfNotNull(false);
                     }
                 }
 
-                mainMenuManager.EmailCanvas.SetActive(true);
+                mainMenuManager.EmailCanvas.SetActiveIfNotNull(true);
             }
 
             if (EditorGUI.EndChangeCheck()) {

@@ -67,10 +67,10 @@ namespace MoreMountains.Feedbacks
 		public bool EnableOnPlay = true;
 		/// if this is true, the target disabled after the color over time change ends
 		[Tooltip("if this is true, the target disabled after the color over time change ends")]
-		public bool DisableOnSequenceEnd = true;
+		public bool DisableOnSequenceEnd = false;
 		/// if this is true, the target will be disabled when this feedbacks is stopped
 		[Tooltip("if this is true, the target will be disabled when this feedbacks is stopped")] 
-		public bool DisableOnStop = true;
+		public bool DisableOnStop = false;
 
 		protected Coroutine _coroutine;
 		protected Color _initialColor;

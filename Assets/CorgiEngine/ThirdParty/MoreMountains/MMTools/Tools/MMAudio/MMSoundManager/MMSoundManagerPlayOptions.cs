@@ -38,8 +38,10 @@ namespace MoreMountains.Tools
 		public AudioMixerGroup AudioGroup;
 		/// The pitch of the audio source.
 		public float Pitch;
-		/// The time (in seconds) at which to play the sound
+		/// The time (in seconds) at which to start playing the sound
 		public float PlaybackTime;
+		/// The time (in seconds after which to stop playing the sound
+		public float PlaybackDuration;
 		/// Pans a playing sound in a stereo way (left or right). This only applies to sounds that are Mono or Stereo.
 		public float PanStereo;
 		/// Sets how much this AudioSource is affected by 3D spatialisation calculations (attenuation, doppler etc). 0.0 makes the sound full 2D, 1.0 makes it full 3D.

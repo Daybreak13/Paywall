@@ -333,7 +333,7 @@ namespace MoreMountains.CorgiEngine
 		protected virtual void CheckpointAssignment()
 		{
 			// we get all respawnable objects in the scene and attribute them to their corresponding checkpoint
-			IEnumerable<Respawnable> listeners = FindObjectsOfType<MonoBehaviour>().OfType<Respawnable>();
+			IEnumerable<Respawnable> listeners = FindObjectsOfType<MonoBehaviour>(true).OfType<Respawnable>();
 			AutoRespawn autoRespawn;
 			foreach(Respawnable listener in listeners)
 			{
@@ -587,6 +587,11 @@ namespace MoreMountains.CorgiEngine
 			CorgiEngineEvent.Trigger(CorgiEngineEventTypes.LoadNextScene);
 
 			string destinationScene = (string.IsNullOrEmpty(levelName)) ? "StartScreen" : levelName;
+			LoadScene(destinationScene);
+		}
+
+		protected virtual void LoadScene(string destinationScene)
+		{
 			switch (LoadingSceneMode)
 			{
 				case MMLoadScene.LoadingSceneModes.UnityNative:
@@ -596,7 +601,7 @@ namespace MoreMountains.CorgiEngine
 					MMSceneLoadingManager.LoadScene(destinationScene, LoadingSceneName);
 					break;
 				case MMLoadScene.LoadingSceneModes.MMAdditiveSceneLoadingManager:
-					MMAdditiveSceneLoadingManager.LoadScene(levelName, AdditiveLoadingSettings);
+					MMAdditiveSceneLoadingManager.LoadScene(destinationScene, AdditiveLoadingSettings);
 					break;
 			}
 		}
@@ -626,7 +631,7 @@ namespace MoreMountains.CorgiEngine
 						CorgiEngineEvent.Trigger(CorgiEngineEventTypes.GameOver);
 						if ((GameManager.Instance.GameOverScene != null) && (GameManager.Instance.GameOverScene != ""))
 						{
-							MMSceneLoadingManager.LoadScene (GameManager.Instance.GameOverScene);
+							LoadScene (GameManager.Instance.GameOverScene);
 						}
 					}
 				}

@@ -132,8 +132,20 @@ namespace Paywall {
 
 		protected const string _playerIgnoreTag = "PlayerIgnore";
 		protected LaunchPad _launchPad;
+		protected const string _jumpUpgradeName = "Jump";
 
 		protected float _origin;
+
+		/// <summary>
+		/// Set number of jumps based on upgrade status
+		/// </summary>
+		protected virtual void Awake() {
+			if (PaywallProgressManager.Instance.Upgrades.TryGetValue(_jumpUpgradeName, out Upgrade upgrade)) {
+				if (upgrade.Unlocked) {
+					NumberOfJumpsAllowed++;
+				}
+			}
+		}
 
         #region Every Frame
 

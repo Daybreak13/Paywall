@@ -42,6 +42,9 @@ namespace MoreMountains.Feedbacks
 		         "Initialization method and passing it an owner. Otherwise, you can have this component initialize " +
 		         "itself at Awake or Start, and in this case the owner will be the MMFeedbacks itself")]
 		public InitializationModes InitializationMode = InitializationModes.Start;
+		/// if you set this to true, the system will make changes to ensure that initialization always happens before play
+		[Tooltip("if you set this to true, the system will make changes to ensure that initialization always happens before play")]
+		public bool AutoInitialization = true;
 		/// the selected safe mode
 		[Tooltip("the selected safe mode")]
 		public SafeModes SafeMode = SafeModes.Full;

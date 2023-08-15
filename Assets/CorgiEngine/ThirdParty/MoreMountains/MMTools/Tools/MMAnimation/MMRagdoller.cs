@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MoreMountains.Tools
@@ -45,9 +44,11 @@ namespace MoreMountains.Tools
 		public Rigidbody MainRigidbody;
 		/// if this is true, all rigidbodies will be forced to sleep every frame
 		public bool ForceSleep = true;
+		/// whether or not blending will occur when going from ragdolling to animated
+		public bool AllowBlending = true;
 
 		protected float _mecanimToGetUpTransitionTime = 0.05f;
-		protected float _ragdollingEndTimestamp = -100f;
+		protected float _ragdollingEndTimestamp = -float.MaxValue;
 		protected Vector3 _ragdolledHipPosition;
 		protected Vector3 _ragdolledHeadPosition;
 		protected Vector3 _ragdolledFeetPosition;
@@ -61,6 +62,7 @@ namespace MoreMountains.Tools
 		protected int _getUpFromBackAnimationParameter;
 		protected const string _getUpFromBellyAnimationParameterName = "GetUpFromBelly";
 		protected int _getUpFromBellyAnimationParameter;
+		protected bool _initialized = false;
 
 		/// <summary>
 		/// Use this to get the current state of the ragdoll or to set a new one
@@ -93,7 +95,9 @@ namespace MoreMountains.Tools
 						SetIsKinematic(true);
 						_ragdollingEndTimestamp = Time.time;
 						_animator.enabled = true;
-						CurrentState = RagdollStates.Blending;
+
+						CurrentState = AllowBlending ? RagdollStates.Blending: RagdollStates.Animated;
+						
 
 						foreach (RagdollBodyPart bodypart in _bodyparts)
 						{
@@ -170,6 +174,8 @@ namespace MoreMountains.Tools
 			// we store our animator
 			_animator = this.gameObject.GetComponent<Animator>();
 			RegisterAnimatorParameters();
+			
+			_initialized = true;
 		}
 
 		/// <summary>
@@ -248,19 +254,7 @@ namespace MoreMountains.Tools
 			{
 				if (Time.time <= _ragdollingEndTimestamp + _mecanimToGetUpTransitionTime)
 				{
-					Vector3 animatedToRagdolling = _ragdolledHipPosition - _animator.GetBoneTransform(HumanBodyBones.Hips).position;
-					Vector3 newRootPosition = transform.position + animatedToRagdolling;
-
-					RaycastHit[] hits = Physics.RaycastAll(new Ray(newRootPosition, Vector3.down));
-					newRootPosition.y = 0;
-					foreach (RaycastHit hit in hits)
-					{
-						if (!hit.transform.IsChildOf(transform))
-						{
-							newRootPosition.y = Mathf.Max(newRootPosition.y, hit.point.y);
-						}
-					}
-					transform.position = newRootPosition;
+					transform.position = GetRootPosition();
 
 					Vector3 ragdollingDirection = _ragdolledHeadPosition - _ragdolledFeetPosition;
 					ragdollingDirection.y = 0;
@@ -292,6 +286,41 @@ namespace MoreMountains.Tools
 					return;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Returns the current position of the ragdoll (technically the hips position)
+		/// </summary>
+		/// <returns></returns>
+		public Vector3 GetPosition()
+		{
+			if (!_initialized)
+			{
+				Initialization();
+			}
+			Vector3 newPosition = (_animator.GetBoneTransform(HumanBodyBones.Hips) == null) ? MainRigidbody.position : _animator.GetBoneTransform(HumanBodyBones.Hips).position; 
+			return newPosition;
+		}
+
+		/// <summary>
+		/// Returns the offset root position
+		/// </summary>
+		/// <returns></returns>
+		protected Vector3 GetRootPosition()
+		{
+			Vector3 ragdollPosition = (_animator.GetBoneTransform(HumanBodyBones.Hips) == null) ? MainRigidbody.position : _animator.GetBoneTransform(HumanBodyBones.Hips).position; 
+			Vector3 animatedToRagdolling = _ragdolledHipPosition - ragdollPosition;
+			Vector3 newRootPosition = transform.position + animatedToRagdolling;
+			RaycastHit[] hits = Physics.RaycastAll(new Ray(newRootPosition, Vector3.down));
+			newRootPosition.y = 0;
+			foreach (RaycastHit hit in hits)
+			{
+				if (!hit.transform.IsChildOf(transform))
+				{
+					newRootPosition.y = Mathf.Max(newRootPosition.y, hit.point.y);
+				}
+			}
+			return newRootPosition;
 		}
 	}
 }

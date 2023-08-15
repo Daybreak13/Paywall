@@ -9,6 +9,8 @@ namespace Paywall {
 
     /// <summary>
     /// Manages the store menu
+    /// The list of the store's upgrades must be set via inspector button
+    /// OnClick and OnSelect events of the buttons are caught by this manager
     /// </summary>
     public class StoreMenuManager : MonoBehaviour, MMEventListener<PaywallUpgradeEvent>, MMEventListener<PWUIEvent>, MMEventListener<PWInputEvent> {
 
@@ -69,6 +71,7 @@ namespace Paywall {
         protected UpgradeButton _currentButton;
         protected bool _buyButtonsActive;
         protected bool _awake;
+        protected Coroutine _errorCoroutine;
 
         protected bool UsingBuyButtons {
             get {
@@ -87,6 +90,7 @@ namespace Paywall {
                 _credits = PaywallProgressManager.Instance.Credits;
                 UpdateUpgradeButtons();
             }
+
             if (ErrorMessage != null) {
                 ErrorMessage.SetActive(false);
             }
@@ -105,28 +109,45 @@ namespace Paywall {
             }
         }
 
+        /// <summary>
+        /// Update credit display
+        /// </summary>
         protected virtual void Update() {
             if (PaywallProgressManager.HasInstance && (MoneyCounter != null)) {
                 MoneyCounter.text = PaywallProgressManager.Instance.Credits.ToString();
             }            
         }
 
+        /// <summary>
+        /// Populates upgrade button dictionary using the UpgradeButtons serialized list
+        /// </summary>
         protected virtual void PopulateDictionary() {
             foreach (UpgradeButton button in UpgradeButtons) {
                 _upgradeButtons.Add(button.Upgrade.UpgradeID, button);
             }
         }
 
+        /// <summary>
+        /// Triggers error message coroutine
+        /// </summary>
         public virtual void TriggerErrorMessage() {
             if (ErrorMessage != null) {
-                StartCoroutine(ErrorMessageFader());
+                if (_errorCoroutine != null) {
+                    StopCoroutine(_errorCoroutine);
+                }
+                _errorCoroutine = StartCoroutine(ErrorMessageFader());
             }
         }
-
+        
+        /// <summary>
+        /// Fades error message
+        /// </summary>
+        /// <returns></returns>
         protected virtual IEnumerator ErrorMessageFader() {
             ErrorMessage.SetActive(true);
             yield return new WaitForSeconds(ErrorMessageDuration);
             ErrorMessage.SetActive(false);
+            _errorCoroutine = null;
         }
 
         /// <summary>
@@ -145,20 +166,12 @@ namespace Paywall {
             }
         }
 
-        #region Editor
-
-        /// <summary>
-        /// Used by editor
-        /// </summary>
-        /// <param name="upgrades"></param>
-        public virtual void SetUpgradesEditor(List<UpgradeButton> upgradeButtons) {
-            UpgradeButtons = upgradeButtons;
-        }
-
-        #endregion
-
         #region UI
 
+        /// <summary>
+        /// Opens the menu at the specified index
+        /// </summary>
+        /// <param name="idx"></param>
         protected virtual void OpenMenu(int idx) {
             int i = 0;
             foreach (GameObject menu in Menus) {
@@ -235,6 +248,9 @@ namespace Paywall {
             _currentButton.TryUnlockUpgrade();
         }
 
+        /// <summary>
+        /// Cancel the buy display for currently selected upgrade
+        /// </summary>
         public virtual void ClickCancelButton() {
             ToggleBuyButtons(false);
         }
@@ -271,7 +287,9 @@ namespace Paywall {
             if (uIEvent.EventType == UIEventTypes.Click) {
                 if (UsingBuyButtons) {
                     _currentButton = uIEvent.Obj.GetComponent<UpgradeButton>();
-                     if (!ShowOnSelect) UpdateDetailsDisplay();
+                    if (!ShowOnSelect) {
+                        UpdateDetailsDisplay();
+                    }
                     if (_currentButton.Unlocked) {
                         ToggleBuyButtons(false);
                     } else {
@@ -285,6 +303,18 @@ namespace Paywall {
                 }
             }
         }
+
+        #region Editor
+
+        /// <summary>
+        /// Used by editor
+        /// </summary>
+        /// <param name="upgrades"></param>
+        public virtual void SetUpgradesEditor(List<UpgradeButton> upgradeButtons) {
+            UpgradeButtons = upgradeButtons;
+        }
+
+        #endregion
 
         /// <summary>
         /// Set the EventSystem selected gameobject
