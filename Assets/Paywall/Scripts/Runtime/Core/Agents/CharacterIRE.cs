@@ -97,6 +97,9 @@ namespace Paywall {
 		[field: Tooltip("EX gain rate per second")]
 		[field: FieldCondition("GainEXOverTime", true)]
 		[field: SerializeField] public float EXGainPerSecond { get; protected set; } = 2.5f;
+        /// The CharacterSuper component attached to this character (if applicable)
+        [field: Tooltip("The CharacterSuper component attached to this character (if applicable)")]
+        [field: SerializeField] public CharacterSuper SuperComponent { get; protected set; }
 
         // State Machines
         /// the movement state machine 
@@ -165,6 +168,7 @@ namespace Paywall {
 			CharacterRigidBody = gameObject.MMGetComponentNoAlloc<Rigidbody2D>();
 			_initialGravity = CharacterRigidBody.gravityScale;
 			CharacterBoxCollider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
+			SuperComponent = gameObject.MMGetComponentNoAlloc<CharacterSuper>();
 			CacheAbilities();
 			if (GUIManagerIRE_PW.HasInstance) {
 				GUIManagerIRE_PW.Instance.UpdateEXBar(CurrentEX, MinEX, MaxEX);

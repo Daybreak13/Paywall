@@ -6,6 +6,7 @@ using TMPro;
 using Paywall.Tools;
 using UnityEngine.UI;
 using System;
+using System.Text;
 
 namespace Paywall {
 
@@ -83,10 +84,16 @@ namespace Paywall {
 		/// the health bar
 		[field: Tooltip("the health bar")]
 		[field: SerializeField] public MMProgressBar[] HealthBars { get; protected set; }
+        /// the health fragments counter text
+        [field: Tooltip("the health fragments counter text")]
+        [field: SerializeField] public TextMeshProUGUI HealthFragments { get; protected set; }
+        /// the ammo fragments counter text
+        [field: Tooltip("the ammo fragments counter text")]
+        [field: SerializeField] public TextMeshProUGUI AmmoFragments { get; protected set; }
 
-		#endregion
+        #endregion
 
-		protected Color _stageTextColor;
+        protected Color _stageTextColor;
 		protected float _currentFadeTime;
 
         protected virtual void Start() {
@@ -244,9 +251,33 @@ namespace Paywall {
 		}
 
 		/// <summary>
-		/// Sets the level name in the HUD
+		/// Sets the health fragments text
 		/// </summary>
-		public virtual void SetLevelName(string name) {
+		/// <param name="current"></param>
+		public virtual void SetHealthFragments(int current, int max) {
+			StringBuilder sb = new();
+			sb.Append(current);
+			sb.Append("/");
+			sb.Append(max);
+			HealthFragments.text = sb.ToString();
+		}
+
+        /// <summary>
+        /// Sets the health fragments text
+        /// </summary>
+        /// <param name="current"></param>
+        public virtual void SetAmmoFragments(int current, int max) {
+            StringBuilder sb = new();
+            sb.Append(current);
+            sb.Append("/");
+            sb.Append(max);
+            AmmoFragments.text = sb.ToString();
+        }
+
+        /// <summary>
+        /// Sets the level name in the HUD
+        /// </summary>
+        public virtual void SetLevelName(string name) {
 			if (LevelText == null)
 				return;
 
@@ -303,11 +334,12 @@ namespace Paywall {
 
         /// <summary>
         /// Updates the health bar.
+		/// NOT USED
         /// </summary>
         /// <param name="currentHealth">Current health.</param>
         /// <param name="minHealth">Minimum health.</param>
         /// <param name="maxHealth">Max health.</param>
-        /// <param name="playerID">Player I.</param>
+        /// <param name="playerID">Player 1.</param>
         public virtual void UpdateHealthBar(float currentHealth, float minHealth, float maxHealth, string playerID) {
 			if (HealthBars == null) { return; }
 			if (HealthBars.Length <= 0) { return; }

@@ -19,9 +19,6 @@ namespace Paywall {
         /// How much to increase level speed when overclocking
         [field: Tooltip("How much to increase level speed when overclocking")]
         [field: SerializeField] public float OverclockSpeed { get; protected set; } = 5f;
-        /// How much to increase level speed when overclocking
-        [field: Tooltip("How much to increase level speed when overclocking")]
-        [field: SerializeField] public GameObject SupplyDepotMenuCanvas { get; protected set; }
 
         [field: Header("Item Amounts")]
 
@@ -59,8 +56,11 @@ namespace Paywall {
         [field: Tooltip("The leave depot button")]
         [field: SerializeField] public Button TalkButton { get; protected set; }
 
-        [field: Header("Containers")]
+        [field: Header("Canvas Groups")]
 
+        /// How much to increase level speed when overclocking
+        [field: Tooltip("How much to increase level speed when overclocking")]
+        [field: SerializeField] public GameObject SupplyDepotMenuCanvas { get; protected set; }
         /// The container for all item buttons
         [field: Tooltip("The container for all item buttons")]
         [field: SerializeField] public GameObject ItemButtonContainer { get; protected set; }
@@ -123,7 +123,6 @@ namespace Paywall {
         [field: SerializeField] public string OverclockDialogue { get; protected set; }
 
         protected PowerUpTypes _currentPowerUpType;
-        protected DepotItemTypes _currentDepotItemType;
         protected bool _firstEntered;
 
         /// <summary>
@@ -133,19 +132,33 @@ namespace Paywall {
             DialogueMask.SetActiveIfNotNull(false);
             EventSystem.current.SetSelectedGameObject(EXButton.gameObject);
 
+            // First time enter event
             if (!PaywallProgressManager.Instance.EventFlags.EnterDepotFirstTime) {
                 EventSystem.current.SetSelectedGameObject(null);
+                SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = false;
                 EXButton.GetComponent<UIGetFocus>().enabled = false;
                 PaywallDialogueEvent.Trigger(DialogueEventTypes.Open, EnterDepotDialogueLines);
                 PaywallProgressManager.Instance.EventFlags.EnterDepotFirstTime = true;
                 DialogueMask.SetActiveIfNotNull(true);
                 _firstEntered = true;
             }
+            // Otherwise set default dialogue
             else {
                 SetDialogueText(EnterDepotDialogue);
             }
 
             EventSystem.current.sendNavigationEvents = true;
+
+            // If we are at max EX, disable the EX button
+            if (LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].CurrentEX >= LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].MaxEX) {
+                EXButton.interactable = false;
+                HealthButton.GetComponent<UIGetFocus>().enabled = true;
+                EventSystem.current.SetSelectedGameObject(HealthButton.gameObject);
+            }
+            else {
+                EXButton.GetComponent<UIGetFocus>().enabled = true;
+                HealthButton.GetComponent<UIGetFocus>().enabled = false;
+            }
 
             // Set active state of all containers
             LeaveButton.gameObject.SetActive(false);
@@ -175,6 +188,7 @@ namespace Paywall {
         /// Gain one health fragment
         /// </summary>
         public virtual void HealthButtonPressed() {
+            _currentPowerUpType = PowerUpTypes.Health;
             PickHealth(HealthGain);
             ChangeToOverclockDisplay(DepotItemTypes.Health);
         }
@@ -184,6 +198,7 @@ namespace Paywall {
         /// Gain one ammo fragment
         /// </summary>
         public virtual void AmmoButtonPressed() {
+            _currentPowerUpType = PowerUpTypes.Ammo;
             PickAmmo(AmmoGain);
             ChangeToOverclockDisplay(DepotItemTypes.Ammo);
         }
@@ -212,6 +227,7 @@ namespace Paywall {
 
         /// <summary>
         /// Overclock exosuit, gain additional fragments and increase level speed
+        /// The overclock gain is added on top of the normal gain
         /// </summary>
         /// <param name="powerUpType"></param>
         protected virtual void Overclock(PowerUpTypes powerUpType) {
@@ -368,9 +384,14 @@ namespace Paywall {
             DialogueMask.SetActiveIfNotNull(false);
             if (_firstEntered) {
                 _firstEntered = false;
+                SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = true;
                 SetDialogueText(EnterDepotDialogue);
-                EventSystem.current.SetSelectedGameObject(EXButton.gameObject);
-                EXButton.GetComponent<UIGetFocus>().enabled = true;
+                if (EXButton.interactable) {
+                    EventSystem.current.SetSelectedGameObject(EXButton.gameObject);
+                }
+                else {
+                    EventSystem.current.SetSelectedGameObject(HealthButton.gameObject);
+                }
             }
         }
 

@@ -398,11 +398,13 @@ namespace Paywall {
 			PerformJump();
 		}
 
-		/// <summary>
-		/// Evaluates jump conditions and initiates jump if allowed
-		/// If using jump startup, use this instead of Jump()
-		/// </summary>
-		public virtual void JumpWithStartup() {
+        #region Jump With Startup
+
+        /// <summary>
+        /// Evaluates jump conditions and initiates jump if allowed
+        /// If using jump startup, use this instead of Jump()
+        /// </summary>
+        public virtual void JumpWithStartup() {
 			if (!EvaluateJumpConditions()) {
 				if (_bufferCoroutine != null) {
 					StopCoroutine(_bufferCoroutine);
@@ -423,6 +425,7 @@ namespace Paywall {
 
 		/// <summary>
 		/// If grounded (first jump), wait for jump startup, then jump
+		/// Only used with jump startup
 		/// </summary>
 		/// <returns></returns>
 		protected virtual IEnumerator StartJump() {
@@ -456,10 +459,12 @@ namespace Paywall {
 			_inJumpStartup = false;
 		}
 
-		/// <summary>
-		/// Performs a jump or double jump and updates animator and state
-		/// </summary>
-		protected virtual void PerformJump() {
+        #endregion
+
+        /// <summary>
+        /// Performs a jump or double jump and updates animator and state
+        /// </summary>
+        protected virtual void PerformJump() {
 			_character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Jumping);
 			_jumpCancelled = false;
 			if (_bufferCoroutine != null) {
@@ -560,7 +565,7 @@ namespace Paywall {
 			float Trelease, Vinitial, Vrelease, Tpeak, Vfinal, Tfall;
 			switch (jumpType) {
 				case JumpTypes.Normal:
-					Vinitial = CalculateJumpForce(JumpHeight);
+					Vinitial = CalculateJumpForce(JumpHeight) / _rigidbody2D.mass;
 					Tpeak = (-Vinitial) / (Physics2D.gravity.y * _initialGravityScale);
 					Vfinal = Mathf.Sqrt(Mathf.Abs(2f * (Physics2D.gravity.y * _initialGravityScale) * JumpHeight));
 					Tfall = (Vfinal) / Mathf.Abs((Physics2D.gravity.y * _initialGravityScale));
@@ -568,7 +573,7 @@ namespace Paywall {
 					break;
 				case JumpTypes.Low:
 					Trelease = LowJumpBufferFrames * Time.fixedDeltaTime;
-					Vinitial = CalculateJumpForce(JumpHeight);
+					Vinitial = CalculateJumpForce(JumpHeight) / _rigidbody2D.mass;
 					Vrelease = Vinitial + (Physics2D.gravity.y * _initialGravityScale) * Trelease;
 					Tpeak = (-Vrelease / (-JumpReleaseSpeed + (Physics2D.gravity.y * _initialGravityScale)));
 					Vfinal = Mathf.Sqrt(Mathf.Abs(2f * (Physics2D.gravity.y * _initialGravityScale) * LowJumpHeight));

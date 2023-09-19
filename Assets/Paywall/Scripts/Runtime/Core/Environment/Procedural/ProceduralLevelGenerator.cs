@@ -31,6 +31,15 @@ namespace Paywall {
     }
 
     /// <summary>
+    /// Weighted SpawnableWeightedObjectPooler. Essentially, provides a weight for the spawnable type the pooler corresponds to.
+    /// </summary>
+    [System.Serializable]
+    public class WeightedSpawnPooler {
+        [field: SerializeField] public SpawnableWeightedObjectPooler Pooler { get; set; }
+        [field: SerializeField] public int InitialWeight { get; set; }
+    }
+
+    /// <summary>
     /// NoGap, Shortest, Short, Medium, Long, Longest
     /// </summary>
     public enum GapLengths { NoGap, Shortest, Short, Medium, Long, Longest }
@@ -63,7 +72,7 @@ namespace Paywall {
         [field: SerializeField] public LevelSegmentController FirstLevelSegment { get; protected set; }
         /// The shop level segment
         [field: Tooltip("The shop level segment")]
-        [field: SerializeField] public LevelSegmentController ShopLevelSegment { get; protected set; }
+        [field: SerializeField] public LevelSegmentPooler ShopLevelSegmentPooler { get; protected set; }
 
         [field: Header("Stages")]
 
@@ -79,7 +88,7 @@ namespace Paywall {
 
         /// List of poolers for spawnable objects/enemies/items
         [field: Tooltip("List of poolers for spawnable objects/enemies/items")]
-        [field: SerializeField] public List<SpawnableWeightedObjectPooler> SpawnPoolers { get; protected set; }
+        [field: SerializeField] public List<WeightedSpawnPooler> SpawnPoolers { get; protected set; }
 
         [field: Header("Type Weight")]
 
@@ -96,6 +105,9 @@ namespace Paywall {
         [field: Tooltip("Weight of jumper segment type")]
         [field: SerializeField] public List<WeightedSegmentTypeList> WeightedTypeList { get; protected set; }
 
+        /// <summary>
+        /// Long and longest unused. Medium gap is variable, short/shortest are static.
+        /// </summary>
         [field: Header("Gap Lengths")]
 
         /// Shortest gap length
@@ -178,13 +190,16 @@ namespace Paywall {
         /// Override gap length and just use ShortestGapLength
         [field: Tooltip("Override gap length and just use ShortestGapLength")]
         [field: SerializeField] public bool OverrideGapLength { get; protected set; }
+        /// Do not spawn shop segment
+        [field: Tooltip("Do not spawn shop segment")]
+        [field: SerializeField] public bool DoNotSpawnShop { get; protected set; }
         /// Ordered list of level segments
         [field: Tooltip("Ordered list of level segments")]
         [field: SerializeField] public List<string> LevelSegmentSequence { get; protected set; }
 
         #endregion
 
-        public Dictionary<string, SpawnableWeightedObjectPooler> SpawnPoolerDict { get; protected set; } = new();
+        public Dictionary<string, WeightedSpawnPooler> SpawnPoolerDict { get; protected set; } = new();
 
         protected Dictionary<string, WeightedLevelSegment> _levelSegments = new();
         protected Dictionary<GapLengths, float> _gapLengthsDict = new();
@@ -233,14 +248,14 @@ namespace Paywall {
             }
 
             if (SpawnPoolers.Count > 0) {
-                foreach (SpawnableWeightedObjectPooler pooler in SpawnPoolers) {
+                foreach (WeightedSpawnPooler pooler in SpawnPoolers) {
                     //SpawnPoolerDict.Add(pooler.gameObject.name, pooler);
-                    SpawnPoolerDict.Add(pooler.SpawnablePoolerType.ToString(), pooler);
+                    SpawnPoolerDict.Add(pooler.Pooler.SpawnablePoolerType.ToString(), pooler);
                 }
             }
 
             // Fill out gap lengths dictionary, initialize gap lengths
-            MediumGap = GenerateGapLength(JumpTypes.Low);
+            MediumGap = GenerateGapLength(JumpTypes.Normal);
             _gapLengthsDict.Add(GapLengths.NoGap, 0f);
             _gapLengthsDict.Add(GapLengths.Shortest, ShortestGap);
             _gapLengthsDict.Add(GapLengths.Short, ShortGap);
@@ -348,13 +363,15 @@ namespace Paywall {
             float farRight = _currentSegment.RightOut.position.x;
             // Distance traveled since entered stage = total distance - distance entered current stage
             if (LevelManagerIRE_PW.Instance.DistanceTraveled - _previousStageCutoff + (farRight - charPos) >= _currentStageLength) {
-                //_previousStageCutoff = LevelManagerIRE_PW.Instance.DistanceTraveled;
+                if (DoNotSpawnShop) {
+                    _previousStageCutoff = LevelManagerIRE_PW.Instance.DistanceTraveled;
+                }
                 IncrementStage();
                 GetNextStageLength();
 
-                if (ShopLevelSegment != null) {
+                if (ShopLevelSegmentPooler != null && !DoNotSpawnShop) {
                     _previousSegment = _currentSegment;
-                    _currentSegment = ShopLevelSegment;
+                    _currentSegment = ShopLevelSegmentPooler.GetPooledGameObject().GetComponent<LevelSegmentController>();
                     SpawnCurrentSegment();
                     _blockSpawn = true;
                 }
@@ -410,6 +427,7 @@ namespace Paywall {
             int newWeight = (int)Mathf.Floor(_typeRandomizer.GetWeight((int)_previousSegment.SegmentType) * _repeatModifiers[_previousSegment.SegmentType]);
             _typeRandomizer.SetWeight((int)_previousSegment.SegmentType, newWeight);
             SegmentTypes typeToUse = (SegmentTypes) _typeRandomizer.NextWithReplacement();
+            // If it is a new segment type, reset the weight
             if (typeToUse != _previousSegment.SegmentType) {
                 _typeRandomizer.SetWeight((int)_previousSegment.SegmentType, _initialWeights[_previousSegment.SegmentType]);
             }
@@ -452,19 +470,27 @@ namespace Paywall {
 
         /// <summary>
         /// Gets the next gap length
+        /// _currentSegment is the segment that is now being spawned
         /// </summary>
         /// <returns></returns>
         protected virtual float GetGapLength() {
+            // If the newly spawned segment is a jumper, spawn it at a medium gap length
             if (_currentSegment.SegmentType == SegmentTypes.Jumper) {
                 _currentGapLength = GapLengths.Medium;
             }
+            // If the newly spawned segment is a jumper, spawn it with no gap
+            else if (_currentSegment.SegmentType == SegmentTypes.Transition) {
+                _currentGapLength = GapLengths.NoGap;
+            }
             else {
                 switch (_previousSegment.SegmentType) {
+                    // If previous was not jumper, generate random gap length
                     case SegmentTypes.Ground:
-                        _currentGapLength = (GapLengths)UnityEngine.Random.Range(0, 3);
+                        _currentGapLength = (GapLengths)UnityEngine.Random.Range(0, 4);
                         break;
+                    // If previous segment was transition, use no gap
                     case SegmentTypes.Transition:
-                        _currentGapLength = (GapLengths)UnityEngine.Random.Range(0, 3);
+                        _currentGapLength = GapLengths.NoGap;
                         break;
                     // If previous was jumper, keep the same gap length
                     case SegmentTypes.Jumper:
@@ -527,8 +553,8 @@ namespace Paywall {
         protected virtual float GenerateGapLength(JumpTypes jumpType) {
             _characterJump = LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].GetComponent<CharacterJumpIRE>();
             float jumpTime = _characterJump.CalculateJumpTime(jumpType);
-            float velocity = (1f / 10f) * LevelManagerIRE_PW.Instance.Speed;
-            float distance = jumpTime * velocity * 0.7f;
+            float velocity = (LevelManagerIRE_PW.Instance.SegmentSpeed / 10f) * LevelManagerIRE_PW.Instance.Speed;
+            float distance = jumpTime * velocity * 0.8f;
             return distance;
         }
 
@@ -538,6 +564,7 @@ namespace Paywall {
         protected virtual void IncrementDifficulty(int increment) {
             CurrentDifficulty += increment;
             PaywallDifficultyEvent.Trigger(CurrentDifficulty);
+            MediumGap = GenerateGapLength(JumpTypes.Normal);
 
             foreach (KeyValuePair<string, WeightedLevelSegment> entry in _levelSegments) {
                 // Only add weight if the segment appears at this difficulty

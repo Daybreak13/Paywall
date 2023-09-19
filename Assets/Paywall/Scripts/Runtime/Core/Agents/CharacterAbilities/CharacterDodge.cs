@@ -8,7 +8,7 @@ namespace Paywall {
     /// <summary>
     /// Dash forward, canceling vertical momentum, and phasing through enemies, bricks, damaging effects
     /// </summary>
-    public class CharacterDodge : CharacterAbilityIRE {
+    public class CharacterDodge : CharacterEXMove {
         /// Dodge invincibility duration
         [field: Tooltip("Dodge invincibility duration")]
         [field: SerializeField] public float DodgeDuration { get; protected set; } = 0.2f;
@@ -25,9 +25,6 @@ namespace Paywall {
         /// The multiplier to apply to level's speed during the dodge
         [field: Tooltip("The multiplier to apply to level's speed during the dodge")]
         [field: SerializeField] public float DodgeLevelSpeedMultiplier { get; protected set; } = 2f;
-        /// Does this ability cost EX to use
-        [field: Tooltip("Does this ability cost EX to use")]
-        [field: SerializeField] public bool CostsEX { get; protected set; }
 
         protected float _currentDodgeTime;
         protected float _timeLastDodgeEnded;
@@ -52,23 +49,19 @@ namespace Paywall {
             }
         }
 
-        protected virtual void HandleDodgeInput(InputAction.CallbackContext ctx) {
-            PerformDodge();
-        }
-
         /// <summary>
         /// Perform dodge
         /// </summary>
-        protected virtual void PerformDodge() {
+        protected override void PerformAbility() {
+            base.PerformAbility();
+
             if (!AbilityAuthorized || !EvaluateDodgeConditions()) {
                 return;
             }
 
-            // If ability costs EX, spend the EX or do nothing if there is insufficient EX
-            if (CostsEX) {
-                if (!_character.SpendEXBars(1)) {
-                    return;
-                }
+            // Spend the EX or do nothing if there is insufficient EX
+            if (!_character.SpendEXBars(EXCost)) {
+                return;
             }
             _dodgeCoroutine = StartCoroutine(DodgeCo());
         }
@@ -104,16 +97,6 @@ namespace Paywall {
             //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeRotation;
             _currentDodgeTime = 0f;
             _timeLastDodgeEnded = Time.time;
-        }
-
-        protected override void OnEnable() {
-            base.OnEnable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed += HandleDodgeInput;
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed -= HandleDodgeInput;
         }
     }
 }

@@ -70,8 +70,8 @@ namespace Paywall {
         /// Current speed not counting temp speed modifiers
         [field: MMReadOnly]
         [field: SerializeField] public float CurrentUnmodifiedSpeed { get; protected set; }
-        /// the global speed for level segments
-        [field: Tooltip("the global speed for level segments")]
+        /// the global speed modifier for level segments
+        [field: Tooltip("the global speed modifier for level segments")]
         [field: SerializeField] public float SegmentSpeed { get; protected set; } = 1f;
 
         [field: Space(10)]
@@ -309,6 +309,7 @@ namespace Paywall {
 
         /// <summary>
         /// Temp speed multiplier with option for retaining enemy NPC speed
+        /// Used by abilities (super, EX)
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="duration"></param>
@@ -349,6 +350,7 @@ namespace Paywall {
         /// <summary>
         /// Rather than using a duration, multiply speed until switched off
         /// Cannot activate speed switch if it is already active
+        /// Can activate if duration based temp speed is active
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="retainEnemySpeed"></param>
@@ -406,7 +408,12 @@ namespace Paywall {
             if (TempSpeedSwitchActive) {
                 TempSpeedSwitchActive = false;
                 _retainEnemySpeed = false;
-                Speed /= _tempSpeedSwitchFactor;
+                if (_tempSpeedSwitchFactor == 0) {
+                    Speed = _temporarySavedSpeed;
+                }
+                else {
+                    Speed /= _tempSpeedSwitchFactor;
+                }
             }
         }
 

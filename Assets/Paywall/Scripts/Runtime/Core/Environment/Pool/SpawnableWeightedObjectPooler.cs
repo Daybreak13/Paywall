@@ -6,6 +6,9 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
+    /// <summary>
+    /// A weighted pool for a single spawnable object class
+    /// </summary>
     [System.Serializable]
     public class SpawnableWeightedPool {
         public SpawnableObjectPooler Pooler;
@@ -20,6 +23,7 @@ namespace Paywall {
 
     /// <summary>
     /// Weighted pooler for spawnables
+    /// Each object of this class contains various spawnables of a single type
     /// </summary>
     public class SpawnableWeightedObjectPooler : MonoBehaviour, MMEventListener<PaywallDifficultyEvent> {
         /// the type of pooler this is

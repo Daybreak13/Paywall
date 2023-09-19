@@ -50,6 +50,9 @@ namespace Paywall {
         /// The weighted object poolers
         [field: Tooltip("The weighted object poolers")]
         [field: SerializeField] public List<SpawnPoint> SpawnPoints { get; protected set; }
+        /// If true, use global weights from ProceduralLevelGenerator for each spawnable
+        [field: Tooltip("If true, use global weights from ProceduralLevelGenerator for each spawnable")]
+        [field: SerializeField] public bool UseGlobalSpawnWeight { get; protected set; }
 
         [field: Header("Boundaries")]
 

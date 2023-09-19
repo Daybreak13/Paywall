@@ -4773,6 +4773,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StoreCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 202266414492928685, guid: abaadab6a01791c459664056a5fce587,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 728830003571959363, guid: abaadab6a01791c459664056a5fce587,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -5442,7 +5447,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2602097517866612341}
   - component: {fileID: 2602097517866612340}
-  - component: {fileID: 2602097517866612342}
   - component: {fileID: 2602097517866612343}
   - component: {fileID: 2602097517866612344}
   - component: {fileID: 2602097517866612345}
@@ -5517,28 +5521,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2602097517866612342
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2602097517866612338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 266fc2237c84669498e61feb6ee377f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InputDetectionActive: 1
-  ResetButtonStatesOnFocusLoss: 1
-  PlayerID: Player1
-  AutoMobileDetection: 0
-  ForcedMode: 0
-  HideMobileControlsInEditor: 0
-  MovementControl: 0
-  DelayedButtonPresses: 0
-  SmoothMovement: 1
-  Threshold: {x: 0.1, y: 0.4}
 --- !u!114 &2602097517866612343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5551,16 +5533,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1ac8d975f7efc845a8e77cc7dc93032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DisableOnStart: 1
-  TextSpeed: 30
-  RequireInput: 0
-  AdvanceDelay: 1.5
-  DialogueCanvasGroup: {fileID: 1500667107}
-  Background: {fileID: 0}
-  NameDisplay: {fileID: 135340781}
-  Portrait: {fileID: 0}
-  DialogueText: {fileID: 1050434634}
-  TextLines: []
+  <DisableOnStart>k__BackingField: 1
+  <TextSpeed>k__BackingField: 30
+  <RequireInput>k__BackingField: 0
+  <AdvanceDelay>k__BackingField: 1.5
+  <DialogueCanvasGroup>k__BackingField: {fileID: 0}
+  <Background>k__BackingField: {fileID: 0}
+  <NameDisplay>k__BackingField: {fileID: 0}
+  <Portrait>k__BackingField: {fileID: 0}
+  <DialogueText>k__BackingField: {fileID: 0}
+  <TextLines>k__BackingField: []
 --- !u!114 &2602097517866612344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5592,7 +5574,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 9bc7476ee91ad6447bb6270dacb22357,
+  m_Actions: {fileID: -944628639613478452, guid: 00725b16af68af041b0570c2acd2092b,
     type: 3}
   m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
@@ -5608,6 +5590,6 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: PlayerControls
+  m_DefaultActionMap: 26ae3aca-27df-4a0f-8a0b-057fd175d088
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}

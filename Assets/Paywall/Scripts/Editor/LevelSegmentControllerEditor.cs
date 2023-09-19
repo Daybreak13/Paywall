@@ -7,6 +7,7 @@ using System.Linq;
 namespace Paywall.Editors {
 
     [CustomEditor(typeof(LevelSegmentController), true)]
+    [CanEditMultipleObjects]
     public class LevelSegmentControllerEditor : Editor {
         public LevelSegmentController levelSegmentController {
             get {

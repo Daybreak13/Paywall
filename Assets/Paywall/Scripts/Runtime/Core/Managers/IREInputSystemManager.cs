@@ -8,6 +8,7 @@ namespace Paywall {
 
     /// <summary>
     /// Input system manager for Infinite Runner Engine
+    /// DEPRECATED
     /// </summary>
     public class IREInputSystemManager : InputManager {
         /// the minimum horizontal and vertical value you need to reach to trigger movement on an analog controller (joystick for example)

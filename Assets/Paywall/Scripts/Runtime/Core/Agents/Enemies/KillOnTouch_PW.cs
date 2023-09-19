@@ -12,7 +12,7 @@ namespace Paywall {
 	public class KillOnTouch_PW : MonoBehaviour {
 		/// Target layers
 		[field: Tooltip("Target layers")]
-		[field: SerializeField] public LayerMask TargetLayers { get; protected set; }
+		[field: SerializeField] public LayerMask TargetLayers { get; protected set; } = PaywallLayerManager.PlayerLayerMask;
 
 		protected const string _playerHurtboxTag = "PlayerHurtbox";
 		protected const string _playerTag = "Player";

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Paywall.Tools;
+using System;
 
 namespace Paywall {
 
@@ -49,9 +50,10 @@ namespace Paywall {
 
         protected bool _knockbackApplied;
         protected float _currentKnockbackTime;
+        protected float _stallTime;
         protected Vector2 _knockbackForce;
-        protected float _knockbackDeceleration = 33f;
-        protected float _snapBackAcceleration = 2f;
+        protected float _knockbackDecceleration = 32f;  // How fast to deccelerate from knockback velocity
+        protected float _snapBackAcceleration = 3f;     // How fast to return to original velocity
 
         // Divide speed by this to get final velocity
         protected float _denominator = 10f;
@@ -74,10 +76,10 @@ namespace Paywall {
             }
             if (Direction.x < 0 || Direction.y < 0) {
                 _snapBackAcceleration = -Mathf.Abs(_snapBackAcceleration);
-                _knockbackDeceleration = -Mathf.Abs(_knockbackDeceleration);
+                _knockbackDecceleration = -Mathf.Abs(_knockbackDecceleration);
             } else {
                 _snapBackAcceleration = Mathf.Abs(_snapBackAcceleration);
-                _knockbackDeceleration = Mathf.Abs(_knockbackDeceleration);
+                _knockbackDecceleration = Mathf.Abs(_knockbackDecceleration);
             }
             //_knockbackDeceleration *= Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
         }
@@ -150,12 +152,16 @@ namespace Paywall {
             RigidbodyMove();
         }
 
+        /// <summary>
+        /// If the rigidbody has been knocked back, return it to its original velocity over time
+        /// </summary>
         protected virtual void HandleKnockback() {
             if (!_knockbackApplied) {
                 return;
             }
 
-            _knockbackDeceleration *= Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
+            // Adjust decceleration according to rigidbody mass
+            float adjustedDecceleration = _knockbackDecceleration * Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
 
             _currentKnockbackTime += Time.fixedDeltaTime;
 
@@ -165,14 +171,29 @@ namespace Paywall {
             }
 
             Vector2 levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
+            Vector2 speedCap = levelSpeed;
+
             Vector2 newVelocity;
-            if (_rigidbody2D.velocity.x > 0) {
-                newVelocity = new(_rigidbody2D.velocity.x + (_knockbackDeceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
+            // If we are still traveling backwards (in knockback), deccelerate the knockback velocity until it equals speed cap
+            if (_rigidbody2D.velocity.x > speedCap.x) {
+                newVelocity = new(_rigidbody2D.velocity.x + (adjustedDecceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
+                if (newVelocity.x <= speedCap.x) {
+                    newVelocity = speedCap;
+                    _stallTime = 0;
+                }
             }
+            // Otherwise, apply return velocity acceleration
             else {
-                newVelocity = new(_rigidbody2D.velocity.x + (_snapBackAcceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
+                _stallTime += Time.fixedDeltaTime;
+                // Pause before applying return velocity
+                if (_stallTime >= 0.7f) {
+                    newVelocity = new(_rigidbody2D.velocity.x + (_snapBackAcceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
+                } else {
+                    newVelocity = speedCap;
+                }
             }
 
+            // If the velocity exceeds or equals original velocity, stop acceleration
             if (_rigidbody2D.velocity.x <= _movement.x) {
                 _knockbackApplied = false;
                 _rigidbody2D.velocity = _movement;
@@ -198,6 +219,7 @@ namespace Paywall {
                 _movement = (Speed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
             }
 
+            // If knockback is applied, HandleKnockback controls the velocity instead of this function
             if (_knockbackApplied) {
                 HandleKnockback();
                 return;
@@ -223,7 +245,7 @@ namespace Paywall {
             if (ShouldUseRigidBody) {
                 // Determine knockback velocity
                 // force * (3/4) ^ (mass - 1)
-                _knockbackForce = force * Mathf.Pow(0.85f, _rigidbody2D.mass - 1f);
+                _knockbackForce = force * Mathf.Pow(0.9f, _rigidbody2D.mass - 1f);
 
                 // Determine knockback velocity
                 float vf = Physics.ElasticCollision(force.x, _rigidbody2D.velocity.x, 1f, _rigidbody2D.mass, ElasticCollisionReturns.VFinal2);

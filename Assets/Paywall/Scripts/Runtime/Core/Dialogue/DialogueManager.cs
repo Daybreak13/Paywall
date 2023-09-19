@@ -110,7 +110,7 @@ namespace Paywall {
             // Reveal the rest of the dialogue line immediately
             else {
                 StopAllCoroutines();
-                DialogueText.maxVisibleCharacters = DialogueText.text.Length;
+                DialogueText.maxVisibleCharacters = 99999;
                 _currentLine++;
                 _textComplete = true;
             }

@@ -125,7 +125,7 @@ namespace Paywall {
             if (ss.UsingPatterns) {
                 int i = ss.PatternRandomizer.NextWithReplacement();
                 foreach (Transform child in ss.SpawnPatterns[i].Pattern.transform) {
-                    GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].GetPooledGameObject();
+                    GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].Pooler.GetPooledGameObject();
 
                     // Safely set position
                     Vector2 destination = child.transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
@@ -144,7 +144,7 @@ namespace Paywall {
             }
             // Else, get a pooled object and spawn at this location
             else {
-                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].GetPooledGameObject();
+                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].Pooler.GetPooledGameObject();
 
                 Vector2 destination = transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
                 spawnable.transform.SafeSetTransformPosition(destination, LayerMask.GetMask("Ground"));

@@ -126,20 +126,30 @@ namespace Paywall {
             WeaponComponent.WeaponInputStart();
         }
 
+        /// <summary>
+        /// Set magazine size of current weapon
+        /// </summary>
+        /// <param name="size"></param>
         public virtual void SetCurrentWeaponMagSize(int size) {
             if (!CurrentWeapon.MagazineBased) {
                 return;
             }
             CurrentWeapon.MagazineSize = size;
-            UpdateAmmoDisplay();
+            CurrentWeapon.CurrentAmmoLoaded = size;
         }
 
+        /// <summary>
+        /// Updates the GUI ammo display
+        /// </summary>
         protected virtual void UpdateAmmoDisplay() {
             if ((GUIManagerIRE_PW.HasInstance) && (_character != null)) {
                 (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
             }
         }
 
+        /// <summary>
+        /// Determines if we need to stop air stalling (y velocity changed)
+        /// </summary>
         protected virtual void HandleAirStall() {
             if ((_rigidbody2D.velocity.y > 0) && (_airStallCoroutine != null)) {
                 StopCoroutine(_airStallCoroutine);

@@ -33,6 +33,8 @@ namespace Paywall {
             if (HandleWeaponComponent == null) {
                 HandleWeaponComponent = GetComponent<CharacterHandleWeaponIRE>();
             }
+            GUIManagerIRE_PW.Instance.SetHealthFragments(HealthFragments, MaxHealthFragments);
+            GUIManagerIRE_PW.Instance.SetAmmoFragments(AmmoFragments, MaxAmmoFragments);
         }
 
         /// <summary>
@@ -42,19 +44,20 @@ namespace Paywall {
         public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
             switch (itemPickEvent.PickedPowerUpType) {
                 case PowerUpTypes.Health:
-                    HealthFragments++;
+                    HealthFragments += itemPickEvent.Amount;
                     // If we have a full health unit, increase health
-                    if (HealthFragments == MaxHealthFragments) {
-                        HealthFragments = 0;
+                    if (HealthFragments >= MaxHealthFragments) {
+                        HealthFragments -= MaxHealthFragments;
                         GameManagerIRE_PW.Instance.SetLives(GameManagerIRE_PW.Instance.CurrentLives + 1);
                     }
+                    GUIManagerIRE_PW.Instance.SetHealthFragments(HealthFragments, MaxHealthFragments);
                     break;
                 case PowerUpTypes.Ammo:
-                    AmmoFragments++;
+                    AmmoFragments += itemPickEvent.Amount;
                     // If we have a full ammo unit, increase mag size
-                    if (AmmoFragments == MaxAmmoFragments) {
-                        AmmoFragments = 0;
-                        HandleWeaponComponent.SetCurrentWeaponMagSize(HandleWeaponComponent.CurrentWeapon.MagazineSize);
+                    if (AmmoFragments >= MaxAmmoFragments) {
+                        AmmoFragments -= MaxAmmoFragments;
+                        HandleWeaponComponent.SetCurrentWeaponMagSize(HandleWeaponComponent.CurrentWeapon.MagazineSize + 1);
                     }
                     break;
             }
