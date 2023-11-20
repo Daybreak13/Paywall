@@ -105,6 +105,11 @@ namespace Paywall {
 			}
 			newGameObject.name = SpawnableToPool.name + "-" + _pooledGameObjects.Count;
 
+			// Set the object's parent pooler, so that the parent can be reset when it is recycled
+			if (newGameObject.TryGetComponent(out SpawnablePoolableObject spawnable)) {
+				spawnable.SetPoolerParent(newGameObject.transform.parent);
+			}
+
 			_pooledGameObjects.Add(newGameObject);
 
 			_objectPool.PooledGameObjects.Add(newGameObject);

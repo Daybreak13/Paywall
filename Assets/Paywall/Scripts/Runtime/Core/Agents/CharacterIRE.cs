@@ -402,12 +402,12 @@ namespace Paywall {
 		}
 
 		/// <summary>
-		/// Called on update, tries to return the object to its initial position
+		/// Called on fixed update, tries to return the object to its initial position
 		/// </summary>
 		protected virtual void ResetPosition() {
 			if (ShouldResetPosition) {
 				if (!CollidingRight && transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
-					CharacterRigidBody.velocity = new Vector3((InitialPosition.x - transform.position.x) * (ResetPositionSpeed), CharacterRigidBody.velocity.y);
+					CharacterRigidBody.velocity = new Vector3((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
 					//CharacterRigidBody.velocity = new Vector3(0, CharacterRigidBody.velocity.y);
 				}
 			}

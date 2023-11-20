@@ -122,9 +122,12 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 2996644156721059726}
   <RightOut>k__BackingField: {fileID: 8250956572146935542}
+  <BoundsBox>k__BackingField: {fileID: 0}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
+  <SetHeight>k__BackingField: 0
+  <MaxHeight>k__BackingField: -1
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!50 &698069669462038832
 Rigidbody2D:

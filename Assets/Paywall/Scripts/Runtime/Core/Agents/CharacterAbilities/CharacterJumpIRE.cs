@@ -22,7 +22,7 @@ namespace Paywall {
 		[field: SerializeField] public int NumberOfJumpsAllowed { get; protected set; } = 2;
 		/// the minimum time (in seconds) allowed between two consecutive jumps
 		[field: Tooltip("the minimum time (in seconds) allowed between two consecutive jumps")]
-		[field: SerializeField] public float CooldownBetweenJumps { get; protected set; } = 0f;
+		[field: SerializeField] public float CooldownBetweenJumps { get; protected set; } = 0.05f;
 		/// can the character jump only when grounded ?
 		[field: Tooltip("can the character jump only when grounded ?")]
 		[field: SerializeField] public bool JumpsAllowedWhenGroundedOnly { get; protected set; }
@@ -126,6 +126,7 @@ namespace Paywall {
 		protected bool _jumpCancelled;
 		protected Coroutine _jumpCoroutine;
 		protected Coroutine _bufferCoroutine;
+		protected bool _bufferingJump;
 		protected float _jumpForce;		// Jump force applied to normal jump
 		protected bool _inJumpStartup;
 		protected int _jumpFrames;
@@ -176,6 +177,7 @@ namespace Paywall {
 					_character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
                 }
             }
+			// If airborne without having jumped, decrement jump count
 			if (_noJumpFalling && (NumberOfJumpsLeft == NumberOfJumpsAllowed)) {
 				NumberOfJumpsLeft--;
             }
@@ -363,7 +365,9 @@ namespace Paywall {
 		/// </summary>
 		/// <returns></returns>
 		protected virtual IEnumerator BufferJump() {
+			_bufferingJump = true;
 			yield return new WaitForSeconds(JumpBuffer);
+			_bufferingJump = false;
 			if (EvaluateJumpConditions()) {
 				Jump();
             }
@@ -593,6 +597,10 @@ namespace Paywall {
 		protected virtual float CalculateJumpForce(float height) {
 			return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
 		}
+
+        public override void ResetAbility() {
+			NumberOfJumpsLeft = NumberOfJumpsAllowed;
+        }
 
         //protected override void OnEnable() {
         //    base.OnEnable();

@@ -24,6 +24,8 @@ namespace Paywall.Editors {
         protected const string _jumperSegmentListPropertyName = "JumperSegmentList";
         protected const string _firstLevelSegmentPropertyName = "FirstLevelSegment";
         protected const string _shopLevelSegmentPropertyName = "ShopLevelSegmentPooler";
+        protected const string _previousSegmentPropertyName = "PreviousSegment";
+        protected const string _currentSegmentPropertyName = "CurrentSegment";
 
         protected const string _baseStageSegmentPropertyName = "BaseStageLength";
         protected const string _currentStageSegmentPropertyName = "CurrentStage";
@@ -72,6 +74,8 @@ namespace Paywall.Editors {
         protected SerializedProperty _jumperSegmentListProperty;
         protected SerializedProperty _firstLevelSegmentProperty;
         protected SerializedProperty _shopLevelSegmentProperty;
+        protected SerializedProperty _previousSegmentProperty;
+        protected SerializedProperty _currentSegmentProperty;
 
         protected SerializedProperty _baseStageLengthSegmentProperty;
         protected SerializedProperty _currentStageSegmentProperty;
@@ -129,6 +133,8 @@ namespace Paywall.Editors {
             _jumperSegmentListProperty = serializedObject.FindPropertyByAutoPropertyName(_jumperSegmentListPropertyName);
             _firstLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_firstLevelSegmentPropertyName);
             _shopLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_shopLevelSegmentPropertyName);
+            _previousSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_previousSegmentPropertyName);
+            _currentSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_currentSegmentPropertyName);
 
             _baseStageLengthSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_baseStageSegmentPropertyName);
             _currentStageSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_currentStageSegmentPropertyName);
@@ -235,6 +241,8 @@ namespace Paywall.Editors {
                 EditorGUILayout.PropertyField(_jumperSegmentListProperty);
                 EditorGUILayout.PropertyField(_firstLevelSegmentProperty);
                 EditorGUILayout.PropertyField(_shopLevelSegmentProperty);
+                EditorGUILayout.PropertyField(_previousSegmentProperty);
+                EditorGUILayout.PropertyField(_currentSegmentProperty);
                 EditorGUILayout.Space(10);
                 if (GUILayout.Button("Rename Pools")) {
                     RenamePools();

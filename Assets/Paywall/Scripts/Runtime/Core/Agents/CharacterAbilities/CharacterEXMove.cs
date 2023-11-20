@@ -17,7 +17,7 @@ namespace Paywall {
         [field: Tooltip("Block use of this ability while super is active")]
         [field: SerializeField] public bool BlockDuringSuper { get; protected set; }
 
-        protected virtual void HandleInputSub(InputAction.CallbackContext ctx) {
+        protected virtual void HandleInputCallback(InputAction.CallbackContext ctx) {
             PerformAbility();
         }
 
@@ -29,12 +29,12 @@ namespace Paywall {
 
         protected override void OnEnable() {
             base.OnEnable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed += HandleInputSub;
+            _inputManager.InputActions.PlayerControls.Dodge.performed += HandleInputCallback;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed -= HandleInputSub;
+            _inputManager.InputActions.PlayerControls.Dodge.performed -= HandleInputCallback;
         }
     }
 }

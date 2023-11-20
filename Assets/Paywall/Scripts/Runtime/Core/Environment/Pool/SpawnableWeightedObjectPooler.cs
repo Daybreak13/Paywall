@@ -23,7 +23,7 @@ namespace Paywall {
 
     /// <summary>
     /// Weighted pooler for spawnables
-    /// Each object of this class contains various spawnables of a single type
+    /// Each object of this class contains various spawnables of a single type, each with different weights
     /// </summary>
     public class SpawnableWeightedObjectPooler : MonoBehaviour, MMEventListener<PaywallDifficultyEvent> {
         /// the type of pooler this is

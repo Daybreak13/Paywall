@@ -62,6 +62,11 @@ namespace Paywall {
         /// The point at which the next segment connects to this one
         [field: Tooltip("The point at which the next segment connects to this one")]
         [field: SerializeField] public Transform RightOut { get; protected set; }
+        /// The box collider for this segment, used to detect if the segment is out of bounds for OutOfBoundsRecycle
+        [field: Tooltip("The point at which the next segment connects to this one")]
+        [field: SerializeField] public BoxCollider2D BoundsBox { get; protected set; }
+        public Vector2 LeftBound { get { return new Vector2(BoundsBox.bounds.min.x, BoundsBox.bounds.center.y); } }
+        public Vector2 RightBound { get { return new Vector2(BoundsBox.bounds.max.x, BoundsBox.bounds.center.y); } }
 
         [field: Header("Walls")]
 
@@ -77,13 +82,36 @@ namespace Paywall {
         /// Lock the height of the previous/next/both segments to be the same height as this one
         [field: Tooltip("Lock the height of the previous/next/both segments to be the same height as this one")]
         [field: SerializeField] public HeightLockSettings HeightLockSetting { get; protected set; } = HeightLockSettings.None;
-        /// Lock the height of the previous/next/both segments to be the same height as this one
-        [field: Tooltip("Lock the height of the previous/next/both segments to be the same height as this one")]
+        /// Set a specific height for this level segment
+        [field: Tooltip("Set a specific height for this level segment")]
+        [field: SerializeField] public bool SetHeight { get; protected set; }
+        /// List of valid heights for this segment
+        [field: Tooltip("List of valid heights for this segment")]
+        [field: FieldCondition("SetHeight", true)]
+        [field: SerializeField] public int MaxHeight { get; protected set; } = 0;
+        /// Height delta between previous segment and this one
+        [field: Tooltip("Height delta between previous segment and this one")]
+        [field: MMReadOnly]
         [field: SerializeField] public int PreviousHeightDelta { get; protected set; }
 
-        protected virtual void OnEnable() {
-            LeftWall.SetActiveIfNotNull(true);
-            RightWall.SetActiveIfNotNull(true);
+        protected virtual void Awake() {
+            if (BoundsBox == null) {
+                BoundsBox = GetComponent<BoxCollider2D>();
+            }
+        }
+
+        /// <summary>
+        /// Sets the bounds for this segment
+        /// </summary>
+        /// <param name="leftIn"></param>
+        /// <param name="rightOut"></param>
+        public virtual void SetBounds(Vector2 leftIn, Vector2 rightOut) {
+            LeftIn.localPosition = leftIn;
+            RightOut.localPosition = rightOut;
+            float length = rightOut.x - leftIn.x;
+            float center = leftIn.x + length / 2;
+            BoundsBox.offset = new Vector2(center, 0);
+            BoundsBox.size = new Vector2(length, 1);
         }
 
         /// <summary>
@@ -94,6 +122,14 @@ namespace Paywall {
             SpawnPoints = spawnPoints;
         }
 
+        protected virtual void OnEnable() {
+            LeftWall.SetActiveIfNotNull(true);
+            RightWall.SetActiveIfNotNull(true);
+        }
+
+        /// <summary>
+        /// Draw leftin rightout bounds gizmos
+        /// </summary>
         protected virtual void OnDrawGizmosSelected() {
             Gizmos.color = Color.green;
             if ((LeftIn != null) && (RightOut != null)) {

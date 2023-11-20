@@ -19,8 +19,15 @@ namespace Paywall {
         [field: Tooltip("If true, set this object's parent as the spawn point when spawned")]
         [field: SerializeField] public bool AnchorToSpawn { get; protected set; }
 
+        // The parent object pooler (if applicable)
+        public Transform ParentPooler { get; protected set; }
+
         protected SpawnPoint _parentSpawnPoint;
 
+        /// <summary>
+        /// Set parent (may or may not be SpawnPoint type)
+        /// </summary>
+        /// <param name="sp"></param>
         public virtual void SetParentSpawnPoint(SpawnPoint sp) {
             _parentSpawnPoint = sp;
         }
@@ -32,10 +39,27 @@ namespace Paywall {
             _parentSpawnPoint = null;
         }
 
+        /// <summary>
+        /// Stores the parent pooler of this spawnable (if applicable), so that it can be reset when the object is recycled
+        /// </summary>
+        /// <param name="newParent"></param>
+        public virtual void SetPoolerParent(Transform newParent) {
+            ParentPooler = newParent;
+        }
+
+        /// <summary>
+        /// Resets the parent as the original pooler
+        /// </summary>
+        protected virtual void ResetParent() {
+            if (ParentPooler != null) {
+                transform.SetParent(ParentPooler);
+            }
+        }
+
         protected override void OnDisable() {
             base.OnDisable();
             RemoveFromSpawnPoint();
+            Invoke(nameof(ResetParent), 0f);
         }
-
     }
 }
