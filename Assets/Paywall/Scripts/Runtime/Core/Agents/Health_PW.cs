@@ -24,8 +24,12 @@ namespace Paywall {
 		/// Give streak on kill?
 		[field: Tooltip("Give streak on kill?")]
 		[field: SerializeField] public bool GivesStreakOnKill { get; protected set; }
-		/// Multiplier to apply to EX charge gain when this object is damaged
-		[field: Tooltip("Multiplier to apply to EX charge gain when this object is damaged")]
+		/// Is the EX gain on kill only?
+		[field: Tooltip("Is the EX gain on kill only?")]
+		[field: SerializeField] public bool EXGainOnKill { get; protected set; } = true;
+        /// Multiplier to apply to EX charge gain when this object is damaged
+        [field: Tooltip("Multiplier to apply to EX charge gain when this object is damaged")]
+		[field: FieldCondition("EXGainOnKill", true, true)]
 		[field: SerializeField] public float EXChargeOnDamageMultiplier { get; protected set; }
 
 		/// Override the post damage invincibility duration given by DamageOnTouch
@@ -97,7 +101,7 @@ namespace Paywall {
 			}
 
 			// we prevent the character from colliding with Projectiles, Player and Enemies
-			if (OverridePostDamageInvincibilityDuration) {
+			if (OverridePostDamageInvincibilityDuration && PostDamageInvincibilityDuration > 0) {
 				EnablePostDamageInvulnerability();
 				StartCoroutine(DisablePostDamageInvulnerability(PostDamageInvincibilityDuration));
             } 
@@ -110,11 +114,13 @@ namespace Paywall {
 			MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, damage, previousHealth);
 
 			// Trigger EXCharge event if applicable
-			if ((EXChargeOnDamageMultiplier > 0) && instigator.CompareTag(PaywallTagManager.PlayerDamageTag) && instigator.TryGetComponent(out DamageOnTouch_PW damageOnTouch)) {
-				if (damageOnTouch.ChargeAmountGained > 0) {
-					PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained * (previousHealth - CurrentHealth) * EXChargeOnDamageMultiplier, ChangeAmountMethods.Add);
-                }
-            }
+			if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag) && instigator.TryGetComponent(out DamageOnTouch_PW damageOnTouch)) {
+				if (!EXGainOnKill && EXChargeOnDamageMultiplier > 0) {
+					if (damageOnTouch.ChargeAmountGained > 0) {
+						PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained * (previousHealth - CurrentHealth) * EXChargeOnDamageMultiplier, ChangeAmountMethods.Add);
+					}
+				}
+			}
 
 			if (_animator != null) {
 				_animator.SetTrigger("Damage");
@@ -161,6 +167,10 @@ namespace Paywall {
 					CurrentHealth = 0;
 					// On kill, give trinkets if applicable, and trigger death event
 					if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag)) {
+						if (EXGainOnKill && instigator.TryGetComponent(out damageOnTouch)) {
+							//PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained, ChangeAmountMethods.Add);
+							PaywallKillEvent.Trigger(true, gameObject);
+                        }
 						if (GivesTrinketsOnKill) {
 							PaywallCreditsEvent.Trigger(MoneyTypes.Trinket, MoneyMethods.Add, Trinkets);
 							PaywallDeathEvent.Trigger(gameObject);

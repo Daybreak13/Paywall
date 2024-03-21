@@ -95,7 +95,7 @@ MonoBehaviour:
   <MaxHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
   <NeutralTransition>k__BackingField: 0
-  <PlusTransition>k__BackingField: 0
+  <PlusTransition>k__BackingField: 1
   <PlusTwoTransition>k__BackingField: 0
   <MinusTransition>k__BackingField: 0
 --- !u!50 &2123058069103200215
@@ -199,6 +199,54 @@ MonoBehaviour:
   <UseRigidbody>k__BackingField: 1
   <ShouldResetVelocity>k__BackingField: 1
   <ResetVelocityAcceleration>k__BackingField: 1
+--- !u!1 &5664648304604344144
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2209545456712856385}
+  - component: {fileID: 8519375900952730054}
+  m_Layer: 0
+  m_Name: Chain2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2209545456712856385
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5664648304604344144}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3134963448831553088}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8519375900952730054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5664648304604344144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <SpawnablePoolerType>k__BackingField: 1
+  <MinLength>k__BackingField: 3
+  <MaxLength>k__BackingField: 3
+  <ManualSpawn>k__BackingField: 1
 --- !u!1 &6842856211426541111
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,6 +277,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 70971435708457466}
+  - {fileID: 2209545456712856385}
   m_Father: {fileID: 2357596866159161764}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -245,12 +294,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <EndCaps>k__BackingField: []
-  <FirstChain>k__BackingField: {fileID: 0}
-  <SecondChain>k__BackingField: {fileID: 0}
-  <ThirdChain>k__BackingField: {fileID: 0}
   <Chains>k__BackingField:
   - {fileID: 1286236821941873467}
-  <ParentController>k__BackingField: {fileID: 0}
+  - {fileID: 8519375900952730054}
+  <ParentController>k__BackingField: {fileID: 1202036208524614419}
+  <SetParentBounds>k__BackingField: 1
 --- !u!1 &7203405353400355323
 GameObject:
   m_ObjectHideFlags: 0

@@ -470,7 +470,8 @@ namespace Paywall {
 			this.MMEventStartListening<PaywallPauseEvent>();
 		}
 
-		protected virtual void OnDisable() {
+		protected override void OnDisable() {
+			base.OnDisable();
 			this.MMEventStopListening<MMGameEvent>();
 			this.MMEventStopListening<PaywallPauseEvent>();
 		}

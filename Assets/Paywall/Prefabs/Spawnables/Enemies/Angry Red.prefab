@@ -104,7 +104,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.02}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -115,7 +115,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.8}
+  m_Size: {x: 0.7, y: 0.72}
   m_EdgeRadius: 0.1
 --- !u!50 &-475922308585229652
 Rigidbody2D:
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aa7c05b1ce236b4487e3c66b6c6e9dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <UseLaunchHeight>k__BackingField: 1
+  <LaunchType>k__BackingField: 0
   <LaunchForce>k__BackingField: 10
   <LaunchHeight>k__BackingField: 2.5
   <RaysToCast>k__BackingField: 5
@@ -257,6 +257,7 @@ MonoBehaviour:
   <GivesTrinketsOnKill>k__BackingField: 1
   <Trinkets>k__BackingField: 5
   <GivesStreakOnKill>k__BackingField: 0
+  <EXGainOnKill>k__BackingField: 1
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0
   <PostDamageInvincibilityDuration>k__BackingField: 0

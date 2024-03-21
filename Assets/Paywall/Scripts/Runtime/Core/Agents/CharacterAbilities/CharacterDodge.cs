@@ -1,3 +1,4 @@
+using Paywall.Tools;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,7 +36,7 @@ namespace Paywall {
         protected Vector2 _returnPositionSpeed;
 
         protected virtual bool EvaluateDodgeConditions() {
-            // If we aren't cooldown, return true
+            // If we aren't in cooldown, return true
             if ((Time.time - _timeLastDodgeEnded) >= DodgeCooldown) {
                 return true;
             }
@@ -54,13 +55,12 @@ namespace Paywall {
         /// </summary>
         protected override void PerformAbility() {
             base.PerformAbility();
-
             if (!AbilityAuthorized || !EvaluateDodgeConditions()) {
                 return;
             }
 
             // Spend the EX or do nothing if there is insufficient EX
-            if (!_character.SpendEXBars(EXCost)) {
+            if (!(_character as PlayerCharacterIRE).SpendEXBars(EXCost)) {
                 return;
             }
             _dodgeCoroutine = StartCoroutine(DodgeCo());
@@ -84,14 +84,15 @@ namespace Paywall {
             _initialLayer = _character.gameObject.layer;
             _character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily
             //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
-            _character.SetInvincibilityDuration(DodgeDuration);
-            _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
+            //_character.SetInvincibilityDuration(DodgeDuration);
             _character.ApplyForce(DodgeForce);
             _currentDodgeTime = 0f;
 
             yield return new WaitForSeconds(DodgeDuration);
 
             GameManagerIRE_PW.Instance.ResetTimeScale();
+            _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
+            transform.SafeSetTransformPosition(transform.position, LayerMask.GetMask("Enemy"), PaywallExtensions.SetTransformModes.PlusX);
             _character.gameObject.layer = _initialLayer;
             _character.Model.color = _initialColor;
             //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeRotation;

@@ -204,7 +204,7 @@ namespace Paywall {
 
         #endregion
 
-        public Dictionary<string, WeightedSpawnPooler> SpawnPoolerDict { get; protected set; } = new();
+        public Dictionary<SpawnablePoolerTypes, WeightedSpawnPooler> SpawnPoolerDict { get; protected set; } = new();
         public int CurrentHeight { get { return _currentHeightIdx; } }
 
         protected Dictionary<string, WeightedLevelSegment> _levelSegments = new();
@@ -264,7 +264,7 @@ namespace Paywall {
             if (SpawnPoolers.Count > 0) {
                 foreach (WeightedSpawnPooler pooler in SpawnPoolers) {
                     //SpawnPoolerDict.Add(pooler.gameObject.name, pooler);
-                    SpawnPoolerDict.Add(pooler.Pooler.SpawnablePoolerType.ToString(), pooler);
+                    SpawnPoolerDict.Add(pooler.Pooler.SpawnablePoolerType, pooler);
                 }
             }
 
@@ -334,7 +334,8 @@ namespace Paywall {
             if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress
                 || _blockSpawn) {
                 return;
-            } else {
+            }
+            else {
                 if (!_shouldStart) {
                     _shouldStart = true;
                     if (FirstLevelSegment.GetComponent<MovingRigidbody>() != null) {
@@ -346,7 +347,7 @@ namespace Paywall {
             if ((_activeSegments < MaxActiveSegments)) {
                 if (CurrentSegment != null) {
                     // Don't spawn if we would be spawning outside of recycle bounds
-                    if ((LevelManagerIRE_PW.Instance.RecycleBounds.max.x - CurrentSegment.RightOut.position.x) < 10f) {
+                    if ((LevelManagerIRE_PW.Instance.RecycleBounds.max.x - CurrentSegment.RightBound.x) < 30f) {
                         return;
                     }
 
@@ -364,7 +365,7 @@ namespace Paywall {
         /// </summary>
         protected virtual bool HandleStage() {
             float charPos = LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].transform.position.x;
-            float farRight = CurrentSegment.RightOut.position.x;
+            float farRight = CurrentSegment.RightBound.x;
             // Distance traveled since entered stage = total distance - distance entered current stage
             if (LevelManagerIRE_PW.Instance.DistanceTraveled - _previousStageCutoff + (farRight - charPos) >= _currentStageLength) {
                 if (DoNotSpawnShop) {
@@ -383,7 +384,7 @@ namespace Paywall {
 
                 return true;
             }
-            
+
             return false;
         }
 
@@ -403,7 +404,8 @@ namespace Paywall {
             if (PreviousSegment == null) {
                 PreviousSegment = FirstLevelSegment;
                 _activeSegments++;
-            } else {
+            }
+            else {
                 PreviousSegment = CurrentSegment;
             }
             if (_nextSegment != null) {
@@ -441,9 +443,9 @@ namespace Paywall {
 
             // The previous segment's segment type is less likely to be chosen (less chance of repeat segment types)
             // Its weight is reduced multiplicatively by its RepeatModifier
-            int newWeight = (int)Mathf.Floor(_typeRandomizer.GetWeight((int)PreviousSegment.SegmentType) * _repeatModifiers[PreviousSegment.SegmentType]);
+            int newWeight = (int)Mathf.Floor(_typeRandomizer.GetWeight((int)PreviousSegment.SegmentType));  // * _repeatModifiers[PreviousSegment.SegmentType]
             _typeRandomizer.SetWeight((int)PreviousSegment.SegmentType, newWeight);
-            SegmentTypes typeToUse = (SegmentTypes) _typeRandomizer.NextWithReplacement();
+            SegmentTypes typeToUse = (SegmentTypes)_typeRandomizer.NextWithReplacement();
             // If it is a new segment type, reset the weight
             if (typeToUse != PreviousSegment.SegmentType) {
                 _typeRandomizer.SetWeight((int)PreviousSegment.SegmentType, _initialWeights[PreviousSegment.SegmentType]);
@@ -462,6 +464,9 @@ namespace Paywall {
                     break;
             }
 
+            if (key == null) {
+                Debug.Log("null key");
+            }
             CurrentSegment = _levelSegments[key].SegmentPooler.GetPooledGameObject().GetComponent<LevelSegmentController>();
 
         }
@@ -470,33 +475,59 @@ namespace Paywall {
         /// Determines if we should spawn a transition segment, and sets settings
         /// </summary>
         protected virtual void HandleTransitionSegment() {
-            if (TransitionSegmentList == null ||  TransitionSegmentList.Count == 0) {
+            if (DebugMode) {
+                return;
+            }
+            if (TransitionSegmentList == null || TransitionSegmentList.Count == 0) {
                 return;
             }
 
+            // If previous segment was not a transition, and neither this nor previous are jumpers
+            // Spawn a transition segment
             if (PreviousSegment.SegmentType != SegmentTypes.Transition
                 && (PreviousSegment.SegmentType != SegmentTypes.Jumper && CurrentSegment.SegmentType != SegmentTypes.Jumper)) {
 
-                int rng = UnityEngine.Random.Range(0, 2);
-                _nextSegment = CurrentSegment;
-                if (rng == -1) {
-                    float heightDelta = GetHeightDelta();
+                int rng = UnityEngine.Random.Range(0, 1);
+                if (rng == 0) {
+                    _nextSegment = CurrentSegment;      // Set _nextSegment to CurrentSegment, since we will spawn a transition instead
+                    int heightDelta = GetHeightDelta();
                     string key = null;
                     switch (heightDelta) {
                         case -1:
+                            if (_minusTransitionRandomizer.Count == 0) {
+                                _nextSegment = null;
+                                return;
+                            }
                             key = _minusTransitionRandomizer.NextWithReplacement();
                             break;
                         case 0:
+                            if (_neutralTransitionRandomizer.Count == 0) {
+                                _nextSegment = null;
+                                return;
+                            }
                             key = _neutralTransitionRandomizer.NextWithReplacement();
                             break;
                         case 1:
+                            if (_plusTransitionRandomizer.Count == 0) {
+                                _nextSegment = null;
+                                return;
+                            }
                             key = _plusTransitionRandomizer.NextWithReplacement();
                             break;
                         case 2:
+                            if (_plusTwoTransitionRandomizer.Count == 0) {
+                                _nextSegment = null;
+                                return;
+                            }
                             key = _plusTwoTransitionRandomizer.NextWithReplacement();
                             break;
                     }
 
+                    if (key == null) {
+                        Debug.Log("null transition key");
+                        _nextSegment = null;
+                        return;
+                    }
                     CurrentSegment = _levelSegments[key].SegmentPooler.GetPooledGameObject().GetComponent<LevelSegmentController>();
                     (CurrentSegment as TransitionSegmentController).SetHeightDelta(heightDelta);
                 }
@@ -510,23 +541,33 @@ namespace Paywall {
         /// <param name="useDefaultHeight">If true, use the segment's current height</param>
         protected virtual void SpawnCurrentSegment(bool useDefaultHeight = false) {
             float gapLength = GetGapLength();
-            float heightDelta;
+            int heightDelta;
 
             CurrentSegment.gameObject.SetActive(true);
 
             // Height delta is locked in if the previous segment was transition
             if (PreviousSegment.SegmentType == SegmentTypes.Transition) {
-                heightDelta = (PreviousSegment as TransitionSegmentController).StoredHeightDelta;
-            } else {
+                heightDelta = (int)(PreviousSegment as TransitionSegmentController).StoredHeightDelta;
+                _currentHeightIdx += heightDelta;
+            }
+            else if (CurrentSegment.SegmentType != SegmentTypes.Transition) {
                 heightDelta = GetHeightDelta();
+                _currentHeightIdx += heightDelta;
+            }
+            else {
+                heightDelta = 0;
             }
 
-            float xPos = PreviousSegment.RightOut.position.x + gapLength - CurrentSegment.LeftIn.localPosition.x;
+            // Get x position based on bounds of previous and current segments (and gap length)
+            float xPos = PreviousSegment.RightBound.x + gapLength + (CurrentSegment.transform.position.x - CurrentSegment.LeftBound.x);
             float yPos;
+            // If the segment forces default height, don't change its height
             if (useDefaultHeight) {
                 yPos = CurrentSegment.transform.position.y;
-            } else {
-                yPos = PreviousSegment.transform.position.y + heightDelta;
+            }
+            // Otherwise change height based on heightdelta
+            else {
+                yPos = PreviousSegment.transform.position.y + (heightDelta * HeightInterval);
             }
             CurrentSegment.transform.position = new Vector3(xPos, yPos);
 
@@ -546,6 +587,9 @@ namespace Paywall {
             // If the new or previous segment is a jumper, there must be a medium gap length
             if (CurrentSegment.SegmentType == SegmentTypes.Jumper || PreviousSegment.SegmentType == SegmentTypes.Jumper) {
                 _currentGapLength = GapLengths.Medium;
+            }
+            if (PreviousSegment.SegmentType == SegmentTypes.Transition || CurrentSegment.SegmentType == SegmentTypes.Transition) {
+                _currentGapLength = GapLengths.NoGap;
             }
             // Otherwise choose the gap length randomly
             else {
@@ -589,61 +633,45 @@ namespace Paywall {
         /// <summary>
         /// Gets the height delta between the current segment and the next segment
         /// </summary>
-        /// <returns>Float difference between the previous height and the current one (height delta to apply to previous height)</returns>
-        protected virtual float GetHeightDelta() {
-            _previousHeightIdx = _currentHeightIdx;
+        /// <returns>Int difference between the previous height index and the current height index (height delta to apply to previous height)</returns>
+        protected virtual int GetHeightDelta() {
+            //_previousHeightIdx = _currentHeightIdx;
             int prevHeight = _currentHeightIdx;
-            float heightDelta = FirstLevelSegment.transform.position.y;
+            int heightDelta;
+            int increment;
 
-            // If there is a set height for the segment, use that
+            // If there is a static set height for the segment, use that
             if (CurrentSegment.SetHeight) {
-                int increment = _currentHeightIdx - CurrentSegment.MaxHeight;
-                heightDelta = increment * HeightInterval;
-                _currentHeightIdx = CurrentSegment.MaxHeight;
+                increment = _currentHeightIdx - CurrentSegment.MaxHeight;
+                heightDelta = increment;
                 return heightDelta;
             }
 
             // If the last two segments are Ground and have no gap, do not change height
-            if (PreviousSegment.SegmentType == SegmentTypes.Ground && CurrentSegment.SegmentType == SegmentTypes.Ground) {
+            if (_nextSegment == null
+                && (PreviousSegment.SegmentType == SegmentTypes.Ground && CurrentSegment.SegmentType == SegmentTypes.Ground)) {
                 if (_currentGapLength == GapLengths.NoGap) {
-                    return 0f;
+                    return 0;
                 }
             }
 
             // Height delta can be +0, +1, +2, or -1
-            switch (PreviousSegment.HeightLockSetting) {
-                case HeightLockSettings.None:
-                    int min = -1;
-                    int max = 3;
-                    // If we are at max height, do not allow increase in height
-                    if (_currentHeightIdx == NumberOfHeights) {
-                        max = 1;
-                    }
-                    if (NumberOfHeights - _currentHeightIdx == 1) {
-                        max = 2;
-                    }
-                    // If we are at min height, do not allow decrease in height
-                    if (_currentHeightIdx == 1) {
-                        min = 0;
-                    }
-                    // Range is [min,max)
-                    int increment = UnityEngine.Random.Range(min, max);
-                    _currentHeightIdx += increment;
-                    heightDelta = (_currentHeightIdx - prevHeight) * HeightInterval;
-                    break;
-                case HeightLockSettings.Previous:
-                    break;
-                case HeightLockSettings.Next:
-                    break;
-                case HeightLockSettings.Both:
-                    break;
+            int min = -1;
+            int max = 3;
+            // If we are at max height, do not allow increase in height
+            if (_currentHeightIdx == NumberOfHeights) {
+                max = 1;
             }
-            if (CurrentSegment.HeightLockSetting == HeightLockSettings.Previous) {
-
+            if (NumberOfHeights - _currentHeightIdx == 1) {
+                max = 2;
             }
-            if (CurrentSegment.HeightLockSetting == HeightLockSettings.Both) {
-
+            // If we are at min height, do not allow decrease in height
+            if (_currentHeightIdx == 1) {
+                min = 0;
             }
+            // Range is [min,max)
+            increment = UnityEngine.Random.Range(min, max);
+            heightDelta = (_currentHeightIdx + increment - prevHeight);
 
             return heightDelta;
         }
@@ -656,7 +684,7 @@ namespace Paywall {
             _characterJump = LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].GetComponent<CharacterJumpIRE>();
             float jumpTime = _characterJump.CalculateJumpTime(jumpType);
             float velocity = (LevelManagerIRE_PW.Instance.SegmentSpeed / 10f) * LevelManagerIRE_PW.Instance.Speed;
-            float distance = jumpTime * velocity * 0.8f;
+            float distance = jumpTime * velocity * 0.7f;
             return distance;
         }
 
@@ -727,9 +755,13 @@ namespace Paywall {
             this.MMEventStartListening<MMGameEvent>();
         }
 
-        protected virtual void OnDisable() {
+        protected override void OnDisable() {
+            base.OnDisable();
             this.MMEventStopListening<MMGameEvent>();
-            StopAllCoroutines();
+        }
+
+        protected override void OnDestroy() {
+            base.OnDestroy();
         }
 
         #region Editor
@@ -764,7 +796,7 @@ namespace Paywall {
                 namesList.Add(segment.Label);
             }
             namesList.Sort();
-            
+
             return namesList.ToArray();
         }
 

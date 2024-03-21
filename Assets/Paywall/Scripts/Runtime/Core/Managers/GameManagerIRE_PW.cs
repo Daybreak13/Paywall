@@ -256,15 +256,12 @@ namespace Paywall {
 			this.MMEventStartListening<MMGameEvent>();
 		}
 
-		protected virtual void OnDisable() {
+		protected override void OnDisable() {
+			base.OnDisable();
 			this.MMEventStopListening<PaywallDeathEvent>();
 			this.MMEventStopListening<PaywallEXChargeEvent>();
 			this.MMEventStopListening<MMGameEvent>();
 		}
-
-        protected virtual void OnDestroy() {
-            StopAllCoroutines();
-        }
 
     }
 }

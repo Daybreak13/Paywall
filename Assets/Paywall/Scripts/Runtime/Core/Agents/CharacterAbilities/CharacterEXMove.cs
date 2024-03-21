@@ -22,19 +22,17 @@ namespace Paywall {
         }
 
         protected virtual void PerformAbility() {
-            if (_character.SuperComponent.SuperActive) {
-                return;
-            }
+
         }
 
         protected override void OnEnable() {
             base.OnEnable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed += HandleInputCallback;
+            InputSystemManager_PW.InputActions.PlayerControls.Dodge.performed += HandleInputCallback;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            _inputManager.InputActions.PlayerControls.Dodge.performed -= HandleInputCallback;
+            InputSystemManager_PW.InputActions.PlayerControls.Dodge.performed -= HandleInputCallback;
         }
     }
 }

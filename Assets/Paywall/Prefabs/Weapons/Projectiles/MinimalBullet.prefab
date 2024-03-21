@@ -216,6 +216,7 @@ MonoBehaviour:
   <GivesTrinketsOnKill>k__BackingField: 0
   <Trinkets>k__BackingField: 1
   <GivesStreakOnKill>k__BackingField: 0
+  <EXGainOnKill>k__BackingField: 0
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0
   <PostDamageInvincibilityDuration>k__BackingField: 0
@@ -241,7 +242,7 @@ MonoBehaviour:
   DamageCausedKnockbackType: 1
   DamageCausedKnockbackDirection: 0
   DamageCausedKnockbackForce: {x: 20, y: 0}
-  InvincibilityDuration: 0.5
+  InvincibilityDuration: 0
   RepeatDamageOverTime: 0
   AmountOfRepeats: 3
   DurationBetweenRepeats: 1
@@ -257,7 +258,7 @@ MonoBehaviour:
   HitDamageableFeedback: {fileID: 0}
   HitNonDamageableFeedback: {fileID: 0}
   FreezeFramesOnHitDuration: 0
-  <ChargeAmountGained>k__BackingField: 0
+  <ChargeAmountGained>k__BackingField: 10
   Owner: {fileID: 0}
 --- !u!1 &7758844376465442526
 GameObject:

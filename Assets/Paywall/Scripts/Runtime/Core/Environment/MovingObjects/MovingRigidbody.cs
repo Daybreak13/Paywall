@@ -40,7 +40,6 @@ namespace Paywall {
         [field: FieldCondition("ShouldResetVelocity", true)]
         [field: SerializeField] public float ResetVelocityAcceleration { get; protected set; } = 1f;
 
-
         protected Rigidbody2D _rigidbody2D;
         protected Vector2 _movement;
         protected GameObject _spawnBarrier;
@@ -128,7 +127,7 @@ namespace Paywall {
                 }
 
                 if (BlockMovementUntil && _movementBlockedUntil) {
-                    if (transform.position.x > _spawnBarrier.transform.position.x) {
+                    if ((_spawnBarrier != null) && (transform.position.x > _spawnBarrier.transform.position.x)) {
                         Speed = 0;
                     }
                     else {
@@ -161,7 +160,8 @@ namespace Paywall {
             }
 
             // Adjust decceleration according to rigidbody mass
-            float adjustedDecceleration = _knockbackDecceleration * Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
+            //  * Mathf.Pow(0.9f, _rigidbody2D.mass - 1)
+            float adjustedDecceleration = _knockbackDecceleration;
 
             _currentKnockbackTime += Time.fixedDeltaTime;
 
@@ -189,7 +189,7 @@ namespace Paywall {
                 if (_stallTime >= 0.7f) {
                     newVelocity = new(_rigidbody2D.velocity.x + (_snapBackAcceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
                 } else {
-                    newVelocity = speedCap;
+                    newVelocity = new(speedCap.x, _rigidbody2D.velocity.y);
                 }
             }
 
@@ -226,7 +226,7 @@ namespace Paywall {
             }
 
             if (BlockMovementUntil && _movementBlockedUntil) {
-                if (transform.position.x > _spawnBarrier.transform.position.x) {
+                if ((_spawnBarrier != null) && (transform.position.x > _spawnBarrier.transform.position.x)) {
                     Speed = 0;
                 }
                 else {
@@ -243,8 +243,8 @@ namespace Paywall {
         /// <param name="force"></param>
         public virtual void ApplyKnockback(Vector2 force) {
             if (ShouldUseRigidBody) {
-                // Determine knockback velocity
-                // force * (3/4) ^ (mass - 1)
+                // Determine knockback velocity. The higher the rigidbody's mass, the less knockback it takes
+                // knockback v = force * (modifier) ^ (mass - 1)
                 _knockbackForce = force * Mathf.Pow(0.9f, _rigidbody2D.mass - 1f);
 
                 // Determine knockback velocity
@@ -258,7 +258,7 @@ namespace Paywall {
             else {
 
             }
-        } 
+        }
 
         /// <summary>
         /// Reset movement and block if necessary on disable

@@ -9,21 +9,15 @@ namespace Paywall {
     /// </summary>
     public class LayeredBreakables : MonoBehaviour {
         [field: SerializeField] public List<GameObject> EndCaps { get; protected set; } = new();
-        /// First (bottom) breakable chain
-        [field: Tooltip("First (bottom) breakable chain")]
-        [field: SerializeField] public BreakableChain FirstChain { get; protected set; }
-        /// Second (middle) breakable chain
-        [field: Tooltip("Second (middle) breakable chain")]
-        [field: SerializeField] public BreakableChain SecondChain { get; protected set; }
-        /// Third (top) breakable chain
-        [field: Tooltip("Third (top) breakable chain")]
-        [field: SerializeField] public BreakableChain ThirdChain { get; protected set; }
         /// Ordered list (first to last) of breakable chains
         [field: Tooltip("Ordered list (first to last) of breakable chains")]
         [field: SerializeField] public List<BreakableChain> Chains { get; protected set; } = new();
         /// Parent level segment controller
         [field: Tooltip("Parent level segment controller")]
         [field: SerializeField] public LevelSegmentController ParentController { get; protected set; }
+        /// Set parent controller bounds when spawning?
+        [field: Tooltip("Set parent controller bounds when spawning?")]
+        [field: SerializeField] public bool SetParentBounds { get; protected set; } = true;
 
         protected virtual void Awake() {
             if (ParentController == null) {
@@ -36,12 +30,26 @@ namespace Paywall {
         /// </summary>
         protected virtual void SpawnChains() {
             Vector2 end = transform.position;
-            foreach (BreakableChain chain in Chains) {
-                chain.transform.position = end;
-                end = chain.ForceSpawn();
+            if (ParentController == null) {
+                foreach (BreakableChain chain in Chains) {
+                    chain.transform.position = end;
+                    end = chain.ForceSpawn();
+                    end = new Vector2(end.x, end.y + ProceduralLevelGenerator.Instance.HeightInterval);
+                }
             }
-            ParentController.SetBounds(Vector2.zero, transform.InverseTransformPoint(end));
+            else {
+                int increments = (int)((ParentController as TransitionSegmentController).StoredHeightDelta / ProceduralLevelGenerator.Instance.HeightInterval);
+                int mod = increments > 0 ? 1 : -1;
+                for (int i = 0; i <= Mathf.Abs(increments); i++) {
+                    Chains[i].transform.position = end;
+                    end = Chains[i].ForceSpawn();
+                    end = new Vector2(end.x, end.y + mod * ProceduralLevelGenerator.Instance.HeightInterval);
+                }
 
+                if (SetParentBounds) {
+                    ParentController.SetBounds(Vector2.zero, transform.InverseTransformPoint(end));
+                }
+            }
         }
 
         /// <summary>

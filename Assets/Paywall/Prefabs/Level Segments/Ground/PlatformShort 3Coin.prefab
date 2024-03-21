@@ -79,8 +79,7 @@ MonoBehaviour:
   <UseLocalNoneChance>k__BackingField: 0
   <LocalNoneChance>k__BackingField: 5
   <Spawners>k__BackingField:
-  - <SpawnablePoolerName>k__BackingField: 
-    <SpawnablePoolerType>k__BackingField: 0
+  - <SpawnablePoolerType>k__BackingField: 0
     <SpawnPatterns>k__BackingField:
     - <Pattern>k__BackingField: {fileID: 7666541649723671549}
       <Weight>k__BackingField: 10
@@ -358,7 +357,7 @@ SpriteRenderer:
   m_SortingLayerID: 1414804337
   m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5980c2f37d92cff42b1ad6592055f277, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 258d0715841fd034f93e1f4ad55959a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

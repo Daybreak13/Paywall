@@ -41,13 +41,16 @@ namespace Paywall.Tools {
             }
         }
 
+        public enum SetTransformModes { PlusX, PlusY }
+
         /// <summary>
         /// Sets a transform's position without placing it inside another collider
         /// </summary>
         /// <param name="transform"></param>
         /// <param name="destination"></param>
         /// <param name="layerMask"></param>
-        public static void SafeSetTransformPosition(this Transform transform, Vector2 destination, LayerMask layerMask) {
+        public static bool SafeSetTransformPosition(this Transform transform, Vector2 destination, LayerMask layerMask, SetTransformModes setTransformMode = SetTransformModes.PlusY) {
+            float maxDisplacement = 1.5f;
             BoxCollider2D boxCollider = transform.GetComponent<BoxCollider2D>();
 
             // we do a first test to see if there's room enough to move to the destination
@@ -56,22 +59,41 @@ namespace Paywall.Tools {
             // If we found empty space, move the transform there
             if (hit == null) {
                 transform.position = destination;
+                return true;
             } 
             // Otherwise, search for a safe location
             else {
-                Vector2 newDestination = new Vector2(destination.x, destination.y + 0.1f);
-                while ((newDestination.y - destination.y) <= 1f) {
-                    hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
-                    // If we found empty space, move the transform there
-                    if (hit == null) {
-                        transform.position = newDestination;
-                        return;
+                if (setTransformMode == SetTransformModes.PlusX) {
+                    Vector2 newDestination = new Vector2(destination.x + 0.1f, destination.y);
+                    while ((newDestination.x - destination.x) <= maxDisplacement) {
+                        hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
+                        // If we found empty space, move the transform there
+                        if (hit == null) {
+                            transform.position = newDestination;
+                            return false;
+                        }
+                        newDestination = new Vector2(newDestination.x + 0.1f, destination.y);
                     }
-                    newDestination = new Vector2(destination.x, destination.y + 0.1f);
+                    // If we couldn't find any safe position, just set the transform position to the originally provided position
+                    transform.position = destination;
                 }
-                // If we couldn't find any safe position, just set the transform position to the originally provided position
-                transform.position = destination;
+                else {
+                    Vector2 newDestination = new Vector2(destination.x, destination.y + 0.1f);
+                    while ((newDestination.y - destination.y) <= maxDisplacement) {
+                        hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
+                        // If we found empty space, move the transform there
+                        if (hit == null) {
+                            transform.position = newDestination;
+                            return false;
+                        }
+                        newDestination = new Vector2(destination.x, destination.y + 0.1f);
+                    }
+                    // If we couldn't find any safe position, just set the transform position to the originally provided position
+                    transform.position = destination;
+                }
+                
             }
+            return false;
 
         }
 

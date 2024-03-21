@@ -132,10 +132,8 @@ namespace Paywall {
         /// </summary>
         protected virtual void OnDrawGizmosSelected() {
             Gizmos.color = Color.green;
-            if ((LeftIn != null) && (RightOut != null)) {
-                Gizmos.DrawWireSphere(LeftIn.position, 0.2f);
-                Gizmos.DrawWireSphere(RightOut.position, 0.2f);
-            }
+            Gizmos.DrawWireSphere(LeftBound, 0.2f);
+            Gizmos.DrawWireSphere(RightBound, 0.2f);
         }
     }
 

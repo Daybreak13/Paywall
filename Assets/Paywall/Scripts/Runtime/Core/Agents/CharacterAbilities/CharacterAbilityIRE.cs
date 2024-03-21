@@ -13,8 +13,8 @@ namespace Paywall {
         [field: SerializeField] public bool AbilityPermitted { get; protected set; } = true;
 
         public bool AbilityInitialized { get { return _initialized; } }
+        public IREInputActions InputActions;
 
-        protected InputSystemManager_PW _inputManager;
         protected bool _initialized;
         protected CharacterIRE _character;
         protected Animator _animator;
@@ -42,37 +42,39 @@ namespace Paywall {
 
         }
 
-        protected virtual void Start() {
-            if (!_initialized) {
-                Initialization();
-            }
+        protected virtual void Awake() {
+            Initialization();
         }
 
         protected virtual void Initialization() {
+            if (_initialized) return;
             if (_character == null) {
                 _character = GetComponentInParent<CharacterIRE>();
             }
             if (_character != null) {
-                _inputManager = _character.LinkedInputManager;
                 _animator = _character.CharacterAnimator;
                 _rigidbody2D = _character.CharacterRigidBody;
                 _boxCollider = _character.CharacterBoxCollider;
                 _initialGravityScale = _rigidbody2D.gravityScale;
                 _initialized = true;
             }
+            InputActions = new();
         }
 
         public virtual void SetCharacter(CharacterIRE character) {
             _character = character;
         }
 
-        protected virtual void Update() {
-            //EarlyProcessAbility();
-            //ProcessAbility();
+        /// <summary>
+        /// Sets the ability permission to on or off
+        /// </summary>
+        /// <param name="permit"></param>
+        public virtual void PermitAbility(bool permit) {
+            AbilityPermitted = permit;
         }
 
         protected virtual void InternalHandleInput() {
-            if (_inputManager == null) {
+            if (_character.CharacterType == CharacterTypes.AI) {
                 return;
             }
             HandleInput();
@@ -114,14 +116,17 @@ namespace Paywall {
         }
 
         protected virtual void OnEnable() {
-            if (!_initialized) {
-                Initialization();
-            }
-
+            Initialization();
+            InputActions.Enable();
         }
 
         protected virtual void OnDisable() {
+            StopAllCoroutines();
+            InputActions.Disable();
+        }
 
+        protected virtual void OnDestroy() {
+            StopAllCoroutines();
         }
 
     }

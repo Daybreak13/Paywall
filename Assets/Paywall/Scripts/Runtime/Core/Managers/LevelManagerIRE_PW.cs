@@ -38,9 +38,9 @@ namespace Paywall {
 
         [field: SerializeField] public GameObject StartingPosition { get; protected set; }
         /// the list of playable characters - use this to tell what characters you want in your level, don't access that at runtime
-        [field: SerializeField] public List<CharacterIRE> PlayableCharacters { get; protected set; }
+        [field: SerializeField] public List<PlayerCharacterIRE> PlayableCharacters { get; protected set; }
         /// the list of playable characters currently instantiated in the game - use this to know what characters ARE currently in your level at runtime
-        [field: SerializeField] public List<CharacterIRE> CurrentPlayableCharacters { get; protected set; }
+        [field: SerializeField] public List<PlayerCharacterIRE> CurrentPlayableCharacters { get; protected set; }
         /// the x distance between each character
         [field: SerializeField] public float DistanceBetweenCharacters { get; protected set; } = 1f;
         /// the elapsed time since the start of the level
@@ -198,7 +198,6 @@ namespace Paywall {
         /// </summary>
         public virtual void LevelStart() {
             (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetStatus(GameManagerIRE_PW.GameStatus.GameInProgress);
-            //(GameManagerIRE_PW.Instance as GameManagerIRE_PW).AutoIncrementScore(true);
             MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
             TempSpeedSwitchOff();
         }
@@ -207,19 +206,7 @@ namespace Paywall {
         /// Instantiates all the playable characters and feeds them to the gameManager
         /// </summary>
         protected virtual void InstantiateCharacters() {
-            CurrentPlayableCharacters = new List<CharacterIRE>();
-            /// we go through the list of playable characters and instantiate them while adding them to the list we'll use from any class to access the
-            /// currently playable characters
-
-            // we check if there's a stored character in the game manager we should instantiate
-            //if (CharacterSelectorManager.Instance.StoredCharacter != null) {
-            //    PlayableCharacter newPlayer = (CharacterIRE)Instantiate(CharacterSelectorManager.Instance.StoredCharacter, StartingPosition.transform.position, StartingPosition.transform.rotation);
-            //    newPlayer.name = CharacterSelectorManager.Instance.StoredCharacter.name;
-            //    newPlayer.SetInitialPosition(newPlayer.transform.position);
-            //    CurrentPlayableCharacters.Add(newPlayer);
-            //    MMEventManager.TriggerEvent(new MMGameEvent("PlayableCharactersInstantiated"));
-            //    return;
-            //}
+            CurrentPlayableCharacters = new List<PlayerCharacterIRE>();
 
             if (PlayableCharacters == null) {
                 return;
@@ -232,7 +219,7 @@ namespace Paywall {
             // for each character in the PlayableCharacters list
             for (int i = 0; i < PlayableCharacters.Count; i++) {
                 // we instantiate the corresponding prefab
-                CharacterIRE instance = (CharacterIRE)Instantiate(PlayableCharacters[i]);
+                PlayerCharacterIRE instance = (PlayerCharacterIRE)Instantiate(PlayableCharacters[i]);
                 // we position it based on the StartingPosition point
                 instance.transform.position = new Vector3(StartingPosition.transform.position.x + i * DistanceBetweenCharacters, StartingPosition.transform.position.y, StartingPosition.transform.position.z);
                 // we set manually its initial position
@@ -286,6 +273,9 @@ namespace Paywall {
         /// Only execute if game is in progress
         /// </summary>
         public virtual void Update() {
+            if (!_retainEnemySpeed) {
+                EnemySpeed = Speed;
+            }
             if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
                 return;
             }
@@ -302,14 +292,49 @@ namespace Paywall {
             HandleSpeedFactor();
 
             RunningTime += Time.deltaTime;
-            if (!_retainEnemySpeed) {
-                EnemySpeed = Speed;
+            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive && Speed != 0) {
+                CurrentUnmodifiedSpeed = Speed;
             }
         }
 
         /// <summary>
+        /// Temporarily add to the current speed
+        /// </summary>
+        /// <param name="factor"></param>
+        /// <param name="duration"></param>
+        /// <param name="retainEnemySpeed"></param>
+        public virtual void TemporarilyAddSpeed(float factor, float duration, bool retainEnemySpeed = false) {
+            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                CurrentUnmodifiedSpeed = Speed;
+            }
+
+            if (retainEnemySpeed) {
+                _retainEnemySpeed = true;
+            }
+
+            _temporarySpeedFactorRemainingTime = duration;
+
+            Speed += factor;
+            _tempSpeedMultiplierActive = true;
+
+            StartCoroutine(TemporarilyAddSpeedCo(factor, duration));
+        }
+
+        protected IEnumerator TemporarilyAddSpeedCo(float factor, float duration) {
+            _coroutineCount++;
+            yield return new WaitForSeconds(duration);
+            Speed -= factor;
+            _coroutineCount--;
+            if (_coroutineCount == 0) {
+                _tempSpeedMultiplierActive = false;
+            }
+        }
+
+        #region Multiply Speed
+
+        /// <summary>
         /// Temp speed multiplier with option for retaining enemy NPC speed
-        /// Used by abilities (super, EX)
+        /// Used by abilities (EX)
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="duration"></param>
@@ -351,6 +376,7 @@ namespace Paywall {
         /// Rather than using a duration, multiply speed until switched off
         /// Cannot activate speed switch if it is already active
         /// Can activate if duration based temp speed is active
+        /// Used by supers
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="retainEnemySpeed"></param>
@@ -376,32 +402,6 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Handles speed multipliers
-        /// </summary>
-        protected virtual void HandleSpeedFactor() {
-            //if (_temporarySpeedFactorActive && _temporarySpeedFactorRemainingTime <= 0) {
-            //    _retainEnemySpeed = false;
-            //}
-
-            //if (_temporarySpeedFactorActive) {
-            //    if (_temporarySpeedFactorRemainingTime <= 0) {
-            //        _temporarySpeedFactorActive = false;
-            //        Speed = _temporarySavedSpeed;
-            //    }
-            //    else {
-            //        _temporarySpeedFactorRemainingTime -= Time.deltaTime;
-            //    }
-            //}
-
-            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
-            if (Speed > 0) {
-                (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetPointsPerSecond(PointsPerUnit * (Speed / InitialSpeed));
-            } else {
-                (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetPointsPerSecond(0f);
-            }
-        }
-
-        /// <summary>
         /// Resets the temp speed multiplier
         /// </summary>
         public virtual void TempSpeedSwitchOff() {
@@ -417,7 +417,73 @@ namespace Paywall {
             }
         }
 
-        public virtual void KillCharacter(CharacterIRE player) {
+        #endregion
+
+        /// <summary>
+        /// Temporarily add to speed. Only one speed switch is active at a time, and must be turned off manually.
+        /// </summary>
+        /// <param name="factor"></param>
+        /// <param name="on"></param>
+        /// <param name="retainEnemySpeed"></param>
+        public virtual void TemporarilyAddSpeedSwitch(float factor, bool on, bool retainEnemySpeed = false) {
+            if (on) {
+                if (TempSpeedSwitchActive) {
+                    Speed -= _tempSpeedSwitchFactor;
+                }
+
+                if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                    CurrentUnmodifiedSpeed = Speed;
+                }
+
+                _retainEnemySpeed = retainEnemySpeed;
+
+                _tempSpeedSwitchFactor = factor;
+
+                Speed += _tempSpeedSwitchFactor;
+                TempSpeedSwitchActive = true;
+            }
+            else if (TempSpeedSwitchActive) {
+                TempSpeedSwitchActive = false;
+                Speed -= _tempSpeedSwitchFactor;
+            }
+        }
+
+        /// <summary>
+        /// Sets current speed to zero, or restores it
+        /// Resets all temp speed modifiers
+        /// </summary>
+        /// <param name="on"></param>
+        public virtual void SetZeroSpeed(bool on, bool retainEnemySpeed) {
+            if (on) {
+                if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                    CurrentUnmodifiedSpeed = Speed;
+                }
+                _coroutineCount = 0;
+                StopAllCoroutines();
+                _retainEnemySpeed = retainEnemySpeed;
+                Speed = 0;
+                TempSpeedSwitchActive = false;
+                _tempSpeedMultiplierActive = false;
+            }
+            else {
+                Speed = CurrentUnmodifiedSpeed;
+                _retainEnemySpeed = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles speed multipliers
+        /// </summary>
+        protected virtual void HandleSpeedFactor() {
+            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
+            if (Speed > 0) {
+                (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetPointsPerSecond(PointsPerUnit * (Speed / InitialSpeed));
+            } else {
+                (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetPointsPerSecond(0f);
+            }
+        }
+
+        public virtual void KillCharacter(PlayerCharacterIRE player) {
             // if we've specified an effect for when a life is lost, we instantiate it at the camera's position
             if (LifeLostExplosion != null) {
                 GameObject explosion = Instantiate(LifeLostExplosion);
@@ -436,7 +502,7 @@ namespace Paywall {
                 (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetStatus(GameManagerIRE_PW.GameStatus.GameOver);
                 MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
             } else {
-                player.GetComponent<CharacterIRE>().ActivateDamageInvincibility();
+                player.GetComponent<PlayerCharacterIRE>().ActivateDamageInvincibility();
             }
         }
 
@@ -444,8 +510,8 @@ namespace Paywall {
         /// Kills the character if it goes out of bounds
         /// </summary>
         /// <param name="player"></param>
-        public virtual void KillCharacterOutOfBounds(CharacterIRE player) {
-            TemporarilyMultiplySpeedSwitch(0f, true);
+        public virtual void KillCharacterOutOfBounds(PlayerCharacterIRE player) {
+            SetZeroSpeed(true, false);
 
             // if we've specified an effect for when a life is lost, we instantiate it at the camera's position
             if (LifeLostExplosion != null) {
@@ -477,7 +543,7 @@ namespace Paywall {
         }
 
         public virtual void LifeLostAction() {
-            TempSpeedSwitchOff();
+            SetZeroSpeed(false, true);
             Instance.CurrentPlayableCharacters[0].transform.position = StartingPosition.transform.position;
             Instance.CurrentPlayableCharacters[0].ResetCharacter();
             Instance.CurrentPlayableCharacters[0].gameObject.SetActive(true);
@@ -607,7 +673,8 @@ namespace Paywall {
         /// <summary>
         /// Override this if needed
         /// </summary>
-        protected virtual void OnDisable() {
+        protected override void OnDisable() {
+            base.OnDisable();
             this.MMEventStopListening<MMGameEvent>();
         }
 

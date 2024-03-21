@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using MoreMountains.Tools;
+using TMPro;
 
 namespace Paywall {
 
@@ -28,11 +29,11 @@ namespace Paywall {
 
         [Header("UI Fields")]
         [SerializeField]
-        private Text actionText;
+        private TextMeshProUGUI actionText;
         [SerializeField]
         private Button rebindButton;
         [SerializeField]
-        private Text rebindText;
+        private TextMeshProUGUI rebindText;
         [SerializeField]
         private Button resetButton;
 
@@ -46,13 +47,13 @@ namespace Paywall {
                 UpdateUI();
             }
 
-            InputSystemManager_PW.rebindComplete += UpdateUI;
-            InputSystemManager_PW.rebindCanceled += UpdateUI;
+            InputSystemManager_PW.RebindComplete += UpdateUI;
+            InputSystemManager_PW.RebindCanceled += UpdateUI;
         }
 
         private void OnDisable() {
-            InputSystemManager_PW.rebindComplete -= UpdateUI;
-            InputSystemManager_PW.rebindCanceled -= UpdateUI;
+            InputSystemManager_PW.RebindComplete -= UpdateUI;
+            InputSystemManager_PW.RebindCanceled -= UpdateUI;
         }
 
         private void OnValidate() {

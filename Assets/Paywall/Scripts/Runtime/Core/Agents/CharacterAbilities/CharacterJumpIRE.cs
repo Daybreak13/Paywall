@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using Paywall.Tools;
 using MoreMountains.Tools;
 using MoreMountains.InfiniteRunnerEngine;
+using static Paywall.LaunchPad;
 
 namespace Paywall {
 
@@ -71,6 +72,8 @@ namespace Paywall {
 
 		[field: Header("Launchers")]
 
+		/// If true, override the provided launch height from LaunchPad
+		[Tooltip("If true, override the provided launch height from LaunchPad")]
 		[field: SerializeField] public bool OverrideLaunchHeight { get; protected set; }
 		[field: FieldCondition("OverrideLaunchHeight", true)]
 		[field: SerializeField] public float LaunchHeight { get; protected set; } = 2f;
@@ -140,13 +143,20 @@ namespace Paywall {
 		/// <summary>
 		/// Set number of jumps based on upgrade status
 		/// </summary>
-		protected virtual void Awake() {
+		protected override void Awake() {
+			base.Awake();
 			if (PaywallProgressManager.Instance.Upgrades.TryGetValue(_jumpUpgradeName, out Upgrade upgrade)) {
 				if (upgrade.Unlocked) {
 					NumberOfJumpsAllowed++;
 				}
 			}
-		}
+            if (UseJumpHeight) {
+                _jumpForce = CalculateJumpForce(JumpHeight);
+            }
+            else {
+                _jumpForce = JumpForce;
+            }
+        }
 
         #region Every Frame
 
@@ -242,7 +252,7 @@ namespace Paywall {
 				return;
 			}
 
-            if (_inputManager.InputActions.PlayerControls.Jump.WasPressedThisFrame()) {
+            if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasPressedThisFrame()) {
                 if (!UseJumpStartUp) {
                     Jump();
                 }
@@ -253,7 +263,7 @@ namespace Paywall {
 
 			if (JumpProportionalToPress) {
 				// we cancel the jump if the jump button was released before the low jump buffer ended
-				if (_inputManager.InputActions.PlayerControls.Jump.WasReleasedThisFrame()) {
+				if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasReleasedThisFrame()) {
 					if (!UseJumpStartUp) {
 						if (_jumping && !_doubleJumping && (_jumpFrames < LowJumpBufferFrames)) {
 							_jumpCancelled = true;
@@ -280,12 +290,16 @@ namespace Paywall {
 					&& (Time.time - _lastJumpTime > UngroundedDurationAfterJump)) {
 				if (_character.Ground != null && _character.Ground.CompareTag("LaunchPad")) {
 					_launchPad = _character.Ground.GetComponent<LaunchPad>();
-					if (!_launchPad.UseLaunchHeight) {
-						ApplyExternalJumpForce(_launchPad.LaunchForce, true);
-					}
-					else {
-						ApplyExternalJumpForce(_launchPad.LaunchHeight, false);
-					}
+					switch (_launchPad.LaunchType) {
+                        case LaunchTypes.Height:
+                            ApplyExternalJumpForce(LaunchTypes.Height, _launchPad.LaunchHeight);
+                            break;
+                        case LaunchTypes.Force:
+                            ApplyExternalJumpForce(LaunchTypes.Force, _launchPad.LaunchForce);
+                            break;
+                        case LaunchTypes.Jump:
+                            break;
+                    }
 				}
 			}
 		}
@@ -521,12 +535,12 @@ namespace Paywall {
 		}
 
 		/// <summary>
-		/// Called by external components to apply force to this character
+		/// Called by external components to apply force to this character (like LaunchPad)
 		/// If useForce is false, the force param is instead a height, and we need to calculate the force required to attain that height
 		/// </summary>
 		/// <param name="force"></param>
 		/// <param name="useForce"></param>
-		public virtual void ApplyExternalJumpForce(float force, bool useForce = true, bool resetJumps = true) {
+		public virtual void ApplyExternalJumpForce(LaunchTypes launchType, float force, bool resetJumps = true) {
 			_rigidbody2D.velocity = Vector3.zero;
 			_rigidbody2D.gravityScale = _initialGravityScale;
 			_lastJumpTime = Time.time;
@@ -537,18 +551,25 @@ namespace Paywall {
 			else {
 				NumberOfJumpsLeft--;
 			}
+
 			if (OverrideLaunchHeight) {
 				float jumpForce = CalculateJumpForce(LaunchHeight);
 				_rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
 			}
 			else {
-				if (useForce) {
-					_rigidbody2D.AddForce(Vector3.up * force, ForceMode2D.Impulse);
-				}
-				else {
-					float jumpForce = CalculateJumpForce(force);
-					_rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
-				}
+                float jumpForce;
+                switch (launchType) {
+                    case LaunchTypes.Height:
+                        jumpForce = CalculateJumpForce(force);
+                        _rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
+                        break;
+                    case LaunchTypes.Force:
+                        _rigidbody2D.AddForce(Vector3.up * force, ForceMode2D.Impulse);
+                        break;
+                    case LaunchTypes.Jump:
+						_rigidbody2D.AddForce(Vector3.up * _jumpForce, ForceMode2D.Impulse);
+                        break;
+                }
 			}
 		}
 
@@ -558,6 +579,14 @@ namespace Paywall {
 		/// <param name="jumpsLeft"></param>
 		public virtual void SetJumpsLeft(int jumpsLeft) {
 			NumberOfJumpsLeft = jumpsLeft;
+		}
+
+		/// <summary>
+		/// Set number of jumps allowed
+		/// </summary>
+		/// <param name="jumps"></param>
+		public virtual void SetNumberJumpsAllowed(int jumps) {
+			NumberOfJumpsAllowed = jumps;
 		}
 
 		/// <summary>
@@ -604,14 +633,14 @@ namespace Paywall {
 
         //protected override void OnEnable() {
         //    base.OnEnable();
-        //    _inputManager.InputActions.PlayerControls.Jump.performed += JumpPerformed;
-        //    _inputManager.InputActions.PlayerControls.Jump.canceled += JumpCanceled;
+        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.performed += JumpPerformed;
+        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled += JumpCanceled;
         //}
 
         //protected override void OnDisable() {
         //    base.OnDisable();
-        //    _inputManager.InputActions.PlayerControls.Jump.performed -= JumpPerformed;
-        //    _inputManager.InputActions.PlayerControls.Jump.canceled -= JumpCanceled;
+        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.performed -= JumpPerformed;
+        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled -= JumpCanceled;
         //}
 
     }

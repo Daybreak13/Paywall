@@ -51,6 +51,8 @@ namespace Paywall {
         protected bool _buffering = false;
         protected float _bufferEndsAt = 0f;
         protected Coroutine _airStallCoroutine;
+        protected int _ammoLastFrame;
+        protected int _magSizeLastFrame;
 
         protected override void Initialization() {
             base.Initialization();
@@ -59,6 +61,8 @@ namespace Paywall {
                 (CurrentWeapon as ProjectileWeapon_PW).SetOwner(_character, this);
             }
             if (CurrentWeapon.MagazineBased) {
+                _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
+                _magSizeLastFrame = CurrentWeapon.MagazineSize;
                 if (GUIManagerIRE_PW.HasInstance) {
                     (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
                 }
@@ -139,10 +143,16 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Updates the GUI ammo display
+        /// Updates the GUI ammo display during Update() cycle
         /// </summary>
         protected virtual void UpdateAmmoDisplay() {
             if ((GUIManagerIRE_PW.HasInstance) && (_character != null)) {
+                // If nothing has changed, do nothing
+                if ((_ammoLastFrame == CurrentWeapon.CurrentAmmoLoaded) && (_magSizeLastFrame == CurrentWeapon.MagazineSize)) {
+                    return;
+                }
+                _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
+                _magSizeLastFrame = CurrentWeapon.MagazineSize;
                 (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
             }
         }
@@ -199,13 +209,13 @@ namespace Paywall {
         protected override void OnEnable() {
             base.OnEnable();
             this.MMEventStartListening<RunnerItemPickEvent>();
-            _inputManager.InputActions.PlayerControls.Attack.performed += AttackPerformed;
+            InputSystemManager_PW.InputActions.PlayerControls.Attack.performed += AttackPerformed;
         }
 
         protected override void OnDisable() {
             base.OnDisable();
             this.MMEventStopListening<RunnerItemPickEvent>();
-            _inputManager.InputActions.PlayerControls.Attack.performed -= AttackPerformed;
+            InputSystemManager_PW.InputActions.PlayerControls.Attack.performed -= AttackPerformed;
         }
     }
 }

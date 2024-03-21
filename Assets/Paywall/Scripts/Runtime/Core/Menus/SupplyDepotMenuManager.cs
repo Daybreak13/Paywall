@@ -410,7 +410,7 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Component is enabled when supply depot is entered
+        /// Component is enabled by GUIManager when supply depot is entered
         /// </summary>
         protected virtual void OnEnable() {
             this.MMEventStartListening<MMGameEvent>();
@@ -418,7 +418,8 @@ namespace Paywall {
             EnterSupplyDepot();
         }
 
-        protected virtual void OnDisable() {
+        protected override void OnDisable() {
+            base.OnDisable();
             this.MMEventStopListening<MMGameEvent>();
             this.MMEventStopListening<PaywallDialogueEvent>();
         }

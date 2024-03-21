@@ -96,6 +96,29 @@ namespace Paywall {
         }
     }
 
+    public struct PaywallKillEvent {
+        public bool PlayerInstigated;
+        public GameObject Killed;
+
+        public PaywallKillEvent(bool playerInstigated, GameObject killed) {
+            PlayerInstigated = playerInstigated;
+            Killed = killed;
+        }
+        static PaywallKillEvent e;
+        public static void Trigger(bool playerInstigated, GameObject killed) {
+            e.PlayerInstigated = playerInstigated;
+            e.Killed = killed;
+            MMEventManager.TriggerEvent(e);
+        }
+    }
+
+    public struct PaywallAmmoEvent {
+        static PaywallAmmoEvent e;
+        public static void Trigger() {
+            MMEventManager.TriggerEvent(e);
+        }
+    }
+
     /// <summary>
     /// Event for items picked during a run, that only apply during the run (eg powerups)
     /// </summary>

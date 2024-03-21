@@ -159,6 +159,7 @@ MonoBehaviour:
   <GivesTrinketsOnKill>k__BackingField: 0
   <Trinkets>k__BackingField: 1
   <GivesStreakOnKill>k__BackingField: 0
+  <EXGainOnKill>k__BackingField: 1
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0
   <PostDamageInvincibilityDuration>k__BackingField: 0

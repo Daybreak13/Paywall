@@ -47,19 +47,19 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: background
+  - name: Background
     uniqueID: 2696108511
     locked: 0
   - name: Platforms
     uniqueID: 1414804337
     locked: 0
-  - name: shadows
+  - name: Shadows
     uniqueID: 348693073
     locked: 0
-  - name: actors
+  - name: Actors
     uniqueID: 3388987875
     locked: 0
-  - name: foreground
+  - name: Foreground
     uniqueID: 4062344271
     locked: 0
   - name: GUI

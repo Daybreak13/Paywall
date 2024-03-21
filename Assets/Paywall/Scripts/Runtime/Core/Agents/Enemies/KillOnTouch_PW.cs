@@ -35,11 +35,12 @@ namespace Paywall {
 				return;
 			}
 
-			CharacterIRE character = collidingObject.GetComponent<CharacterIRE>();
-			if (character == null) {
+			// If colliding object is not player, do nothing
+			if (!collidingObject.TryGetComponent(out PlayerCharacterIRE character)) {
 				return;
 			}
 
+			// If player is invincible, do nothing
 			if (character.Invincible) {
 				return;
 			}

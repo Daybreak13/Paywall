@@ -48,7 +48,7 @@ namespace Paywall {
 		[Header("Invincibility")]
 		/// The duration of the invincibility frames after the hit (in seconds)
 		[Tooltip("The duration of the invincibility frames after the hit (in seconds)")]
-		public float InvincibilityDuration = 0.5f;
+		public float InvincibilityDuration;
 
 		[Header("Damage over time")]
 		/// Whether or not this damage on touch zone should apply damage over time
@@ -187,7 +187,8 @@ namespace Paywall {
 		/// <summary>
 		/// On Disable we clear our ignore list
 		/// </summary>
-		protected void OnDisable() {
+		protected override void OnDisable() {
+			base.OnDisable();
 			ClearIgnoreList();
 		}
 
@@ -323,6 +324,7 @@ namespace Paywall {
 
 		/// <summary>
 		/// Apply knockback to the damaged target
+		/// Uses MovingRigidbody component to apply velocity
 		/// </summary>
 		/// <param name="damage"></param>
 		/// <param name="typedDamages"></param>
@@ -381,6 +383,10 @@ namespace Paywall {
 		/// </summary>
 		/// <returns></returns>
 		protected virtual bool ShouldApplyKnockback(float damage, List<TypedDamage> typedDamages) {
+			if (_colliderHealth.ImmuneToKnockback) {
+				return false;
+			}
+
 			if (_colliderHealth.ImmuneToKnockbackIfZeroDamage) {
 				if (_colliderHealth.ComputeDamageOutput(damage, typedDamages, false) == 0) {
 					return false;

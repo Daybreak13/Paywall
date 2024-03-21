@@ -14,10 +14,6 @@ namespace Paywall {
     public class SingleSpawner {
         /// The name of the pooler from ProceduralLevelGenerator to get a spawnable from
         [field: Tooltip("The name of the pooler from ProceduralLevelGenerator to get a spawnable from")]
-        [field: MMReadOnly]
-        [field: SerializeField] public string SpawnablePoolerName { get; protected set; }
-        /// The name of the pooler from ProceduralLevelGenerator to get a spawnable from
-        [field: Tooltip("The name of the pooler from ProceduralLevelGenerator to get a spawnable from")]
         [field: SerializeField] public SpawnablePoolerTypes SpawnablePoolerType { get; protected set; }
         /// The list of spawn patterns that this spawner can spawn objects in (optional)
         [field: Tooltip("The list of spawn patterns that this spawner can spawn objects in (optional)")]
@@ -29,20 +25,6 @@ namespace Paywall {
         public bool UsingPatterns => (SpawnPatterns != null) && (SpawnPatterns.Count > 0);
         public IWeightedRandomizer<int> PatternRandomizer = new DynamicWeightedRandomizer<int>();
 
-        /// <summary>
-        /// Sets the name of this pooler based on its SpawnablePoolerType
-        /// </summary>
-        public void SetName() {
-            SpawnablePoolerName = SpawnablePoolerType.ToString();
-        }
-
-        /// <summary>
-        /// Sets the name of this pooler
-        /// </summary>
-        /// <param name="name"></param>
-        public void SetName(string name) {
-            SpawnablePoolerName = name;
-        }
     }
 
     [System.Serializable]
@@ -53,6 +35,7 @@ namespace Paywall {
 
     /// <summary>
     /// Spawn point used by LevelSegmentController. Randomly spawns a spawnable in its position.
+    /// Only one pattern will be chosen to spawn.
     /// </summary>
     [System.Serializable]
     public class SpawnPoint : MonoBehaviour, MMEventListener<PaywallChanceUpdateEvent> {
@@ -67,8 +50,8 @@ namespace Paywall {
         [field: Tooltip("The list of spawners that this spawn point will retrieve spawnables from")]
         [field: SerializeField] public List<SingleSpawner> Spawners { get; protected set; }
 
-        protected IWeightedRandomizer<string> _spawnerRandomizer = new DynamicWeightedRandomizer<string>();
-        protected Dictionary<string, SingleSpawner> _singleSpawners = new();
+        protected IWeightedRandomizer<int> _spawnerRandomizer = new DynamicWeightedRandomizer<int>();
+        protected Dictionary<SpawnablePoolerTypes, SingleSpawner> _singleSpawners = new();
         protected List<SpawnablePoolableObject> _spawnables = new();
         protected LevelSegmentController _parentController;
         protected Rigidbody2D _parentRigidbody;
@@ -88,9 +71,8 @@ namespace Paywall {
                         i++;
                     }
                 }
-                ss.SetName();
-                _singleSpawners.Add(ss.SpawnablePoolerName, ss);
-                _spawnerRandomizer.Add(ss.SpawnablePoolerName, ss.InitialWeight);
+                _singleSpawners.Add(ss.SpawnablePoolerType, ss);
+                _spawnerRandomizer.Add((int) ss.SpawnablePoolerType, ss.InitialWeight);
             }
         }
 
@@ -109,6 +91,11 @@ namespace Paywall {
             return false;
         }
 
+        protected virtual IEnumerator WaitToSpawn() {
+            yield return new WaitForEndOfFrame();
+            Spawn();
+        }
+
         /// <summary>
         /// Spawns and positions pooled spawnables
         /// </summary>
@@ -118,14 +105,15 @@ namespace Paywall {
                     return;
                 }
             }
-            string key = _spawnerRandomizer.NextWithReplacement();
+            // Randomly choose a SpawnPoint to spawn to
+            SpawnablePoolerTypes key = (SpawnablePoolerTypes) _spawnerRandomizer.NextWithReplacement();
             SingleSpawner ss = _singleSpawners[key];
 
             // If using spawn patterns, retrieve pooled objects and spawn them at the positions in the pattern
             if (ss.UsingPatterns) {
                 int i = ss.PatternRandomizer.NextWithReplacement();
                 foreach (Transform child in ss.SpawnPatterns[i].Pattern.transform) {
-                    GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].Pooler.GetPooledGameObject();
+                    GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType].Pooler.GetPooledGameObject();
 
                     // Safely set position
                     Vector2 destination = child.transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
@@ -144,7 +132,7 @@ namespace Paywall {
             }
             // Else, get a pooled object and spawn at this location
             else {
-                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerName].Pooler.GetPooledGameObject();
+                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType].Pooler.GetPooledGameObject();
 
                 Vector2 destination = transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
                 spawnable.transform.SafeSetTransformPosition(destination, LayerMask.GetMask("Ground"));
@@ -171,11 +159,15 @@ namespace Paywall {
         /// </summary>
         protected virtual void OnEnable() {
             this.MMEventStartListening<PaywallChanceUpdateEvent>();
-            Spawn();
+            StartCoroutine(WaitToSpawn());
         }
 
         protected virtual void OnDisable() {
             this.MMEventStopListening<PaywallChanceUpdateEvent>();
+        }
+
+        protected virtual void OnDestroy() {
+            StopAllCoroutines();
         }
 
     }

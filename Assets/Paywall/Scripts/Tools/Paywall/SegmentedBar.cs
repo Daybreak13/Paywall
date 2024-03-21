@@ -9,14 +9,20 @@ namespace Paywall.Tools {
         /// The ID of the character linked to this bar
         [field: Tooltip("The ID of the character linked to this bar")]
         [field: SerializeField] public string PlayerID { get; protected set; } = "Player1";
+        /// Parent layout group of full bar segments
+        [field: Tooltip("Parent layout group of full bar segments")]
+        [field: SerializeField] public HorizontalLayoutGroup FullLayoutGroup { get; protected set; }
+        /// Parent layout group of empty bar segments
+        [field: Tooltip("Parent layout group of empty bar segments")]
+        [field: SerializeField] public HorizontalLayoutGroup EmptyLayoutGroup { get; protected set; }
 
         [field: Header("Objects")]
 
-        /// The prefab for a filled segment of the bar
-        [field: Tooltip("The prefab for a filled segment of the bar")]
+        /// The prefab for a filled segment of the bar (optional)
+        [field: Tooltip("The prefab for a filled segment of the bar (optional)")]
         [field: SerializeField] public GameObject FilledSegmentPrefab { get; protected set; }
-        /// The prefab for an empty segment of the bar
-        [field: Tooltip("The prefab for an empty segment of the bar")]
+        /// The prefab for an empty segment of the bar (optional)
+        [field: Tooltip("The prefab for an empty segment of the bar (optional)")]
         [field: SerializeField] public GameObject EmptySegmentPrefab { get; protected set; }
         /// The bar's UI mask
         [field: Tooltip("The bar's UI mask")]
@@ -33,6 +39,9 @@ namespace Paywall.Tools {
         /// The minimum value of this bar (currently unused)
         [field: Tooltip("The minimum value of this bar")]
         [field: SerializeField] public float MinimumValue { get; protected set; } = 0;
+        /// How many points in a bar
+        [field: Tooltip("How many points in a bar")]
+        [field: SerializeField] public float ValuePerBar { get; protected set; } = 1;
         /// If true, set an initial fill value on start
         [field: Tooltip("If true, set an initial fill value on start")]
         [field: SerializeField] public bool SetInitialFillValue { get; protected set; }
@@ -41,10 +50,10 @@ namespace Paywall.Tools {
         [field: FieldCondition("SetInitialFillValue", true)]
         [field: SerializeField] public float InitialFillValue { get; protected set; }
 
-        protected List<Transform> _segments = new();
+        protected List<Transform> _fullSegments = new();
+        protected List<Transform> _emptySegments = new();
         protected float _barWidth;      // width of the entire bar
         protected float _segmentWidth;  // width of single segment of the bar
-        protected HorizontalLayoutGroup _layoutGroup;   // parent of bar segments
 
         /// <summary>
         /// The bar's current value
@@ -68,9 +77,11 @@ namespace Paywall.Tools {
             }
             _barWidth = GetComponent<RectTransform>().sizeDelta.x;
             _segmentWidth = Mathf.Abs(_barWidth / MaximumValue);
-            _layoutGroup = AmmoBar.GetComponentInChildren<HorizontalLayoutGroup>();
-            foreach (Transform child in _layoutGroup.transform) {
-                _segments.Add(child);
+            foreach (Transform child in FullLayoutGroup.transform) {
+                _fullSegments.Add(child);
+            }
+            foreach (Transform child in EmptyLayoutGroup.transform) {
+                _emptySegments.Add(child);
             }
 
             SetActiveSegments();
@@ -82,18 +93,25 @@ namespace Paywall.Tools {
         /// </summary>
         protected virtual void SetActiveSegments() {
             if (UseExistingSegments) {
-                int childCount = _layoutGroup.transform.childCount;
+                int childCount = FullLayoutGroup.transform.childCount;
+                float adjustedMax = MaximumValue / ValuePerBar;
                 for (int i = 0; i < childCount; i++) {
-                    if (i < MaximumValue) {
-                        _layoutGroup.transform.GetChild(i).gameObject.SetActive(true);
+                    if (i < adjustedMax) {
+                        _fullSegments[i].gameObject.SetActive(true);
+                        _emptySegments[i].gameObject.SetActive(true);
                     }
                     else {
-                        _layoutGroup.transform.GetChild(i).gameObject.SetActive(false);
+                        _fullSegments[i].gameObject.SetActive(false);
+                        _emptySegments[i].gameObject.SetActive(false);
                     }
                 }
             } else {
 
             }
+        }
+
+        public virtual void SetValuePerBar(float value) {
+            ValuePerBar = value;
         }
 
         /// <summary>

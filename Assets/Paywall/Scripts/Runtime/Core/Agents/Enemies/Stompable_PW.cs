@@ -21,8 +21,11 @@ namespace Paywall {
 		[field: FieldCondition("KillsPlayer", true)]
 		[field: SerializeField] public bool KillsPlayerRegardless { get; protected set; }
 
+		protected bool _killedPlayer;
+
 		protected override void OnCollisionEnter2D(Collision2D collision) {
 			base.OnCollisionEnter2D(collision);
+			_killedPlayer = false;
 			if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
 				if (KillsPlayer) {
 					// The player made contact with something that hits no matter what, or they made contact without stomping
@@ -30,20 +33,28 @@ namespace Paywall {
 						KillPlayer(collision.gameObject);
 					}
 				}
+				// If the player stomped on this, kill it
 				if (_collidingAbove) {
 					DestroySelf();
+					if (!_killedPlayer) {
+						PaywallKillEvent.Trigger(true, gameObject);
+					}
 				}
 			}
         }
 
 		protected virtual void OnCollisionStay2D(Collision2D collision) {
-			if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
+            _killedPlayer = false;
+            if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
 				if (KillsPlayer) {
 					KillPlayer(collision.gameObject);
 				}
 			}
 		}
 
+		/// <summary>
+		/// Kills this object
+		/// </summary>
 		protected virtual void DestroySelf() {
 			gameObject.SetActive(false);
         }
@@ -67,6 +78,7 @@ namespace Paywall {
 
 				return;
 			}
+			_killedPlayer = true;
 
 			// we ask the LevelManager to kill the character
 			LevelManagerIRE_PW.Instance.KillCharacter(_character);

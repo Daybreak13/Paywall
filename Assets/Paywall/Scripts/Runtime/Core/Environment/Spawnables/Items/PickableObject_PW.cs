@@ -48,7 +48,7 @@ namespace Paywall {
 		/// <param name="collider">Other.</param>
 		protected virtual void TriggerEnter(GameObject collidingObject) {
 			// if what's colliding with this object isn't the player, we do nothing and exit
-			if (collidingObject.GetComponent<CharacterIRE>() == null) {
+			if (collidingObject.GetComponent<PlayerCharacterIRE>() == null) {
 				return;
 			}
 

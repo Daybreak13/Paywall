@@ -6,6 +6,8 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
+    public enum LaunchTypes { Height, Force, Jump }
+
     /// <summary>
     /// If the player jumps on an object with this component, it will launch the player
     /// </summary>
@@ -15,14 +17,14 @@ namespace Paywall {
 
         /// If true, use fixed height instead of launch force
         [field: Tooltip("If true, use fixed height instead of launch force")]
-        [field: SerializeField] public bool UseLaunchHeight { get; protected set; } = true;
+        [field: SerializeField] public LaunchTypes LaunchType { get; protected set; }
         /// Launch force
         [field: Tooltip("Launch force")]
-        [field: FieldCondition("UseLaunchHeight", true, true)]
+        [field: FieldEnumCondition("LaunchType", (int)LaunchTypes.Force)]
         [field: SerializeField] public float LaunchForce { get; protected set; } = 10f;
         /// Launch height
         [field: Tooltip("Launch height")]
-        [field: FieldCondition("UseLaunchHeight", true, false)]
+        [field: FieldEnumCondition("LaunchType", (int)LaunchTypes.Height)]
         [field: SerializeField] public float LaunchHeight { get; protected set; } = 2f;
         /// How many rays to cast to check for collision above
         [field: Tooltip("How many rays to cast to check for collision above")]
@@ -33,7 +35,7 @@ namespace Paywall {
         protected const string _playerTag = "Player";
         protected Collider2D _collider2D;
         protected bool _collidingAbove;
-        protected CharacterIRE _character;
+        protected PlayerCharacterIRE _character;
 
         protected Vector2 _raycastLeftOrigin;
         protected Vector2 _raycastRightOrigin;
@@ -50,10 +52,16 @@ namespace Paywall {
                 if (collision.collider.TryGetComponent(out _character)) {
                     _collidingAbove = CastRaysAbove();
                     if (_collidingAbove) {
-                        if (!UseLaunchHeight) {
-                            _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchForce, true);
-                        } else {
-                            _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchHeight, false);
+                        switch (LaunchType) {
+                            case LaunchTypes.Height:
+                                _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchType, LaunchHeight);
+                                break;
+                            case LaunchTypes.Force:
+                                _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchType, LaunchForce);
+                                break;
+                            case LaunchTypes.Jump:
+                                _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchType, LaunchForce);
+                                break;
                         }
                     }
                 }
@@ -71,8 +79,12 @@ namespace Paywall {
         /// </summary>
         /// <returns></returns>
         protected virtual bool CastRaysAbove() {
-            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer, _collider2D.bounds.max.y);
-            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer, _collider2D.bounds.max.y);
+            float edge = 0f;
+            if (_collider2D is BoxCollider2D) {
+                edge = (_collider2D as BoxCollider2D).edgeRadius;
+            }
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y);
             RaycastHit2D raycastHit2D;
 
             for (int i = 0; i < RaysToCast; i++) {
@@ -92,8 +104,14 @@ namespace Paywall {
             if (_collider2D == null) {
                 _collider2D = GetComponent<Collider2D>();
             }
-            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer, _collider2D.bounds.max.y);
-            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer, _collider2D.bounds.max.y);
+
+            float edge = 0f;
+            if (_collider2D is BoxCollider2D) {
+                edge = (_collider2D as BoxCollider2D).edgeRadius;
+            }
+
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y);
             for (int i = 0; i < RaysToCast; i++) {
                 Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(RaysToCast - 1f));
                 Gizmos.color = Color.blue;

@@ -50,7 +50,7 @@ namespace Paywall {
         /// </summary>
         /// <param name="min"></param>
         /// <param name="max"></param>
-        /// <returns></returns>
+        /// <returns>Vector2 position of the rightmost border</returns>
         protected virtual Vector2 Spawn(int min = -1, int max = -1) {
             int a, b;
             if (min < 0 && max < 0) {
@@ -65,7 +65,7 @@ namespace Paywall {
             Vector2 startingPos = prevPosition;
             Vector2 currentPos = Vector2.zero;
             for (int i = 0; i < length; i++) {
-                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType.ToString()].Pooler.GetPooledGameObject();
+                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType].Pooler.GetPooledGameObject();
                 spawnable.SetActive(true);
                 spawnable.transform.SetParent(transform);
                 _spawnables.Add(spawnable);
@@ -73,12 +73,6 @@ namespace Paywall {
                 currentPos = prevPosition;
                 prevPosition.x += 1f;
             }
-
-            //if (ParentController != null) {
-            //    startingPos.x -= 0.5f;
-            //    currentPos.x += 0.5f;
-            //    ParentController.SetBounds(startingPos, currentPos);
-            //}
 
             currentPos.x += 0.5f;
             return currentPos;

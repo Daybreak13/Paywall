@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.Tools;
 using UnityEngine.SceneManagement;
+using MoreMountains.CorgiEngine;
 
 namespace Paywall {
 
@@ -73,8 +74,13 @@ namespace Paywall {
 			// we go through the pool looking for an inactive object
 			for (int i = 0; i < _pooledGameObjects.Count; i++) {
 				if (!_pooledGameObjects[i].gameObject.activeInHierarchy) {
-					// if we find one, we return it
-					return _pooledGameObjects[i];
+                    // we check if our object has an Health component, and if yes, we revive our character
+                    Health objectHealth = _pooledGameObjects[i].gameObject.MMGetComponentNoAlloc<Health>();
+                    if (objectHealth != null) {
+                        objectHealth.Revive();
+                    }
+                    // if we find one, we return it
+                    return _pooledGameObjects[i];
 				}
 			}
 			// if we haven't found an inactive object (the pool is empty), and if we can extend it, we add one new object to the pool, and return it		
