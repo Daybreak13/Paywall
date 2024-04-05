@@ -13,12 +13,12 @@ namespace Paywall {
     public class UIGetFocus : MonoBehaviour {
         /// If true, set UI focus to this object when it is enabled
         [field: Tooltip("If true, set UI focus to this object when it is enabled")]
-        [field: SerializeField] public bool GetFocusOnEnable { get; protected set; } = true;
+        [field: SerializeField] public bool GetFocusOnEnable { get; set; }
 
         public IREInputActions InputActions;
 
         protected virtual void GetFocus(InputAction.CallbackContext context) {
-            if ((EventSystem.current.currentSelectedGameObject == null)) {
+            if ((EventSystem.current.currentSelectedGameObject == null) && GetFocusOnEnable) {
                 EventSystem.current.SetSelectedGameObject(this.gameObject, null);
             }
         }
@@ -28,9 +28,7 @@ namespace Paywall {
         }
 
         protected virtual void OnEnable() {
-            if (InputActions == null) {
-                InputActions = new();
-            }
+            InputActions ??= new();
             if (GetFocusOnEnable) {
                 EventSystem.current.SetSelectedGameObject(this.gameObject, null);
             }

@@ -114,7 +114,7 @@ namespace Paywall {
 				DistanceText.text = "0";
 			}
 			if (TrinketsText != null) {
-				TrinketsText.text = "0";
+				TrinketsText.text = PaywallProgressManager.Instance.Trinkets.ToString();
 			}
 			if (PauseScreen == null) {
 				PauseScreen = UICameraCanvasManager.Instance.SystemCanvas;

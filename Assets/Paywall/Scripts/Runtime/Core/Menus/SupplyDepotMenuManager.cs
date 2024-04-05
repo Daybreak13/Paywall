@@ -7,10 +7,12 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Text;
 using Paywall.Tools;
+using System.Linq;
+using static UnityEditor.Progress;
 
 namespace Paywall {
 
-    public enum DepotItemTypes { EX, Health, Ammo, OverclockHealth, OverclockAmmo }
+    public enum DepotItemTypes { None, EX, Health, Ammo, OverclockHealth, OverclockAmmo, Module }
 
     /// <summary>
     /// Handles UI button presses, input, while in the supply depot menu
@@ -67,27 +69,24 @@ namespace Paywall {
         /// The container for all item buttons
         [field: Tooltip("The container for all item buttons")]
         [field: SerializeField] public GameObject StandardSelectionContainer { get; protected set; }
+        /// The container for module buttons
+        [field: Tooltip("The container for module buttons")]
+        [field: SerializeField] public GameObject ModulesContainer { get; protected set; }
+        /// The container for shop options
+        [field: Tooltip("The container for shop options")]
+        [field: SerializeField] public GameObject ShopContainer { get; protected set; }
         /// The leave depot button
         [field: Tooltip("The leave depot button")]
         [field: SerializeField] public GameObject OverclockContainer { get; protected set; }
 
         [field: Header("Descriptions")]
 
+        /// The selected item's name
+        [field: Tooltip("The selected item's name")]
+        [field: SerializeField] public TextMeshProUGUI ItemNameText { get; protected set; }
         /// The selected item's description
         [field: Tooltip("The selected item's description")]
         [field: SerializeField] public TextMeshProUGUI ItemDescriptionText { get; protected set; }
-        /// The gain EX description
-        [field: Tooltip("The gain EX description")]
-        [field: TextArea]
-        [field: SerializeField] public string EXDescription { get; protected set; }
-        /// The gain health description
-        [field: Tooltip("The gain health description")]
-        [field: TextArea]
-        [field: SerializeField] public string HealthDescription { get; protected set; }
-        /// The gain ammo description
-        [field: Tooltip("The gain ammo description")]
-        [field: TextArea]
-        [field: SerializeField] public string AmmoDescription { get; protected set; }
         /// The generic overclock description
         [field: Tooltip("The generic overclock description")]
         [field: TextArea]
@@ -122,21 +121,62 @@ namespace Paywall {
         [field: TextArea]
         [field: SerializeField] public string OverclockDialogue { get; protected set; }
 
-        protected PowerUpTypes _currentPowerUpType;
+        [field: Header("Modules")]
+
+        /// How many modules are provided as options
+        [field: Tooltip("How many modules are provided as options")]
+        [field: SerializeField] public int NumberOfModulesDisplayed { get; protected set; } = 3;
+
+        [field: Header("Button Lists")]
+
+        /// List of module buttons
+        [field: Tooltip("List of module buttons")]
+        [field: SerializeField] public List<ButtonDataReference> ModuleButtonList { get; protected set; }
+        /// List of module buttons
+        [field: Tooltip("List of module buttons")]
+        [field: SerializeField] public List<ButtonDataReference> ShopButtonList { get; protected set; }
+
+        /// List of inactive valid modules (ones that are in the shop pool)
+        protected List<ScriptableModule> _inactiveModuleList = new();
+
+        protected BaseScriptableDepotItem _currentItem;
+        protected ButtonDataReference _currentButton;
         protected bool _firstEntered;
+        protected int _firstEmptyShopButton;
+
+        /// <summary>
+        /// Initialize module dict
+        /// </summary>
+        protected override void Awake() {
+            base.Awake();
+            // Initialize the inactive module list, only adding valid modules
+            foreach (ModuleData module in PaywallProgressManager.Instance.ModulesDict.Values) {
+                if (!module.IsActive && module.IsValid) {
+                    _inactiveModuleList.Add(module.Module);
+                }
+            }
+
+            foreach (BaseScriptableDepotItem item in PaywallProgressManager.Instance.DefaultShopItemsList.Items) {
+                if (!PaywallProgressManager.Instance.DefaultShopItemsDict[item.Name].IsValid) 
+                    return;
+                ButtonDataReference button = ShopButtonList[_firstEmptyShopButton++];
+                DepotButtonSelect select = button.ButtonSelect as DepotButtonSelect;
+                //button.ImageComponent.sprite = item.UISprite;
+                button.TextComponent.text = item.Name;
+                select.SetItem(item);
+            }
+        }
 
         /// <summary>
         /// What to do when the supply depot is entered
         /// </summary>
         protected virtual void EnterSupplyDepot() {
             DialogueMask.SetActiveIfNotNull(false);
-            EventSystem.current.SetSelectedGameObject(EXButton.gameObject);
 
-            // First time enter event
+            // First time enter event, play dialogue first
             if (!PaywallProgressManager.Instance.EventFlags.EnterDepotFirstTime) {
                 EventSystem.current.SetSelectedGameObject(null);
                 SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = false;
-                EXButton.GetComponent<UIGetFocus>().enabled = false;
                 PaywallDialogueEvent.Trigger(DialogueEventTypes.Open, EnterDepotDialogueLines);
                 PaywallProgressManager.Instance.EventFlags.EnterDepotFirstTime = true;
                 DialogueMask.SetActiveIfNotNull(true);
@@ -147,74 +187,26 @@ namespace Paywall {
                 SetDialogueText(EnterDepotDialogue);
             }
 
+            // Generate module options and fill out the buttons accordingly
+            GenerateModuleSelection();
+            GenerateShopSelection();
+
             EventSystem.current.sendNavigationEvents = true;
+            //EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
 
-            // If we are at max EX, disable the EX button
-            if (LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].CurrentEX >= LevelManagerIRE_PW.Instance.CurrentPlayableCharacters[0].MaxEX) {
-                EXButton.interactable = false;
-                HealthButton.GetComponent<UIGetFocus>().enabled = true;
-                EventSystem.current.SetSelectedGameObject(HealthButton.gameObject);
-            }
-            else {
-                EXButton.GetComponent<UIGetFocus>().enabled = true;
-                HealthButton.GetComponent<UIGetFocus>().enabled = false;
-            }
+            ItemNameText.text = string.Empty;
+            ItemDescriptionText.text = string.Empty;
 
-            // Set active state of all containers
+            // Set the proper active state of all objects
             LeaveButton.gameObject.SetActive(false);
             OverclockContainer.SetActive(false);
             ItemButtonContainer.SetActive(true);
             StandardSelectionContainer.SetActive(true);
+            ModulesContainer.SetActive(true);
+            ShopContainer.SetActive(false);
         }
 
-        protected virtual IEnumerator EnterSupplyDepotCo() {
-            yield return null;
-        }
-
-        #region On Click
-
-        /// <summary>
-        /// Assign to OnClick event of EX button
-        /// </summary>
-        public virtual void EXButtonPressed() {
-            ItemButtonContainer.SetActive(false);
-            LeaveButton.gameObject.SetActive(true);
-            StartCoroutine(WaitToSelect(LeaveButton.gameObject));
-            PaywallEXChargeEvent.Trigger(EXGain, ChangeAmountMethods.Add);
-        }
-
-        /// <summary>
-        /// Assign to OnClick event of health button
-        /// Gain one health fragment
-        /// </summary>
-        public virtual void HealthButtonPressed() {
-            _currentPowerUpType = PowerUpTypes.Health;
-            PickHealth(HealthGain);
-            ChangeToOverclockDisplay(DepotItemTypes.Health);
-        }
-
-        /// <summary>
-        /// Assign to OnClick event of ammo button
-        /// Gain one ammo fragment
-        /// </summary>
-        public virtual void AmmoButtonPressed() {
-            _currentPowerUpType = PowerUpTypes.Ammo;
-            PickAmmo(AmmoGain);
-            ChangeToOverclockDisplay(DepotItemTypes.Ammo);
-        }
-
-        /// <summary>
-        /// Assign to OnClick of overclock choice buttons (yes or no)
-        /// </summary>
-        public virtual void OverclockButtonPressed(bool overclock) {
-            if (overclock) {
-                Overclock(_currentPowerUpType);
-            }
-
-            OverclockContainer.SetActive(false);
-            LeaveButton.gameObject.SetActive(true);
-            EventSystem.current.SetSelectedGameObject(LeaveButton.gameObject);
-        }
+        #region On Click/Select
 
         /// <summary>
         /// Leave depot immediately. Use for debugging
@@ -223,7 +215,153 @@ namespace Paywall {
             LeaveDepot();
         }
 
+        /// <summary>
+        /// Set currently selected item
+        /// </summary>
+        /// <param name="item"></param>
+        public virtual void SetBuyOption(BaseScriptableDepotItem item) {
+            ItemNameText.text = item.Name.ToUpper();
+            // If the selected item is a module, the description is different if it's enhanced
+            if (item is ScriptableModule module) {
+                if (module.IsEnhanced) {
+                    ItemDescriptionText.text = module.EnhancedDescription;
+                }
+                else {
+                    ItemDescriptionText.text = item.Description;
+                }
+            }
+            else {
+                ItemDescriptionText.text = item.Description;
+            }
+            _currentItem = item;
+
+        }
+
+        /// <summary>
+        /// Buy the currently selected item
+        /// OnClick event of the Confirm button
+        /// </summary>
+        public virtual void BuyCurrentOption() {
+            if (_currentItem == null) return;
+
+            // Buy module
+            if (_currentItem is ScriptableModule module) {
+                BuyModule(module);
+                ModulesContainer.SetActive(false);
+                ShopContainer.SetActive(true);
+                _currentItem = null;
+                ActivateLeave();        // Once a module is chosen, the player has the option to leave or buy from shop
+            }
+            // Buy shop option (usually requires trinkets)
+            else {
+                if (PaywallProgressManager.Instance.Trinkets < _currentItem.Cost) {
+                    return;
+                }
+                PaywallCreditsEvent.Trigger(MoneyTypes.Trinket, MoneyMethods.Add, -_currentItem.Cost);
+                switch (_currentItem.DepotItemType) {
+                    case DepotItemTypes.EX:
+                        PickEX(EXGain);
+                        break;
+                    case DepotItemTypes.Health:
+                        PickHealth(HealthGain);
+                        break;
+                    case DepotItemTypes.Ammo:
+                        PickAmmo(AmmoGain);
+                        break;
+                }
+
+                // Grey out a shop button if it costs more than what we can afford
+                foreach(ButtonDataReference button in ShopButtonList) {
+                    if (button.gameObject.activeSelf && (button.ButtonSelect is DepotButtonSelect depotSelect)) {
+                        if (depotSelect.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
+                            SetButtonState(button, false);
+                        }
+                        else {
+                            SetButtonState(button, true);
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
+
+        /// <summary>
+        /// Buy a module from the shop
+        /// </summary>
+        /// <param name="module"></param>
+        protected virtual void BuyModule(ScriptableModule module) {
+            PaywallProgressManager.Instance.ModulesDict[module.Name].IsActive = true;
+            _inactiveModuleList.Remove(module);
+            PaywallModuleEvent.Trigger(module);
+        }
+
+        /// <summary>
+        /// Sell a module from inventory
+        /// </summary>
+        /// <param name="module"></param>
+        protected virtual void SellModule(ScriptableModule module) {
+            PaywallProgressManager.Instance.ModulesDict[module.Name].IsActive = false;
+            _inactiveModuleList.Add(module);
+        }
+
+        /// <summary>
+        /// Generates the module name/image/descriptions for the modules that are to be displayed in this depot
+        /// Called every time a depot is entered and the player has module space left
+        /// </summary>
+        protected virtual void GenerateModuleSelection() {
+            int idx;
+            System.Random rand = new();
+            List<ScriptableModule> modules = _inactiveModuleList.ToList();
+            // Randomly pull modules from the list, with removal
+            for (int i = 0; i < NumberOfModulesDisplayed; i++) {
+                idx = rand.Next(0, modules.Count);
+                if (modules[idx].UISprite != null) {
+                    ModuleButtonList[i].SetImage(modules[idx].UISprite);
+                    ModuleButtonList[i].image.sprite = modules[idx].UISprite;
+                }
+                ModuleButtonList[i].TextComponent.text = modules[idx].Name;
+                (ModuleButtonList[i].ButtonSelect as DepotButtonSelect).SetItem(modules[idx]);
+                modules.RemoveAt(idx);
+            }
+        }
+
+        /// <summary>
+        /// Generates shop options (buyable ones, not the modules) to be displayed
+        /// Displayed after selecting a module
+        /// </summary>
+        protected virtual void GenerateShopSelection() {
+            //int idx;
+            //System.Random rand = new();
+            for (int i = 0; i < ShopButtonList.Count; i++) {
+                //ShopButtonList[i].TextComponent.text = 
+                if (i < _firstEmptyShopButton) {
+                    ShopButtonList[i].gameObject.SetActive(true);
+                }
+                else {
+                    ShopButtonList[i].gameObject.SetActive(false);
+                }
+            }
+
+            // Grey out a shop button if it costs more than what we can afford
+            foreach (ButtonDataReference button in ShopButtonList) {
+                if (button.gameObject.activeSelf && (button.ButtonSelect is DepotButtonSelect depotSelect)) {
+                    if (depotSelect.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
+                        SetButtonState(button, false);
+                    }
+                    else {
+                        SetButtonState(button, true);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Activates the leave button and allows for the player to leave the depot
+        /// </summary>
+        protected virtual void ActivateLeave() {
+            LeaveButton.gameObject.SetActive(true);
+        }
 
         /// <summary>
         /// Overclock exosuit, gain additional fragments and increase level speed
@@ -267,59 +405,25 @@ namespace Paywall {
             LeaveDepot();
         }
 
-        #region Set Description
-
-        /// <summary>
-        /// Called by OnSelect event. Set description when hovering EX button
-        /// </summary>
-        public virtual void SetDescriptionEX() {
-            SetDescription(DepotItemTypes.EX);
+        public virtual void SetDescription(string name, string description) {
+            ItemNameText.text = name.ToUpper();
+            ItemDescriptionText.text = description;
         }
 
         /// <summary>
-        /// Called by OnSelect event. Set description when hovering health button
+        /// Grey a button out (if the item can't be afforded, for example)
+        /// Doesn't set the interactable to false so that the player can examine the item
+        /// Bool presents option to reset the color of the button instead
         /// </summary>
-        public virtual void SetDescriptionHealth() {
-            SetDescription(DepotItemTypes.Health);
-        }
-
-        /// <summary>
-        /// Called by OnSelect event. Set description when hovering ammo button
-        /// </summary>
-        public virtual void SetDescriptionAmmo() {
-            SetDescription(DepotItemTypes.Ammo);
-        }
-
-        /// <summary>
-        /// Sets the description text
-        /// </summary>
-        /// <param name="depotItemType"></param>
-        public virtual void SetDescription(DepotItemTypes depotItemType) {
-            StringBuilder sb = new();
-            string newText;
-
-            switch (depotItemType) {
-                case DepotItemTypes.EX:
-                    ItemDescriptionText.text = EXDescription;
-                    break;
-                case DepotItemTypes.Health:
-                    ItemDescriptionText.text = HealthDescription;
-                    break;
-                case DepotItemTypes.Ammo:
-                    ItemDescriptionText.text = AmmoDescription;
-                    break;
-                case DepotItemTypes.OverclockHealth:
-                    newText = OverclockDescription.Replace("RESOURCE", "Health");
-                    ItemDescriptionText.text = newText;
-                    break;
-                case DepotItemTypes.OverclockAmmo:
-                    newText = OverclockDescription.Replace("RESOURCE", "Ammo");
-                    ItemDescriptionText.text = newText;
-                    break;
+        /// <param name="button"></param>
+        protected virtual void SetButtonState(ButtonDataReference button, bool active) {
+            if (active) {
+                button.ResetColor();
+            }
+            else {
+                button.SetColor(button.colors.disabledColor);
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Add health fragment(s) to runner inventory
@@ -345,6 +449,11 @@ namespace Paywall {
             PaywallEXChargeEvent.Trigger(amount, ChangeAmountMethods.Add);
         }
 
+        protected virtual void ChangeToShopDisplay() {
+            ModulesContainer.SetActive(false);
+            ShopContainer.SetActive(true);
+        }
+
         /// <summary>
         /// Activates overclock button display and sets description
         /// </summary>
@@ -353,7 +462,16 @@ namespace Paywall {
             StandardSelectionContainer.SetActive(false);
             OverclockContainer.SetActive(true);
             EventSystem.current.SetSelectedGameObject(NoButton.gameObject);
-            SetDescription(depotItemType);
+            string newText = string.Empty;
+            switch (depotItemType) {
+                case DepotItemTypes.Health:
+                    newText = OverclockDescription.Replace("RESOURCE", "Health");
+                    break;
+                case DepotItemTypes.Ammo:
+                    newText = OverclockDescription.Replace("RESOURCE", "Ammo");
+                    break;
+            }
+            SetDescription(string.Empty, newText);
             SetDialogueText(OverclockDialogue);
         }
 
@@ -376,7 +494,7 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Wait for end of frame to close dialogue, otherwise hitting the submit button to close the dialogue also hits the EX button
+        /// Wait for end of frame to close dialogue, otherwise hitting the submit button to close the dialogue also hits whatever button is currently selected
         /// </summary>
         /// <returns></returns>
         protected virtual IEnumerator CloseDialogueCo() {
@@ -386,13 +504,11 @@ namespace Paywall {
                 _firstEntered = false;
                 SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = true;
                 SetDialogueText(EnterDepotDialogue);
-                if (EXButton.interactable) {
-                    EventSystem.current.SetSelectedGameObject(EXButton.gameObject);
-                }
-                else {
-                    EventSystem.current.SetSelectedGameObject(HealthButton.gameObject);
-                }
             }
+            EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
+            _currentItem = (ModuleButtonList[0].ButtonSelect as DepotButtonSelect).DepotItem;
+            //ItemNameText.text = item.Name;
+            //ItemDescriptionText .text = item.Description;
         }
 
         public void OnMMEvent(MMGameEvent gameEvent) {

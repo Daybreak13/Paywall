@@ -26,12 +26,12 @@ namespace Paywall {
 
         /// CharacterHandleWeaponIRE component
         [field: Tooltip("CharacterHandleWeaponIRE component")]
-        [field: SerializeField] public CharacterHandleWeaponIRE HandleWeaponComponent { get; protected set; }
+        [field: SerializeField] public CharacterHandleWeaponStandalone HandleWeaponComponent { get; protected set; }
 
         protected override void Initialization() {
             base.Initialization();
             if (HandleWeaponComponent == null) {
-                HandleWeaponComponent = GetComponent<CharacterHandleWeaponIRE>();
+                HandleWeaponComponent = GetComponent<CharacterHandleWeaponStandalone>();
             }
             GUIManagerIRE_PW.Instance.SetHealthFragments(HealthFragments, MaxHealthFragments);
             GUIManagerIRE_PW.Instance.SetAmmoFragments(AmmoFragments, MaxAmmoFragments);
@@ -59,6 +59,7 @@ namespace Paywall {
                         AmmoFragments -= MaxAmmoFragments;
                         HandleWeaponComponent.SetCurrentWeaponMagSize(HandleWeaponComponent.CurrentWeapon.MagazineSize + 1);
                     }
+                    GUIManagerIRE_PW.Instance.SetAmmoFragments(AmmoFragments, MaxAmmoFragments);
                     break;
             }
         }

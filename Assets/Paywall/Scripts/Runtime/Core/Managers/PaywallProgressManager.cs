@@ -70,11 +70,11 @@ namespace Paywall {
 
 		/// Credits are the "real world" currency
 		[field: Tooltip("Credits are the \"real world\" currency")]
-		[field: MMReadOnly]
+		//[field: MMReadOnly]
 		[field: SerializeField] public int Credits { get; private set; }
 		/// Trinkets are the "game world" currency
 		[field: Tooltip("Trinkets are the \"game world\" currency")]
-		[field: MMReadOnly]
+		//[field: MMReadOnly]
 		[field: SerializeField] public int Trinkets { get; private set; }
 
 		[field: Header("Dictionaries")]
@@ -86,7 +86,25 @@ namespace Paywall {
 		[field: Tooltip("Scriptable dictionary for upgrades. Contains an archive of all possible upgrades in the game. Set this in inspector.")]
 		[field: SerializeField] public UpgradeDictionary UpgradesDictionary { get; private set; }
 
-		public int CurrentLevelTrinkets { get; private set; }
+		[field: Header("Depot Items")]
+
+        /// List of modules
+        [field: Tooltip("List of modules")]
+        [field: SerializeField] public ModuleManager ModulesList { get; protected set; }
+        /// List of possible shop options, not counting modules
+        [field: Tooltip("List of possible shop options, not counting modules")]
+        [field: SerializeField] public DepotItemList ShopItemsList { get; protected set; }
+        /// List of default shop options (ones that always appear)
+        [field: Tooltip("List of default shop options (ones that always appear)")]
+        [field: SerializeField] public DepotItemList DefaultShopItemsList { get; protected set; }
+
+        // The scriptable objects store the immutable item lists
+        // The dictionaries' objects can be modified at runtime
+		// Other classes that need up-to-date info on these items can get it from this manager
+        public Dictionary<string, DepotItemData> ShopItemsDict { get; protected set; } = new();
+        public Dictionary<string, DepotItemData> DefaultShopItemsDict { get; protected set; } = new();
+		public Dictionary<string, ModuleData> ModulesDict { get; protected set; } = new();
+
 		public Dictionary<string, EmailItem> EmailItems { get { return EmailsDictionary.EmailItems; } protected set { } }
 		/// <summary>
 		/// Dictionary of all unlocked upgrades
@@ -107,19 +125,27 @@ namespace Paywall {
 		protected override void Awake() {
 			base.Awake();
 			LoadSavedProgress();
-		}
-
-		protected virtual void Start() {
-
+			foreach (ScriptableModule module in ModulesList.Items) {
+				ModulesDict.Add(module.Name, new ModuleData(module.name, module.IsActive, module.IsEnhanced, module.IsValid, module));
+			}
+			foreach (BaseScriptableDepotItem item in ShopItemsList.Items) {
+				ShopItemsDict.Add(item.Name, new DepotItemData(item.Name, item.IsValid, item));
+			}
+            foreach (BaseScriptableDepotItem item in DefaultShopItemsList.Items) {
+                DefaultShopItemsDict.Add(item.Name, new DepotItemData(item.Name, item.IsValid, item));
+            }
         }
 
 		protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
 			UpdateManagersAndInventories();
-			CurrentLevelTrinkets = 0;
-			if (GUIManagerIRE_PW.HasInstance) {
-				GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
-			}
+			//if (GUIManagerIRE_PW.HasInstance) {
+			//	GUIManagerIRE_PW.Instance.UpdateTrinketsText(Trinkets);
+			//}
 		}
+
+		protected virtual void OnSceneUnloaded(Scene scene) {
+			Trinkets = 0;
+        }
 
 		/// <summary>
 		/// When the scene loads, load the data into the StoreMenuManager and EmailInventory (if applicable)
@@ -210,10 +236,10 @@ namespace Paywall {
 				Trinkets += money;
 				if (GameManagerIRE_PW.HasInstance
 					&& (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress)) {
-					CurrentLevelTrinkets += money;
+					Trinkets += money;
 
 					if (GUIManagerIRE_PW.HasInstance) {
-						GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
+						GUIManagerIRE_PW.Instance.UpdateTrinketsText(Trinkets);
 					}
 				}
 			}
@@ -230,10 +256,10 @@ namespace Paywall {
 				Trinkets = money;
 				if (GameManagerIRE_PW.HasInstance
 					&& (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress)) {
-					CurrentLevelTrinkets = money;
+					Trinkets = money;
 
 					if (GUIManagerIRE_PW.HasInstance) {
-						GUIManagerIRE_PW.Instance.UpdateTrinketsText(CurrentLevelTrinkets);
+						GUIManagerIRE_PW.Instance.UpdateTrinketsText(Trinkets);
 					}
 				}
             }
@@ -304,6 +330,7 @@ namespace Paywall {
 					SetMoney(creditsEvent.MoneyType, creditsEvent.Money);
 					break;
 			}
+			GUIManagerIRE_PW.Instance.UpdateTrinketsText(Trinkets);
 			if (creditsEvent.MoneyType == MoneyTypes.Credit) SaveProgress();
 		}
 
@@ -374,6 +401,7 @@ namespace Paywall {
 			this.MMEventStartListening<PaywallLevelEndEvent>();
 			this.MMEventStartListening<EmailEvent>();
 			SceneManager.sceneLoaded += OnSceneLoaded;
+			SceneManager.sceneUnloaded += OnSceneUnloaded;
 		}
 
 		/// <summary>
@@ -386,6 +414,7 @@ namespace Paywall {
 			this.MMEventStopListening<PaywallLevelEndEvent>();
 			this.MMEventStopListening<EmailEvent>();
 			SceneManager.sceneLoaded -= OnSceneLoaded;
+			SceneManager.sceneUnloaded -= OnSceneUnloaded;
 		}
 
 	}

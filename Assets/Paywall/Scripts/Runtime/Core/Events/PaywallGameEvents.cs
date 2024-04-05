@@ -174,4 +174,16 @@ namespace Paywall {
         }
     }
 
+    public struct PaywallModuleEvent {
+        public ScriptableModule Module;
+
+        public PaywallModuleEvent(ScriptableModule module) {
+            Module = module;
+        }
+        static PaywallModuleEvent e;
+        public static void Trigger(ScriptableModule module) {
+            e.Module = module;
+        }
+    }
+
 }

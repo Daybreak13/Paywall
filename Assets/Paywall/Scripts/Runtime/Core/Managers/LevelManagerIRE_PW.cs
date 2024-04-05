@@ -106,7 +106,7 @@ namespace Paywall {
         protected float _recycleX;
         protected Bounds _tmpRecycleBounds;
 
-        protected bool _tempSpeedMultiplierActive;
+        protected bool _tempSpeedAddedActive;
         protected float _tempSpeedSwitchFactor;
         protected float _temporarySpeedFactorRemainingTime;
         protected float _temporarySavedSpeed;
@@ -199,7 +199,6 @@ namespace Paywall {
         public virtual void LevelStart() {
             (GameManagerIRE_PW.Instance as GameManagerIRE_PW).SetStatus(GameManagerIRE_PW.GameStatus.GameInProgress);
             MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
-            TempSpeedSwitchOff();
         }
 
         /// <summary>
@@ -292,7 +291,7 @@ namespace Paywall {
             HandleSpeedFactor();
 
             RunningTime += Time.deltaTime;
-            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive && Speed != 0) {
+            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive && Speed != 0) {
                 CurrentUnmodifiedSpeed = Speed;
             }
         }
@@ -304,7 +303,7 @@ namespace Paywall {
         /// <param name="duration"></param>
         /// <param name="retainEnemySpeed"></param>
         public virtual void TemporarilyAddSpeed(float factor, float duration, bool retainEnemySpeed = false) {
-            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive) {
                 CurrentUnmodifiedSpeed = Speed;
             }
 
@@ -315,7 +314,7 @@ namespace Paywall {
             _temporarySpeedFactorRemainingTime = duration;
 
             Speed += factor;
-            _tempSpeedMultiplierActive = true;
+            _tempSpeedAddedActive = true;
 
             StartCoroutine(TemporarilyAddSpeedCo(factor, duration));
         }
@@ -326,98 +325,9 @@ namespace Paywall {
             Speed -= factor;
             _coroutineCount--;
             if (_coroutineCount == 0) {
-                _tempSpeedMultiplierActive = false;
+                _tempSpeedAddedActive = false;
             }
         }
-
-        #region Multiply Speed
-
-        /// <summary>
-        /// Temp speed multiplier with option for retaining enemy NPC speed
-        /// Used by abilities (EX)
-        /// </summary>
-        /// <param name="factor"></param>
-        /// <param name="duration"></param>
-        /// <param name="retainEnemySpeed"></param>
-        public virtual void TemporarilyMultiplySpeed(float factor, float duration, bool retainEnemySpeed = false) {
-            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
-                CurrentUnmodifiedSpeed = Speed;
-            }
-
-            if (retainEnemySpeed) {
-                _retainEnemySpeed = true;
-            }
-
-            _temporarySpeedFactorRemainingTime = duration;
-
-            Speed *= factor;
-            _tempSpeedMultiplierActive = true;
-
-            StartCoroutine(SpeedMultiplierCo(factor, duration));
-        }
-
-        /// <summary>
-        /// Maintain speed multiplier for given duration, then turn it off
-        /// </summary>
-        /// <param name="factor"></param>
-        /// <param name="duration"></param>
-        /// <returns></returns>
-        protected virtual IEnumerator SpeedMultiplierCo(float factor, float duration) {
-            _coroutineCount++;
-            yield return new WaitForSeconds(duration);
-            Speed /= factor;
-            _coroutineCount--;
-            if (_coroutineCount == 0) {
-                _tempSpeedMultiplierActive = false;
-            }
-        }
-
-        /// <summary>
-        /// Rather than using a duration, multiply speed until switched off
-        /// Cannot activate speed switch if it is already active
-        /// Can activate if duration based temp speed is active
-        /// Used by supers
-        /// </summary>
-        /// <param name="factor"></param>
-        /// <param name="retainEnemySpeed"></param>
-        public virtual void TemporarilyMultiplySpeedSwitch(float factor, bool retainEnemySpeed = false) {
-            if (TempSpeedSwitchActive) {
-                return;
-            }
-
-            if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
-                CurrentUnmodifiedSpeed = Speed;
-            }
-
-            _retainEnemySpeed = retainEnemySpeed;
-
-            _tempSpeedSwitchFactor = factor;
-
-            if (!TempSpeedSwitchActive) {
-                _temporarySavedSpeed = Speed;
-            }
-
-            Speed *= _tempSpeedSwitchFactor;
-            TempSpeedSwitchActive = true;
-        }
-
-        /// <summary>
-        /// Resets the temp speed multiplier
-        /// </summary>
-        public virtual void TempSpeedSwitchOff() {
-            if (TempSpeedSwitchActive) {
-                TempSpeedSwitchActive = false;
-                _retainEnemySpeed = false;
-                if (_tempSpeedSwitchFactor == 0) {
-                    Speed = _temporarySavedSpeed;
-                }
-                else {
-                    Speed /= _tempSpeedSwitchFactor;
-                }
-            }
-        }
-
-        #endregion
 
         /// <summary>
         /// Temporarily add to speed. Only one speed switch is active at a time, and must be turned off manually.
@@ -431,7 +341,7 @@ namespace Paywall {
                     Speed -= _tempSpeedSwitchFactor;
                 }
 
-                if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                if (!_tempSpeedAddedActive) {
                     CurrentUnmodifiedSpeed = Speed;
                 }
 
@@ -455,7 +365,7 @@ namespace Paywall {
         /// <param name="on"></param>
         public virtual void SetZeroSpeed(bool on, bool retainEnemySpeed) {
             if (on) {
-                if (!_tempSpeedMultiplierActive && !TempSpeedSwitchActive) {
+                if (!_tempSpeedAddedActive && !TempSpeedSwitchActive) {
                     CurrentUnmodifiedSpeed = Speed;
                 }
                 _coroutineCount = 0;
@@ -463,7 +373,7 @@ namespace Paywall {
                 _retainEnemySpeed = retainEnemySpeed;
                 Speed = 0;
                 TempSpeedSwitchActive = false;
-                _tempSpeedMultiplierActive = false;
+                _tempSpeedAddedActive = false;
             }
             else {
                 Speed = CurrentUnmodifiedSpeed;
@@ -568,6 +478,11 @@ namespace Paywall {
             }
         }
 
+        /// <summary>
+        /// Check if object has left death bounds
+        /// </summary>
+        /// <param name="objectBounds"></param>
+        /// <returns></returns>
         public virtual bool CheckDeathCondition(Bounds objectBounds) {
             if (objectBounds.Intersects(DeathBounds)) {
                 return false;
@@ -617,7 +532,6 @@ namespace Paywall {
             else {
                 MMSceneLoadingManager.LoadScene(levelName);
             }
-
         }
 
         /// <summary>
@@ -625,16 +539,11 @@ namespace Paywall {
         /// </summary>
         /// <param name="amount"></param>
         public virtual void IncreaseLevelSpeed(float amount) {
-            if (_tempSpeedMultiplierActive) {
+            if (_tempSpeedAddedActive) {
                 return;
             }
             CurrentUnmodifiedSpeed += amount;
-            if (TempSpeedSwitchActive) {
-                Speed = CurrentUnmodifiedSpeed * _tempSpeedSwitchFactor;
-            }
-            else {
-                Speed = CurrentUnmodifiedSpeed;
-            }
+            Speed += amount;
         }
 
         /// <summary>
@@ -643,14 +552,9 @@ namespace Paywall {
         /// </summary>
         protected virtual void LeaveDepot() {
             StopAllCoroutines();
-            _tempSpeedMultiplierActive = false;
+            _tempSpeedAddedActive = false;
             CurrentUnmodifiedSpeed += SpeedIncrement;
-            if (TempSpeedSwitchActive) {
-                Speed = CurrentUnmodifiedSpeed * _tempSpeedSwitchFactor;
-            }
-            else {
-                Speed = CurrentUnmodifiedSpeed;
-            }
+            Speed += SpeedIncrement;
         }
 
         public virtual void OnMMEvent(MMGameEvent gameEvent) {

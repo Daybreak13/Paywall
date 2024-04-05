@@ -11,7 +11,7 @@ namespace Paywall {
 
 	public enum JumpTypes { Normal, Low }
 
-    public class CharacterJumpIRE : CharacterAbilityIRE {
+    public class CharacterJumpIRE : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent> {
 		[field: Header("Jumper")]
 
 		/// the vertical force applied to the character when jumping
@@ -114,13 +114,21 @@ namespace Paywall {
 		[field: FieldCondition("OverrideJumpTimes", true)]
 		[field: SerializeField] public float LowJumpTime { get; protected set; }
 
-		[field: Header("Debug")]
+		[field: Header("Upgrades and Modules")]
+
+        /// The extra jump module SO
+        [field: Tooltip("The extra jump module SO")]
+        [field: SerializeField] public ScriptableModule ExtraJumpModule { get; protected set; }
+
+        [field: Header("Debug")]
 
 		/// How long of a buffer the jump input has
 		[field: Tooltip("How long of a buffer the jump input has")]
 		[field: SerializeField] public bool GetJumpTime { get; protected set; }
 
-		protected bool _jumping = false;
+        public int FinalNumJumpsAllowed => ExtraJumpModule.IsActive ? NumberOfJumpsAllowed : NumberOfJumpsAllowed + 1;
+
+        protected bool _jumping = false;
 		protected bool _doubleJumping = false;
 		protected float _lastJumpTime;
 
@@ -140,22 +148,22 @@ namespace Paywall {
 
 		protected float _origin;
 
-		/// <summary>
-		/// Set number of jumps based on upgrade status
-		/// </summary>
-		protected override void Awake() {
-			base.Awake();
-			if (PaywallProgressManager.Instance.Upgrades.TryGetValue(_jumpUpgradeName, out Upgrade upgrade)) {
-				if (upgrade.Unlocked) {
-					NumberOfJumpsAllowed++;
-				}
-			}
+        protected override void Initialization() {
+            base.Initialization();
+            //if (PaywallProgressManager.Instance.Upgrades.TryGetValue(_jumpUpgradeName, out Upgrade upgrade)) {
+            //    if (upgrade.Unlocked) {
+            //        NumberOfJumpsAllowed++;
+            //    }
+            //}
             if (UseJumpHeight) {
                 _jumpForce = CalculateJumpForce(JumpHeight);
             }
             else {
                 _jumpForce = JumpForce;
             }
+            //if (ExtraJumpModule.IsActive) {
+            //    NumberOfJumpsAllowed++;
+            //}
         }
 
         #region Every Frame
@@ -176,7 +184,7 @@ namespace Paywall {
                     }
 
 					_jumping = false;
-					NumberOfJumpsLeft = NumberOfJumpsAllowed;
+					NumberOfJumpsLeft = FinalNumJumpsAllowed;
 				}
 
 				_noJumpFalling = false;
@@ -188,7 +196,7 @@ namespace Paywall {
                 }
             }
 			// If airborne without having jumped, decrement jump count
-			if (_noJumpFalling && (NumberOfJumpsLeft == NumberOfJumpsAllowed)) {
+			if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
 				NumberOfJumpsLeft--;
             }
 
@@ -367,7 +375,7 @@ namespace Paywall {
 			}
 
 			// if we're still in cooldown from the last jump AND this is not the first jump, we do not jump
-			if ((Time.time - _lastJumpTime < CooldownBetweenJumps) && (NumberOfJumpsLeft != NumberOfJumpsAllowed)) {
+			if ((Time.time - _lastJumpTime < CooldownBetweenJumps) && (NumberOfJumpsLeft != FinalNumJumpsAllowed)) {
 				return false;
 			}
 
@@ -392,7 +400,7 @@ namespace Paywall {
 		/// No jump startup, use InitiateJump() if using jump startup
 		/// </summary>
 		public virtual void Jump() {
-			if (_noJumpFalling && (NumberOfJumpsLeft == NumberOfJumpsAllowed)) {
+			if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
 				NumberOfJumpsLeft--;
 			}
 
@@ -546,7 +554,7 @@ namespace Paywall {
 			_lastJumpTime = Time.time;
 			_noJumpFalling = true;
 			if (resetJumps) {
-				NumberOfJumpsLeft = NumberOfJumpsAllowed - 1;
+				NumberOfJumpsLeft = FinalNumJumpsAllowed - 1;
 			}
 			else {
 				NumberOfJumpsLeft--;
@@ -627,21 +635,49 @@ namespace Paywall {
 			return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
 		}
 
+		/// <summary>
+		/// Reset ability. Resets number of jumps left
+		/// </summary>
         public override void ResetAbility() {
-			NumberOfJumpsLeft = NumberOfJumpsAllowed;
+			NumberOfJumpsLeft = FinalNumJumpsAllowed;
         }
 
-        //protected override void OnEnable() {
-        //    base.OnEnable();
-        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.performed += JumpPerformed;
-        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled += JumpCanceled;
-        //}
+		/// <summary>
+		/// Catches changes to the extra jump module and adjusts this component accordingly
+		/// </summary>
+		/// <param name="moduleEvent"></param>
+        public void OnMMEvent(PaywallModuleEvent moduleEvent) {
+            if (moduleEvent.Module.Name.Equals(ExtraJumpModule.Name)) {
+				//if (moduleEvent.Module.IsActive) {
+				//	NumberOfJumpsAllowed++;
+				//}
+				//else {
+				//	NumberOfJumpsAllowed--;
+				//}
+			}
+        }
 
-        //protected override void OnDisable() {
-        //    base.OnDisable();
-        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.performed -= JumpPerformed;
-        //    InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled -= JumpCanceled;
-        //}
+		public void OnMMEvent(MMGameEvent gameEvent) {
+			if (gameEvent.EventName.Equals("Rescue")) {
+				NumberOfJumpsLeft = FinalNumJumpsAllowed - 1;
+			}
+		}
 
-    }
+		protected override void OnEnable() {
+			base.OnEnable();
+			this.MMEventStartListening<PaywallModuleEvent>();
+			this.MMEventStartListening<MMGameEvent>();
+			//InputSystemManager_PW.InputActions.PlayerControls.Jump.performed += JumpPerformed;
+			//InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled += JumpCanceled;
+		}
+
+		protected override void OnDisable() {
+			base.OnDisable();
+			this.MMEventStopListening<PaywallModuleEvent>();
+			this.MMEventStopListening<MMGameEvent>();
+			//InputSystemManager_PW.InputActions.PlayerControls.Jump.performed -= JumpPerformed;
+			//InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled -= JumpCanceled;
+		}
+
+	}
 }

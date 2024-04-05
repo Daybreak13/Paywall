@@ -53,7 +53,13 @@ namespace Paywall {
 		[field: FieldCondition("GainEXOverTime", true)]
 		[field: SerializeField] public float EXGainPerSecond { get; protected set; } = 2.5f;
 
-		public Vector3 InitialPosition { get; protected set; }
+		[field: Header("Upgrades and Modules")]
+
+        /// The fall rescue module SO
+        [field: Tooltip("The fall rescue module SO")]
+        [field: SerializeField] public ScriptableModule RescueModule { get; protected set; }
+
+        public Vector3 InitialPosition { get; protected set; }
 
 		protected float _exDrainRate;	// EX drain rate per second
 		protected bool _exDraining;
@@ -89,10 +95,19 @@ namespace Paywall {
 
 		#region PlayableCharacter overrides
 
+		/// <summary>
+		/// Checks if the character is out of bounds, and kill it if so
+		/// </summary>
 		protected virtual void CheckDeathConditions() {
 			if ((GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress) && (LevelManagerIRE_PW.Instance.CheckDeathCondition(CharacterBoxCollider.bounds))) {
-				LevelManagerIRE_PW.Instance.KillCharacterOutOfBounds(this);
-			}
+				if (RescueModule.IsActive) {
+                    transform.position = InitialPosition;
+					MMGameEvent.Trigger("Rescue");
+                }
+				else {
+                    LevelManagerIRE_PW.Instance.KillCharacterOutOfBounds(this);
+                }
+            }
 		}
 
 		/// <summary>

@@ -23,9 +23,9 @@ namespace Paywall {
         [field: Tooltip("The multiplier to apply to game's timescale during the dodge")]
         [field: Range(0f, 1f)]
         [field: SerializeField] public float DodgeTimeScaleMultiplier { get; protected set; } = 0.75f;
-        /// The multiplier to apply to level's speed during the dodge
-        [field: Tooltip("The multiplier to apply to level's speed during the dodge")]
-        [field: SerializeField] public float DodgeLevelSpeedMultiplier { get; protected set; } = 2f;
+        /// The boost to apply to level's speed during the dodge
+        [field: Tooltip("The boost to apply to level's speed during the dodge")]
+        [field: SerializeField] public float DodgeLevelSpeedBoost { get; protected set; } = 100f;
 
         protected float _currentDodgeTime;
         protected float _timeLastDodgeEnded;
@@ -73,7 +73,7 @@ namespace Paywall {
         protected virtual IEnumerator DodgeCo() {
             // Slow time if applicable, increase level speed, animate dodge, change character state
             GameManagerIRE_PW.Instance.SetTimeScale(GameManagerIRE_PW.Instance.TimeScale * DodgeTimeScaleMultiplier);
-            LevelManagerIRE_PW.Instance.TemporarilyMultiplySpeed(DodgeLevelSpeedMultiplier, DodgeDuration);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeed(DodgeLevelSpeedBoost, DodgeDuration);
             _initialColor = _character.Model.color;
             _initialVelocity = _character.CharacterRigidBody.velocity;
             _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Dodging);

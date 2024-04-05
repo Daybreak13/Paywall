@@ -10,13 +10,28 @@ namespace Paywall {
     /// Button select behavior for depot buttons
     /// </summary>
     public class DepotButtonSelect : ButtonSelectController {
-        /// The item type corresponding to this button
-        [field: Tooltip("The item type corresponding to this button")]
-        [field: SerializeField] public DepotItemTypes DepotItemType { get; protected set; }
+        /// The item SO corresponding to this button
+        [field: Tooltip("The item SO corresponding to this button")]
+        [field: SerializeField] public BaseScriptableDepotItem DepotItem { get; protected set; }
 
+        protected ButtonDataReference _parentButton;
+        protected bool _initialized;
+
+        protected virtual void Awake() {
+            _parentButton = GetComponent<ButtonDataReference>();
+        }
+
+        public virtual void SetItem(BaseScriptableDepotItem item) {
+            DepotItem = item;
+        }
+
+        /// <summary>
+        /// What to do when this button is selected
+        /// </summary>
+        /// <param name="eventData"></param>
         public override void OnSelect(BaseEventData eventData) {
             base.OnSelect(eventData);
-            SupplyDepotMenuManager.Instance.SetDescription(DepotItemType);
+            SupplyDepotMenuManager.Instance.SetBuyOption(DepotItem);
         }
     }
 }

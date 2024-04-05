@@ -48,8 +48,12 @@ MonoBehaviour:
   PlayerID: Player1
   Scenes: []
   CreateSaveGameBtn: 0
-  displayedCredits: 0
+  DisplayedCredits: 0
   <Credits>k__BackingField: 0
+  <Trinkets>k__BackingField: 0
   <EmailsDictionary>k__BackingField: {fileID: 11400000, guid: 5fee0469efc457f46bc515463662f36a,
     type: 2}
   <UpgradesDictionary>k__BackingField: {fileID: 0}
+  <ModulesList>k__BackingField: {fileID: 11400000, guid: ce00838ecf584b44e93fe3b4d7438fad,
+    type: 2}
+  <ShopItemsList>k__BackingField: {fileID: 0}
