@@ -14,13 +14,6 @@ namespace Paywall {
         [field: Tooltip("The item SO corresponding to this button")]
         [field: SerializeField] public BaseScriptableDepotItem DepotItem { get; protected set; }
 
-        protected ButtonDataReference _parentButton;
-        protected bool _initialized;
-
-        protected virtual void Awake() {
-            _parentButton = GetComponent<ButtonDataReference>();
-        }
-
         public virtual void SetItem(BaseScriptableDepotItem item) {
             DepotItem = item;
         }
@@ -31,7 +24,7 @@ namespace Paywall {
         /// <param name="eventData"></param>
         public override void OnSelect(BaseEventData eventData) {
             base.OnSelect(eventData);
-            SupplyDepotMenuManager.Instance.SetBuyOption(DepotItem);
+            //SupplyDepotMenuManager.Instance.SetBuyOption(DepotItem);
         }
     }
 }

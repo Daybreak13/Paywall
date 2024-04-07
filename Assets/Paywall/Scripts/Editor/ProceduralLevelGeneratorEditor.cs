@@ -319,6 +319,12 @@ namespace Paywall.Editors {
                 EditorGUILayout.PropertyField(_levelSegmentSequenceProperty);
             }
 
+            EditorGUILayout.Space(10);
+
+            if (GUILayout.Button("Sort")) {
+                proceduralLevelGenerator.SortLists();
+            }
+
             if (EditorGUI.EndChangeCheck()) {
                 serializedObject.ApplyModifiedProperties();
             }

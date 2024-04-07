@@ -7,6 +7,7 @@ using Paywall.Tools;
 using UnityEditor;
 using MoreMountains.InfiniteRunnerEngine;
 using UnityEngine.InputSystem;
+using System.Linq;
 
 namespace Paywall {
 
@@ -391,7 +392,7 @@ namespace Paywall {
         /// <summary>
         /// Handles what happens when stage number is incremented
         /// </summary>
-        protected virtual void IncrementStage() {
+        public virtual void IncrementStage() {
             CurrentStage++;
             GUIManagerIRE_PW.Instance.UpdateStageText(CurrentStage);
             IncrementDifficulty(1);
@@ -605,31 +606,6 @@ namespace Paywall {
             return (_gapLengthsDict[_currentGapLength]);
         }
 
-        protected virtual float GetNextHeight() {
-            _previousHeightIdx = _currentHeightIdx;
-            float newHeight = _startingHeight + _currentHeightIdx * HeightInterval;
-
-            if (PreviousSegment.SegmentType == SegmentTypes.Ground && CurrentSegment.SegmentType == SegmentTypes.Ground) {
-                if (_currentGapLength == GapLengths.NoGap) {
-                    return newHeight;
-                }
-            }
-
-            int min = -1;
-            int max = 2;
-            if (_currentHeightIdx == NumberOfHeights) {
-                max = 1;
-            }
-            if (_currentHeightIdx == 1) {
-                min = 0;
-            }
-            int increment = UnityEngine.Random.Range(min, max);
-            _currentHeightIdx += increment;
-            newHeight = _startingHeight + _currentHeightIdx * HeightInterval;
-
-            return newHeight;
-        }
-
         /// <summary>
         /// Gets the height delta between the current segment and the next segment
         /// </summary>
@@ -740,6 +716,36 @@ namespace Paywall {
         /// </summary>
         public virtual void DecrementActiveObjects() {
             _activeSegments--;
+        }
+
+        /// <summary>
+        /// Call via inspector button
+        /// Sorts pooler gameobjects as well as segment lists alphabetically
+        /// </summary>
+        public virtual void SortLists() {
+            List<Transform> children = new();
+            foreach (Transform child in this.transform) {
+                if (child.name.Equals("Ground") || child.name.Equals("Transition") || child.name.Equals("Jumper")) {
+                    foreach (Transform t in child) {
+                        children.Add(t);
+                    }
+                    children = children.OrderBy(c => c.name).ToList();
+                    foreach(Transform t in children) {
+                        t.SetSiblingIndex(children.IndexOf(t));
+                    }
+                    children.Clear();
+                }
+            }
+
+            if (GroundSegmentList != null && GroundSegmentList.Count > 0) {
+                GroundSegmentList.Sort((a, b) => string.Compare(a.SegmentPooler.name, b.SegmentPooler.name));
+            }
+            if (JumperSegmentList != null && JumperSegmentList.Count > 0) {
+                JumperSegmentList.Sort((a, b) => string.Compare(a.SegmentPooler.name, b.SegmentPooler.name));
+            }
+            if (TransitionSegmentList != null && TransitionSegmentList.Count > 0) {
+                TransitionSegmentList.Sort((a, b) => string.Compare(a.SegmentPooler.name, b.SegmentPooler.name));
+            }
         }
 
         public void OnMMEvent(MMGameEvent gameEvent) {

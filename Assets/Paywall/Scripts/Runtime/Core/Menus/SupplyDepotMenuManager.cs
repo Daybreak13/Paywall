@@ -131,16 +131,16 @@ namespace Paywall {
 
         /// List of module buttons
         [field: Tooltip("List of module buttons")]
-        [field: SerializeField] public List<ButtonDataReference> ModuleButtonList { get; protected set; }
+        [field: SerializeField] public List<DepotButtonDataReference> ModuleButtonList { get; protected set; }
         /// List of module buttons
         [field: Tooltip("List of module buttons")]
-        [field: SerializeField] public List<ButtonDataReference> ShopButtonList { get; protected set; }
+        [field: SerializeField] public List<DepotButtonDataReference> ShopButtonList { get; protected set; }
 
         /// List of inactive valid modules (ones that are in the shop pool)
         protected List<ScriptableModule> _inactiveModuleList = new();
 
         protected BaseScriptableDepotItem _currentItem;
-        protected ButtonDataReference _currentButton;
+        protected DepotButtonDataReference _currentButton;
         protected bool _firstEntered;
         protected int _firstEmptyShopButton;
 
@@ -159,11 +159,10 @@ namespace Paywall {
             foreach (BaseScriptableDepotItem item in PaywallProgressManager.Instance.DefaultShopItemsList.Items) {
                 if (!PaywallProgressManager.Instance.DefaultShopItemsDict[item.Name].IsValid) 
                     return;
-                ButtonDataReference button = ShopButtonList[_firstEmptyShopButton++];
-                DepotButtonSelect select = button.ButtonSelect as DepotButtonSelect;
+                DepotButtonDataReference button = ShopButtonList[_firstEmptyShopButton++];
                 //button.ImageComponent.sprite = item.UISprite;
                 button.TextComponent.text = item.Name;
-                select.SetItem(item);
+                button.SetItem(item);
             }
         }
 
@@ -185,6 +184,8 @@ namespace Paywall {
             // Otherwise set default dialogue
             else {
                 SetDialogueText(EnterDepotDialogue);
+                _currentItem = ModuleButtonList[0].DepotItem;
+                _currentButton = ModuleButtonList[0];
             }
 
             // Generate module options and fill out the buttons accordingly
@@ -216,10 +217,10 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Set currently selected item
+        /// Set currently selected item and button
         /// </summary>
         /// <param name="item"></param>
-        public virtual void SetBuyOption(BaseScriptableDepotItem item) {
+        public virtual void SetBuyOption(BaseScriptableDepotItem item, DepotButtonDataReference button) {
             ItemNameText.text = item.Name.ToUpper();
             // If the selected item is a module, the description is different if it's enhanced
             if (item is ScriptableModule module) {
@@ -234,7 +235,9 @@ namespace Paywall {
                 ItemDescriptionText.text = item.Description;
             }
             _currentItem = item;
-
+            _currentButton.SetOutline(false);
+            _currentButton = button;
+            _currentButton.SetOutline(true);
         }
 
         /// <summary>
@@ -271,9 +274,9 @@ namespace Paywall {
                 }
 
                 // Grey out a shop button if it costs more than what we can afford
-                foreach(ButtonDataReference button in ShopButtonList) {
-                    if (button.gameObject.activeSelf && (button.ButtonSelect is DepotButtonSelect depotSelect)) {
-                        if (depotSelect.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
+                foreach(DepotButtonDataReference button in ShopButtonList) {
+                    if (button.gameObject.activeSelf) {
+                        if (button.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
                             SetButtonState(button, false);
                         }
                         else {
@@ -321,7 +324,8 @@ namespace Paywall {
                     ModuleButtonList[i].image.sprite = modules[idx].UISprite;
                 }
                 ModuleButtonList[i].TextComponent.text = modules[idx].Name;
-                (ModuleButtonList[i].ButtonSelect as DepotButtonSelect).SetItem(modules[idx]);
+                ModuleButtonList[i].SetItem(modules[idx]);
+                ModuleButtonList[i].SetOutline(false);
                 modules.RemoveAt(idx);
             }
         }
@@ -335,6 +339,7 @@ namespace Paywall {
             //System.Random rand = new();
             for (int i = 0; i < ShopButtonList.Count; i++) {
                 //ShopButtonList[i].TextComponent.text = 
+                ShopButtonList[i].SetOutline(false);
                 if (i < _firstEmptyShopButton) {
                     ShopButtonList[i].gameObject.SetActive(true);
                 }
@@ -344,9 +349,9 @@ namespace Paywall {
             }
 
             // Grey out a shop button if it costs more than what we can afford
-            foreach (ButtonDataReference button in ShopButtonList) {
-                if (button.gameObject.activeSelf && (button.ButtonSelect is DepotButtonSelect depotSelect)) {
-                    if (depotSelect.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
+            foreach (DepotButtonDataReference button in ShopButtonList) {
+                if (button.gameObject.activeSelf) {
+                    if (button.DepotItem.Cost > PaywallProgressManager.Instance.Trinkets) {
                         SetButtonState(button, false);
                     }
                     else {
@@ -405,11 +410,6 @@ namespace Paywall {
             LeaveDepot();
         }
 
-        public virtual void SetDescription(string name, string description) {
-            ItemNameText.text = name.ToUpper();
-            ItemDescriptionText.text = description;
-        }
-
         /// <summary>
         /// Grey a button out (if the item can't be afforded, for example)
         /// Doesn't set the interactable to false so that the player can examine the item
@@ -455,27 +455,6 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Activates overclock button display and sets description
-        /// </summary>
-        /// <param name="depotItemType"></param>
-        protected virtual void ChangeToOverclockDisplay(DepotItemTypes depotItemType) {
-            StandardSelectionContainer.SetActive(false);
-            OverclockContainer.SetActive(true);
-            EventSystem.current.SetSelectedGameObject(NoButton.gameObject);
-            string newText = string.Empty;
-            switch (depotItemType) {
-                case DepotItemTypes.Health:
-                    newText = OverclockDescription.Replace("RESOURCE", "Health");
-                    break;
-                case DepotItemTypes.Ammo:
-                    newText = OverclockDescription.Replace("RESOURCE", "Ammo");
-                    break;
-            }
-            SetDescription(string.Empty, newText);
-            SetDialogueText(OverclockDialogue);
-        }
-
-        /// <summary>
         /// Sets the dialogue text
         /// </summary>
         /// <param name="dialogue"></param>
@@ -505,8 +484,9 @@ namespace Paywall {
                 SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = true;
                 SetDialogueText(EnterDepotDialogue);
             }
-            EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
-            _currentItem = (ModuleButtonList[0].ButtonSelect as DepotButtonSelect).DepotItem;
+            _currentItem = ModuleButtonList[0].DepotItem;
+            _currentButton = ModuleButtonList[0];
+            //EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
             //ItemNameText.text = item.Name;
             //ItemDescriptionText .text = item.Description;
         }

@@ -251,6 +251,7 @@ namespace Paywall {
             if (RequireInput) {
                 InputActions.Enable();
                 InputActions.UI.Submit.started += Advance;
+                InputActions.UI.Click.started += Advance;
             }
             this.MMEventStartListening<PaywallDialogueEvent>();
         }
@@ -259,6 +260,7 @@ namespace Paywall {
             if (RequireInput) {
                 InputActions.Disable();
                 InputActions.UI.Submit.started -= Advance;
+                InputActions.UI.Click.started -= Advance;
             }
             this.MMEventStopListening<PaywallDialogueEvent>();
         }

@@ -776,7 +776,7 @@ PrefabInstance:
     - target: {fileID: 532940697551807091, guid: 718139bf980b4f14ebb5e02c7354fcf8,
         type: 3}
       propertyPath: <Trinkets>k__BackingField
-      value: 10
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 532940697551807091, guid: 718139bf980b4f14ebb5e02c7354fcf8,
         type: 3}
@@ -1141,7 +1141,7 @@ PrefabInstance:
     - target: {fileID: 3403085084297396267, guid: 6aac4621cef96e74988cc2ead905c23f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8759614016798888083, guid: 6aac4621cef96e74988cc2ead905c23f,
         type: 3}
@@ -1447,7 +1447,7 @@ MonoBehaviour:
   <StartDelay>k__BackingField: 1
   <CurrentDifficulty>k__BackingField: 0
   <DifficultyWeightIncrement>k__BackingField: 10
-  <DebugMode>k__BackingField: 1
+  <DebugMode>k__BackingField: 0
   <OverrideGapLength>k__BackingField: 0
   <DoNotSpawnShop>k__BackingField: 1
   <LevelSegmentSequence>k__BackingField:

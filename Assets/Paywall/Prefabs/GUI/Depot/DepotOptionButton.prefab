@@ -87,8 +87,7 @@ GameObject:
   - component: {fileID: 7743538691502317452}
   - component: {fileID: 7902096536802597264}
   - component: {fileID: 4205983282743007140}
-  - component: {fileID: 5726639792318099373}
-  - component: {fileID: 5292306220466967917}
+  - component: {fileID: 6680704568215936017}
   - component: {fileID: 437969457559453034}
   m_Layer: 0
   m_Name: DepotOptionButton
@@ -157,7 +156,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5726639792318099373
+--- !u!114 &6680704568215936017
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -166,11 +165,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5081083858341245782}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c984964e766b2c459f0e250dbe0e381, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e0a6ecc476c6c9468ccfc25167e3c3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -200,27 +199,29 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2364951874756812536}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
-  <ImageComponent>k__BackingField: {fileID: 2364951874756812536}
+      m_Calls:
+      - m_Target: {fileID: 6680704568215936017}
+        m_TargetAssemblyTypeName: Paywall.DepotButtonDataReference, Paywall
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  <OuterImageComponent>k__BackingField: {fileID: 4205983282743007140}
+  <InnerImageComponent>k__BackingField: {fileID: 2364951874756812536}
   <TextComponent>k__BackingField: {fileID: 8190820710765231215}
-  <ButtonSelect>k__BackingField: {fileID: 5292306220466967917}
+  <ButtonSelect>k__BackingField: {fileID: 0}
   <Container>k__BackingField: {fileID: 5081083858341245782}
---- !u!114 &5292306220466967917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5081083858341245782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7467ebe1a8785ce48a21efec4ff4ec77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   <OnSelectEvent>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
   <DepotItem>k__BackingField: {fileID: 0}
+  <SelectType>k__BackingField: 0
 --- !u!114 &437969457559453034
 MonoBehaviour:
   m_ObjectHideFlags: 0

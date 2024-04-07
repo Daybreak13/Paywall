@@ -16,9 +16,12 @@ namespace Paywall {
     public class ButtonDataReference : Button {
         [field: Header("Button Reference")]
 
-        /// The image component of this button
-        [field: Tooltip("The image component of this button")]
-        [field: SerializeField] public Image ImageComponent { get; protected set; }
+        /// The outer image component of this button (outline)
+        [field: Tooltip("The outer image component of this button (outline)")]
+        [field: SerializeField] public Image OuterImageComponent { get; protected set; }
+        /// The inner image component of this button
+        [field: Tooltip("The inner image component of this button")]
+        [field: SerializeField] public Image InnerImageComponent { get; protected set; }
         /// The text component of this button
         [field: Tooltip("The text component of this button")]
         [field: SerializeField] public TextMeshProUGUI TextComponent { get; protected set; }
@@ -44,22 +47,22 @@ namespace Paywall {
             if (_initialized) {
                 return;
             }
-            _originalColor = ImageComponent.color;
+            _originalColor = InnerImageComponent.color;
             _initialized = true;
         }
 
         public virtual void SetColor(Color color) {
             Initialization();
-            ImageComponent.color = color;
+            InnerImageComponent.color = color;
         }
 
         public virtual void ResetColor() {
             Initialization();
-            ImageComponent.color = _originalColor;
+            InnerImageComponent.color = _originalColor;
         }
 
         public virtual void SetImage(Sprite sprite) {
-            ImageComponent.sprite = sprite;
+            InnerImageComponent.sprite = sprite;
         }
 
         public override void OnSelect(BaseEventData eventData) {
