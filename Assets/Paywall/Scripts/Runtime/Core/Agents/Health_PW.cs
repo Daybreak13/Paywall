@@ -114,8 +114,8 @@ namespace Paywall {
 			MMDamageTakenEvent.Trigger(this, instigator, CurrentHealth, damage, previousHealth);
 
 			// Trigger EXCharge event if applicable
-			if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag) && instigator.TryGetComponent(out DamageOnTouch_PW damageOnTouch)) {
-				if (!EXGainOnKill && EXChargeOnDamageMultiplier > 0) {
+			if (!EXGainOnKill && EXChargeOnDamageMultiplier > 0) { 
+                if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag) && instigator.TryGetComponent(out DamageOnTouch_PW damageOnTouch)) {
 					if (damageOnTouch.ChargeAmountGained > 0) {
 						PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained * (previousHealth - CurrentHealth) * EXChargeOnDamageMultiplier, ChangeAmountMethods.Add);
 					}
@@ -167,8 +167,7 @@ namespace Paywall {
 					CurrentHealth = 0;
 					// On kill, give trinkets if applicable, and trigger death event
 					if (instigator.CompareTag(PaywallTagManager.PlayerDamageTag)) {
-						if (EXGainOnKill && instigator.TryGetComponent(out damageOnTouch)) {
-							//PaywallEXChargeEvent.Trigger(damageOnTouch.ChargeAmountGained, ChangeAmountMethods.Add);
+						if (EXGainOnKill && instigator.TryGetComponent(out DamageOnTouch_PW _)) {
 							PaywallKillEvent.Trigger(true, gameObject);
                         }
 						if (GivesTrinketsOnKill) {

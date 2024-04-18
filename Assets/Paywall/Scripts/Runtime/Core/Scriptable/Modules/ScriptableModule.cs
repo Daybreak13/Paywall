@@ -9,7 +9,7 @@ namespace Paywall {
     /// SO for modules
     /// Contains active and enhanced data, and module name
     /// </summary>
-    [CreateAssetMenu(fileName = "Module", menuName = "Paywall/Modules/Module")]
+    [CreateAssetMenu(fileName = "BaseModule", menuName = "Paywall/Modules/BaseModule")]
     public class ScriptableModule : BaseScriptableDepotItem {
         [field: Header("Module")]
 

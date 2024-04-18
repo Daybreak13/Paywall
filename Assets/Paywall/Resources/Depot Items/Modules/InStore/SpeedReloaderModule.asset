@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 851847bcac3e391439b21f9861809799, type: 3}
+  m_Name: SpeedReloaderModule
+  m_EditorClassIdentifier: 
+  <Name>k__BackingField: Speed Loader
+  <Description>k__BackingField: Increase reload speed and decrease reload delay (time
+    it takes to begin reloading)
+  <UISprite>k__BackingField: {fileID: 0}
+  <Cost>k__BackingField: 0
+  <IsValid>k__BackingField: 1
+  <DepotItemType>k__BackingField: 6
+  <IsActive>k__BackingField: 0
+  <IsEnhanced>k__BackingField: 0
+  <EnhancedDescription>k__BackingField: 
+  <ReloadTimeReduction>k__BackingField: 0.05
+  <ReloadDelayReduction>k__BackingField: 0.15

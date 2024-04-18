@@ -8,7 +8,7 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
-    public class CharacterHandleWeaponStandalone : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent> {
+    public class CharacterHandleWeaponStandalone : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent>, MMEventListener<PaywallModuleEvent> {
         [field: Header("Weapon Components")]
 
         /// The projectile weapon prefab
@@ -41,6 +41,12 @@ namespace Paywall {
         [field: FieldCondition("BufferInput", true)]
         [field: Tooltip("the maximum duration for the buffer, in seconds")]
         [field: SerializeField] public float MaximumBufferDuration { get; protected set; } = 0.25f;
+
+        [field: Header("Upgrades")]
+
+        /// The reload speed module SO
+        [field: Tooltip("The reload speed module SO")]
+        [field: SerializeField] public SpeedReloaderModule SpeedLoader { get; protected set; }
 
         [field: Header("Debug")]
         /// returns the current equipped weapon
@@ -255,9 +261,24 @@ namespace Paywall {
             }
         }
 
+        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent) {
+            if (SpeedLoader == null) return;
+            if (moduleEvent.Module.Name.Equals(SpeedLoader.Name)) {
+                if (moduleEvent.Module.IsActive) {
+                    CurrentWeapon.SetReloadTime(CurrentWeapon.ReloadTime + SpeedLoader.ReloadTimeReduction);
+                    CurrentWeapon.SetReloadDelay(CurrentWeapon.ReloadDelay + SpeedLoader.ReloadDelayReduction);
+                }
+                else {
+                    CurrentWeapon.SetReloadTime(CurrentWeapon.ReloadTime - SpeedLoader.ReloadTimeReduction);
+                    CurrentWeapon.SetReloadDelay(CurrentWeapon.ReloadDelay - SpeedLoader.ReloadDelayReduction);
+                }
+            }
+        }
+
         protected override void OnEnable() {
             base.OnEnable();
             this.MMEventStartListening<RunnerItemPickEvent>();
+            this.MMEventStartListening<PaywallModuleEvent>();
             //InputSystemManager_PW.InputActions.PlayerControls.Attack.performed += AttackPerformed;
             //InputSystemManager_PW.InputActions.PlayerControls.Attack.canceled += AttackStopped;
         }
@@ -265,6 +286,7 @@ namespace Paywall {
         protected override void OnDisable() {
             base.OnDisable();
             this.MMEventStopListening<RunnerItemPickEvent>();
+            this.MMEventStopListening<PaywallModuleEvent>();
             //InputSystemManager_PW.InputActions.PlayerControls.Attack.performed -= AttackPerformed;
             //InputSystemManager_PW.InputActions.PlayerControls.Attack.canceled -= AttackStopped;
         }

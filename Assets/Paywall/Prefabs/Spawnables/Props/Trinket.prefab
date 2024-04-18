@@ -164,3 +164,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 5
+  <OutOfBoundType>k__BackingField: 0

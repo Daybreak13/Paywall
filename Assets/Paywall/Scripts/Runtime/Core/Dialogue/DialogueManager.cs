@@ -67,7 +67,7 @@ namespace Paywall {
         // Does the game pause for this dialogue
         protected bool _pausedDialogue;
         // Is the currently typing text done typing
-        protected bool _textComplete;
+        protected bool _currLineComplete;
         // The index of currently displayed dialogue in TextLines
         protected int _currentLine;
         // Typing coroutine
@@ -90,14 +90,17 @@ namespace Paywall {
         /// Advances the dialogue. If the dialogue is not done typing, complete the dialogue. Otherwise, go to the next set of dialogue.
         /// </summary>
         protected virtual void Advance(InputAction.CallbackContext ctx) {
-            // If the line is done playing, advance to the next line
-            if (_textComplete) {
+
+
+            // If the current line is done playing, advance to the next line
+            if (_currLineComplete) {
                 // If there are no more lines, end the dialogue
                 if (_currentLine >= TextLines.Count) {
                     CloseDialogue();
                 }
                 // Else, play next line
                 else {
+                    // Wait to play next line
                     if (!RequireInput && (AdvanceDelay > 0f)) {
                         StartCoroutine(WaitToAdvance());
                     }
@@ -105,19 +108,19 @@ namespace Paywall {
                         _typingCoroutine = StartCoroutine(TypeCharacters());
                     }
                 }
-                //_currentLine++;
             }
-            // Reveal the rest of the dialogue line immediately
+            // If advancing when current line is not complete, reveal the rest of the dialogue line immediately
             else {
                 StopAllCoroutines();
                 DialogueText.maxVisibleCharacters = 99999;
                 _currentLine++;
-                _textComplete = true;
+                _currLineComplete = true;
             }
         }
 
         /// <summary>
         /// Wait to advance to the next line of dialogue
+        /// Only if input is not required (auto advance)
         /// </summary>
         /// <returns></returns>
         protected virtual IEnumerator WaitToAdvance() {
@@ -144,6 +147,7 @@ namespace Paywall {
                 EventSystem.current.sendNavigationEvents = true;
                 InputActions.Enable();
                 InputActions.UI.Submit.started += Advance;
+                InputActions.UI.Click.performed += Advance;
             }
             DialogueCanvasGroup.SetActiveIfNotNull(true);
             _typingCoroutine = StartCoroutine(TypeCharacters());
@@ -171,8 +175,35 @@ namespace Paywall {
             if (RequireInput) {
                 InputActions.Disable();
                 InputActions.UI.Submit.started -= Advance;
+                InputActions.UI.Click.performed -= Advance;
             }
             PaywallDialogueEvent.Trigger(DialogueEventTypes.Close, null);
+        }
+
+        /// <summary>
+        /// Types out a given dialogue line
+        /// </summary>
+        /// <returns></returns>
+        protected virtual IEnumerator TypeCharacters() {
+            _currLineComplete = false;
+            if (TextSpeed <= 0) {
+                TextSpeed = 30f;
+            }
+            if ((TextLines[_currentLine].CharacterName != null) && (NameDisplay != null)) {
+                NameDisplay.text = TextLines[_currentLine].CharacterName;
+            }
+            DialogueText.text = TextLines[_currentLine].Line;
+
+            int totalVisibleCharacters = DialogueText.text.Length;
+            int counter = 0;
+            // Uses tmp.maxVisibleCharacters to reveal the text (typing effect) one char at a time
+            while (counter <= totalVisibleCharacters) {
+                DialogueText.maxVisibleCharacters = counter;
+                counter += 1;
+                yield return new WaitForSecondsRealtime(1f / TextSpeed);
+            }
+            _currentLine++;
+            _currLineComplete = true;
         }
 
         /// <summary>
@@ -206,44 +237,20 @@ namespace Paywall {
                         remainingLine = remainingLine[spaceIndex..];
                     }
 
-                } else {
+                }
+                else {
                     newLines.Add(line);
                 }
             }
             TextLines = newLines;
         }
 
-        /// <summary>
-        /// Types out a given dialogue line
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerator TypeCharacters() {
-            _textComplete = false;
-            if (TextSpeed <= 0) {
-                TextSpeed = 30f;
-            }
-            if ((TextLines[_currentLine].CharacterName != null) && (NameDisplay != null)) {
-                NameDisplay.text = TextLines[_currentLine].CharacterName;
-            }
-            DialogueText.text = TextLines[_currentLine].Line;
-
-            int totalVisibleCharacters = DialogueText.text.Length;
-            int counter = 0;
-            // Uses tmp.maxVisibleCharacters to reveal the text (typing effect) one char at a time
-            while (counter <= totalVisibleCharacters) {
-                DialogueText.maxVisibleCharacters = counter;
-                counter += 1;
-                yield return new WaitForSecondsRealtime(1f / TextSpeed);
-            }
-            _currentLine++;
-            _textComplete = true;
-        }
-
         public virtual void OnMMEvent(PaywallDialogueEvent dialogueEvent) {
             if (dialogueEvent.DialogueEventType == DialogueEventTypes.Open) {
                 OpenDialogue(dialogueEvent.DialogueLines);
-            } else {
-
+            } 
+            if (dialogueEvent.DialogueEventType == DialogueEventTypes.ForceClose) {
+                CloseDialogue();
             }
         }
 
@@ -251,7 +258,7 @@ namespace Paywall {
             if (RequireInput) {
                 InputActions.Enable();
                 InputActions.UI.Submit.started += Advance;
-                InputActions.UI.Click.started += Advance;
+                InputActions.UI.Click.performed += Advance;
             }
             this.MMEventStartListening<PaywallDialogueEvent>();
         }
@@ -260,7 +267,7 @@ namespace Paywall {
             if (RequireInput) {
                 InputActions.Disable();
                 InputActions.UI.Submit.started -= Advance;
-                InputActions.UI.Click.started -= Advance;
+                InputActions.UI.Click.performed -= Advance;
             }
             this.MMEventStopListening<PaywallDialogueEvent>();
         }

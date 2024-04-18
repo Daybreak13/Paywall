@@ -30,7 +30,10 @@ namespace Paywall {
         [field: Tooltip("How many rays to cast to check for collision above")]
         [field: SerializeField] public int RaysToCast { get; protected set; } = 3;
 
-        protected float _sideBuffer = 0.01f;
+        protected float _topBuffer = 0f;
+        protected float _sideBuffer = 0f;
+        protected float _velocityBuffer = 0.000001f;        // Sometimes velocity is near-zero when it should be zero
+        protected float _rayLength = 0.5f;
 
         protected const string _playerTag = "Player";
         protected Collider2D _collider2D;
@@ -50,8 +53,7 @@ namespace Paywall {
         protected virtual void OnCollisionEnter2D(Collision2D collision) {
             if (collision.collider.CompareTag(_playerTag)) {
                 if (collision.collider.TryGetComponent(out _character)) {
-                    _collidingAbove = CastRaysAbove();
-                    if (_collidingAbove) {
+                    if ((_character.CharacterRigidBody.velocity.y <= StaticData.VelocityBuffer) && CastRaysAbove()) {
                         switch (LaunchType) {
                             case LaunchTypes.Height:
                                 _character.GetComponent<CharacterJumpIRE>().ApplyExternalJumpForce(LaunchType, LaunchHeight);
@@ -83,13 +85,13 @@ namespace Paywall {
             if (_collider2D is BoxCollider2D) {
                 edge = (_collider2D as BoxCollider2D).edgeRadius;
             }
-            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y);
-            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y);
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y - _topBuffer);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y - _topBuffer);
             RaycastHit2D raycastHit2D;
 
             for (int i = 0; i < RaysToCast; i++) {
                 Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(RaysToCast - 1f));
-                raycastHit2D = Physics2D.Raycast(originPoint, Vector2.up, 1f, 1 << LayerMask.NameToLayer(_playerTag));
+                raycastHit2D = Physics2D.Raycast(originPoint, Vector2.up, _rayLength, 1 << LayerMask.NameToLayer(_playerTag));
                 if (raycastHit2D.collider != null) {
                     _collidingAbove = true;
                     return true;
@@ -110,12 +112,12 @@ namespace Paywall {
                 edge = (_collider2D as BoxCollider2D).edgeRadius;
             }
 
-            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y);
-            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y);
+            Vector2 leftOrigin = new(_collider2D.bounds.min.x + _sideBuffer - edge, _collider2D.bounds.max.y - _topBuffer);
+            Vector2 rightOrigin = new(_collider2D.bounds.max.x - _sideBuffer + edge, _collider2D.bounds.max.y - _topBuffer);
             for (int i = 0; i < RaysToCast; i++) {
                 Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(RaysToCast - 1f));
                 Gizmos.color = Color.blue;
-                Gizmos.DrawRay(originPoint, Vector3.up.normalized);
+                Gizmos.DrawRay(originPoint, new Vector3(0, _rayLength, 0));
             }
         }
 

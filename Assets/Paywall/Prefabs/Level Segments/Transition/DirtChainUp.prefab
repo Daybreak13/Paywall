@@ -178,6 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 5
+  <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4300990212206320517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,7 +244,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SpawnablePoolerType>k__BackingField: 1
+  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
+    type: 2}
   <MinLength>k__BackingField: 3
   <MaxLength>k__BackingField: 3
   <ManualSpawn>k__BackingField: 1
@@ -407,7 +409,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SpawnablePoolerType>k__BackingField: 1
+  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
+    type: 2}
   <MinLength>k__BackingField: 3
   <MaxLength>k__BackingField: 3
   <ManualSpawn>k__BackingField: 1

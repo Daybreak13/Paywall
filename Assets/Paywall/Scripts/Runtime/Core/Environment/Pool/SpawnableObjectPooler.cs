@@ -23,6 +23,7 @@ namespace Paywall {
 
 		/// the actual object pool
 		protected List<GameObject> _pooledGameObjects;
+		protected List<SpawnablePoolableObject> _spawnables = new();
 
 		public List<SpawnableObjectPooler> Owner { get; set; }
 		private void OnDestroy() { Owner?.Remove(this); }
@@ -50,6 +51,11 @@ namespace Paywall {
 			if (_objectPool != null) {
 				objectsToSpawn -= _objectPool.PooledGameObjects.Count;
 				_pooledGameObjects = new List<GameObject>(_objectPool.PooledGameObjects);
+				foreach (GameObject obj in _objectPool.PooledGameObjects) {
+					if (obj.TryGetComponent(out SpawnablePoolableObject spawnable)) {
+						_spawnables.Add(spawnable);
+					}
+				}
 			}
 
 			// we add to the pool the specified number of objects
@@ -92,6 +98,32 @@ namespace Paywall {
 		}
 
 		/// <summary>
+		/// Same as GetPooledGameObject, but returns a spawnable instead
+		/// Reduces needed for GetComponent calls
+		/// </summary>
+		/// <returns></returns>
+		public virtual SpawnablePoolableObject GetPooledSpawnable() {
+            // we go through the pool looking for an inactive object
+            for (int i = 0; i < _spawnables.Count; i++) {
+                if (!_spawnables[i].gameObject.activeInHierarchy) {
+                    // we check if our object has an Health component, and if yes, we revive our character
+                    Health objectHealth = _spawnables[i].gameObject.MMGetComponentNoAlloc<Health>();
+                    if (objectHealth != null) {
+                        objectHealth.Revive();
+                    }
+                    // if we find one, we return it
+                    return _spawnables[i];
+                }
+            }
+            // if we haven't found an inactive object (the pool is empty), and if we can extend it, we add one new object to the pool, and return it		
+            if (PoolCanExpand) {
+                return AddOneObjectToThePool().GetComponent<SpawnablePoolableObject>();
+            }
+            // if the pool is empty and can't grow, we return nothing.
+            return null;
+        }
+
+		/// <summary>
 		/// Adds one object of the specified type (in the inspector) to the pool.
 		/// </summary>
 		/// <returns>The one object to the pool.</returns>
@@ -103,7 +135,7 @@ namespace Paywall {
 
 			bool initialStatus = SpawnableToPool.gameObject.activeSelf;
 			SpawnableToPool.gameObject.SetActive(false);
-			GameObject newGameObject = (GameObject)Instantiate(SpawnableToPool.gameObject);
+            GameObject newGameObject = (GameObject)Instantiate(SpawnableToPool.gameObject);
 			SpawnableToPool.gameObject.SetActive(initialStatus);
 			SceneManager.MoveGameObjectToScene(newGameObject, this.gameObject.scene);
 			if (NestWaitingPool) {
@@ -114,6 +146,7 @@ namespace Paywall {
 			// Set the object's parent pooler, so that the parent can be reset when it is recycled
 			if (newGameObject.TryGetComponent(out SpawnablePoolableObject spawnable)) {
 				spawnable.SetPoolerParent(newGameObject.transform.parent);
+				_spawnables.Add(spawnable);
 			}
 
 			_pooledGameObjects.Add(newGameObject);

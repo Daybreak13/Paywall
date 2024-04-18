@@ -9,14 +9,14 @@ namespace Paywall {
     public class MovingRigidbody : MonoBehaviour {
         [field: Header("Settings")]
 
-        /// Movement speed of this enemy
-        [Tooltip("Movement speed of this enemy")]
+        /// Speed modifier / denominator applied to LevelSpeed
+        [Tooltip("Speed modifier / denominator applied to LevelSpeed")]
         [field: SerializeField] public float Speed { get; protected set; } = 1f;
         /// Movement direction of this enemy
         [Tooltip("Movement direction of this enemy")]
         [field: SerializeField] public Vector3 Direction { get; protected set; } = Vector3.left;
-        /// If true, use the EnemySpeed parameter of LevelManager instead of regular Speed
-        [Tooltip("If true, use the EnemySpeed parameter of LevelManager instead of regular Speed")]
+        /// If true, add this Speed modifier to the segment (level) speed
+        [Tooltip("If true, add this Speed modifier to the segment (level) speed")]
         [field: SerializeField] public bool UseEnemySpeed { get; protected set; }
         /// If true, check if this object is past the SpawnBarrier (LevelManager), and don't move until we are past it
         [Tooltip("If true, check if this object is past the SpawnBarrier (LevelManager), and don't move until we are past it")]
@@ -55,7 +55,7 @@ namespace Paywall {
         protected float _snapBackAcceleration = 3f;     // How fast to return to original velocity
 
         // Divide speed by this to get final velocity
-        protected float _denominator = 10f;
+        protected float _speedMult = 10f;
 
         protected bool ShouldUseRigidBody {
             get {
@@ -93,6 +93,7 @@ namespace Paywall {
                 if (gameObject.CompareTag("LevelSegment")) {
                     Speed = LevelManagerIRE_PW.Instance.SegmentSpeed;
                 }
+                _speedMult = LevelManagerIRE_PW.Instance.SpeedMultiplier;
             }
         }
 
@@ -113,17 +114,17 @@ namespace Paywall {
         /// </summary>
         protected virtual void Move() {
             if (!LevelManagerIRE_PW.HasInstance) {
-                _movement = (Speed / _denominator) * Time.deltaTime * Direction;
+                _movement = (Speed / _speedMult) * Time.deltaTime * Direction;
             }
             else {
                 if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
-                    _movement = (Speed / _denominator) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
+                    _movement = (Speed / _speedMult) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
                 } 
                 else if (UseEnemySpeed) {
-                    _movement = ((Speed + LevelManagerIRE_PW.Instance.SegmentSpeed) / _denominator) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
+                    _movement = ((Speed + LevelManagerIRE_PW.Instance.SegmentSpeed) / _speedMult) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
                 }
                 else {
-                    _movement = (Speed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Time.deltaTime * Direction;
+                    _movement = (Speed / _speedMult) * LevelManagerIRE_PW.Instance.FinalSpeed * Time.deltaTime * Direction;
                 }
 
                 if (BlockMovementUntil && _movementBlockedUntil) {
@@ -170,7 +171,7 @@ namespace Paywall {
                 //return;
             }
 
-            Vector2 levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
+            Vector2 levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             Vector2 speedCap = levelSpeed;
 
             Vector2 newVelocity;
@@ -210,13 +211,13 @@ namespace Paywall {
         /// </summary>
         protected virtual void RigidbodyMove() {
             if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
-                _movement = (Speed / _denominator) * LevelManagerIRE_PW.Instance.InitialSpeed * Direction;
+                _movement = Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             else if (UseEnemySpeed) {
-                _movement = ((Speed + LevelManagerIRE_PW.Instance.SegmentSpeed) / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
+                _movement = (Speed + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             else {
-                _movement = (Speed / _denominator) * LevelManagerIRE_PW.Instance.Speed * Direction;
+                _movement = (Speed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
 
             // If knockback is applied, HandleKnockback controls the velocity instead of this function

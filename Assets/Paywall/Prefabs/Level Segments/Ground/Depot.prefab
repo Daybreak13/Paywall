@@ -270,6 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 1
+  <OutOfBoundType>k__BackingField: 0
 --- !u!1 &3442252315172938638
 GameObject:
   m_ObjectHideFlags: 0

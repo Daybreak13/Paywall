@@ -13,19 +13,19 @@ namespace Paywall {
         /// Dodge invincibility duration
         [field: Tooltip("Dodge invincibility duration")]
         [field: SerializeField] public float DodgeDuration { get; protected set; } = 0.2f;
-        /// Dodge force applied
-        [field: Tooltip("Dodge force applied")]
-        [field: SerializeField] public Vector2 DodgeForce { get; protected set; }
         /// Dodge cooldown duration. Starts counting once dodge has completed ended.
         [field: Tooltip("Dodge cooldown duration. Starts counting once dodge has completed ended.")]
         [field: SerializeField] public float DodgeCooldown { get; protected set; } = 0.1f;
         /// The multiplier to apply to game's timescale during the dodge
         [field: Tooltip("The multiplier to apply to game's timescale during the dodge")]
         [field: Range(0f, 1f)]
-        [field: SerializeField] public float DodgeTimeScaleMultiplier { get; protected set; } = 0.75f;
+        [field: SerializeField] public float DodgeTimeScaleMultiplier { get; protected set; } = 1f;
         /// The boost to apply to level's speed during the dodge
         [field: Tooltip("The boost to apply to level's speed during the dodge")]
-        [field: SerializeField] public float DodgeLevelSpeedBoost { get; protected set; } = 100f;
+        [field: SerializeField] public float DodgeLevelSpeedBoost { get; protected set; } = 200f;
+        /// If true, prevent character from moving up or down while dodging
+        [field: Tooltip("If true, prevent character from moving up or down while dodging")]
+        [field: SerializeField] public bool FreezeY { get; protected set; } = true;
 
         protected float _currentDodgeTime;
         protected float _timeLastDodgeEnded;
@@ -66,6 +66,12 @@ namespace Paywall {
             _dodgeCoroutine = StartCoroutine(DodgeCo());
         }
 
+        protected virtual void FixedUpdate() {
+            if (FreezeY && _character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+                _character.CharacterRigidBody.velocity = Vector2.zero;
+            }
+        }
+
         /// <summary>
         /// Perform dodge coroutine
         /// </summary>
@@ -82,20 +88,16 @@ namespace Paywall {
             newColor.a = 0.2f;
             _character.Model.color = newColor;
             _initialLayer = _character.gameObject.layer;
-            _character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily
-            //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
-            //_character.SetInvincibilityDuration(DodgeDuration);
-            _character.ApplyForce(DodgeForce);
+            _character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily. Cannot collide with Enemy or Projectiles
             _currentDodgeTime = 0f;
 
             yield return new WaitForSeconds(DodgeDuration);
 
             GameManagerIRE_PW.Instance.ResetTimeScale();
             _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
-            transform.SafeSetTransformPosition(transform.position, LayerMask.GetMask("Enemy"), PaywallExtensions.SetTransformModes.PlusX);
+            transform.SafeSetTransformPosition(transform.position, PaywallLayerManager.EnemyLayerMask, PaywallExtensions.SetTransformModes.PlusX);
             _character.gameObject.layer = _initialLayer;
             _character.Model.color = _initialColor;
-            //_character.CharacterRigidBody.constraints = RigidbodyConstraints2D.FreezeRotation;
             _currentDodgeTime = 0f;
             _timeLastDodgeEnded = Time.time;
         }

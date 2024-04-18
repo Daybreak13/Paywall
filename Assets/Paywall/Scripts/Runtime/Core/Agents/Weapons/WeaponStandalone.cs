@@ -141,6 +141,14 @@ namespace Paywall {
             HandleWeapon = handleWeapon;
         }
 
+        public virtual void SetReloadTime(float time) {
+            ReloadTime = time;
+        }
+
+        public virtual void SetReloadDelay(float delay) {
+            ReloadDelay = delay;
+        }
+
         /// <summary>
         /// Ask this weapon component to shoot if possible
         /// </summary>

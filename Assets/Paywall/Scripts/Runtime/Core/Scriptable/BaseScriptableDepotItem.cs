@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Paywall {
 
@@ -27,8 +26,12 @@ namespace Paywall {
         /// Can this item show up in the store?
         [field: Tooltip("Can this item show up in the store?")]
         [field: SerializeField] public bool IsValid { get; protected set; } = true;
-        /// The type of depot item this is
-        [field: Tooltip("The type of depot item this is")]
-        [field: SerializeField] public DepotItemTypes DepotItemType { get; protected set; }
+
+        /// <summary>
+        /// What to do when this option is bought
+        /// </summary>
+        public virtual void BuyAction() {
+
+        }
     }
 }

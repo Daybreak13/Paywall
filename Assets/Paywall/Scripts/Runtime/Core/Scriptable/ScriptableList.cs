@@ -7,7 +7,6 @@ namespace Paywall {
     /// <summary>
     /// List SO that stores immutable list to be referenced
     /// </summary>
-    [CreateAssetMenu(fileName = "ScriptableList", menuName = "Paywall/Lists/ScriptableList")]
     public abstract class ScriptableList<T> : ScriptableObject {
         /// List of items belonging to this list
         [field: Tooltip("List of items belonging to this list")]

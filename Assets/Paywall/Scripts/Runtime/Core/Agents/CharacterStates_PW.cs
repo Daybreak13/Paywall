@@ -15,7 +15,8 @@ namespace Paywall {
             Null,
             Running,
             Jumping,
-            Falling
+            Falling,
+            Stalling
         }
     }
 }

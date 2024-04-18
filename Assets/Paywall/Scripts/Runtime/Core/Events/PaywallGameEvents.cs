@@ -33,19 +33,6 @@ namespace Paywall {
         }
     }
 
-    public struct PaywallGameEvent {
-        public int Variable;
-
-        public PaywallGameEvent(int variable) {
-            Variable = variable;
-        }
-        static PaywallGameEvent e;
-        public static void Trigger(int variable) {
-            e.Variable = variable;
-            MMEventManager.TriggerEvent(e);
-        }
-    }
-
     public struct PaywallDeathEvent {
         public GameObject DeadObject;
         public bool IncreaseStreak;
@@ -64,7 +51,7 @@ namespace Paywall {
 
     public struct PaywallDamageEvent {
         public int Damage;
-        GameObject Instigator;
+        public GameObject Instigator;
 
         public PaywallDamageEvent(int damage, GameObject instigator) {
             Damage = damage;
@@ -112,13 +99,6 @@ namespace Paywall {
         }
     }
 
-    public struct PaywallAmmoEvent {
-        static PaywallAmmoEvent e;
-        public static void Trigger() {
-            MMEventManager.TriggerEvent(e);
-        }
-    }
-
     /// <summary>
     /// Event for items picked during a run, that only apply during the run (eg powerups)
     /// </summary>
@@ -157,7 +137,7 @@ namespace Paywall {
         }
     }
 
-    public enum DialogueEventTypes { Open, Close }
+    public enum DialogueEventTypes { Open, Close, ForceClose }
     public struct PaywallDialogueEvent {
         public DialogueEventTypes DialogueEventType;
         public List<DialogueLine> DialogueLines;
@@ -183,6 +163,7 @@ namespace Paywall {
         static PaywallModuleEvent e;
         public static void Trigger(ScriptableModule module) {
             e.Module = module;
+            MMEventManager.TriggerEvent(e);
         }
     }
 

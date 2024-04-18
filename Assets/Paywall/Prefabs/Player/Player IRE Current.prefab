@@ -157,6 +157,7 @@ GameObject:
   - component: {fileID: 301310260821349848}
   - component: {fileID: 4774163481498362888}
   - component: {fileID: 8400144595438836420}
+  - component: {fileID: 2415671769144772915}
   m_Layer: 7
   m_Name: Player IRE Current
   m_TagString: Player
@@ -193,7 +194,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.05, y: -0.05}
+  m_Offset: {x: 0, y: -0.05}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -204,7 +205,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5, y: 0.74}
+  m_Size: {x: 0.45, y: 0.74}
   m_EdgeRadius: 0.1
 --- !u!50 &6444676273622215749
 Rigidbody2D:
@@ -261,8 +262,8 @@ MonoBehaviour:
   <BlockEXGainWhileDraining>k__BackingField: 0
   <KillEXGain>k__BackingField: 10
   <EXLifeLost>k__BackingField: 10
-  <GainEXOverTime>k__BackingField: 0
-  <EXGainPerSecond>k__BackingField: 5
+  <GainEXOverTime>k__BackingField: 1
+  <EXGainPerSecond>k__BackingField: 10
   <RescueModule>k__BackingField: {fileID: 11400000, guid: 58ee9082f7cdc86449735b7def1d6962,
     type: 2}
 --- !u!114 &1137474293839774564
@@ -335,10 +336,10 @@ MonoBehaviour:
   <EXCost>k__BackingField: 1
   <BlockDuringSuper>k__BackingField: 0
   <DodgeDuration>k__BackingField: 0.18
-  <DodgeForce>k__BackingField: {x: 0, y: 0}
   <DodgeCooldown>k__BackingField: 0.18
   <DodgeTimeScaleMultiplier>k__BackingField: 1
-  <DodgeLevelSpeedBoost>k__BackingField: 100
+  <DodgeLevelSpeedBoost>k__BackingField: 200
+  <FreezeY>k__BackingField: 1
 --- !u!114 &301310260821349848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +378,8 @@ MonoBehaviour:
   <BufferInput>k__BackingField: 0
   <NewInputExtendsBuffer>k__BackingField: 0
   <MaximumBufferDuration>k__BackingField: 0.25
+  <SpeedLoader>k__BackingField: {fileID: 11400000, guid: 0f7352f1307bb454db6bd75e71dfeadf,
+    type: 2}
   <CurrentWeapon>k__BackingField: {fileID: 0}
 --- !u!114 &8400144595438836420
 MonoBehaviour:
@@ -399,6 +402,24 @@ MonoBehaviour:
   <SuperActive>k__BackingField: 0
   <InvincibleSpeedFactor>k__BackingField: 20
   <InvincibleEXOnKill>k__BackingField: 5
+--- !u!114 &2415671769144772915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8783184480488449569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea90759b6d03c140a62e0cd1f81d983, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <AbilityPermitted>k__BackingField: 0
+  <MaxStallTime>k__BackingField: 1
+  <MaxFallSpeed>k__BackingField: 0.1
+  <Deceleration>k__BackingField: 4
+  <StallModule>k__BackingField: {fileID: 11400000, guid: 19b8c46e0a003d14a8321beabcc71c69,
+    type: 2}
 --- !u!1001 &3121560063307333171
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -410,6 +431,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BaseWeapon
+      objectReference: {fileID: 0}
+    - target: {fileID: 4132873040606616008, guid: 70dffe411a59e9448ad5a413881d3bdf,
+        type: 3}
+      propertyPath: <AirStallTime>k__BackingField
+      value: 0.225
       objectReference: {fileID: 0}
     - target: {fileID: 4132873040606616008, guid: 70dffe411a59e9448ad5a413881d3bdf,
         type: 3}

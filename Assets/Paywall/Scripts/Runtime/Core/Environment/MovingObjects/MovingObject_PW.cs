@@ -19,7 +19,7 @@ namespace Paywall {
 					_movement = LevelManagerIRE_PW.Instance.EnemySpeed * (Speed / 10) * Time.deltaTime * Direction;					
 				}
 				else {
-					_movement = (Speed / 10) * LevelManagerIRE_PW.Instance.Speed * Time.deltaTime * Direction;
+					_movement = Speed * LevelManagerIRE_PW.Instance.FinalSpeed * Time.deltaTime * Direction;
 				}
 			}
 			transform.Translate(_movement, MovementSpace);

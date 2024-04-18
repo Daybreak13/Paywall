@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 114000013697282846}
   - component: {fileID: 1017599083018724609}
   - component: {fileID: -8135341168866896240}
+  - component: {fileID: -7160198386759166846}
   m_Layer: 15
   m_Name: MinimalBullet
   m_TagString: PlayerDamage
@@ -260,6 +261,20 @@ MonoBehaviour:
   FreezeFramesOnHitDuration: 0
   <ChargeAmountGained>k__BackingField: 10
   Owner: {fileID: 0}
+--- !u!114 &-7160198386759166846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <DestroyDistanceBehindBounds>k__BackingField: 0
+  <OutOfBoundType>k__BackingField: 1
 --- !u!1 &7758844376465442526
 GameObject:
   m_ObjectHideFlags: 0

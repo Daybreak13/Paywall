@@ -13,7 +13,7 @@ namespace Paywall {
         [field: SerializeField] public bool AbilityPermitted { get; protected set; } = true;
 
         public bool AbilityInitialized { get { return _initialized; } }
-        public IREInputActions InputActions;
+        public IREInputActions InputActions { get; protected set; }
 
         protected bool _initialized;
         protected CharacterIRE _character;

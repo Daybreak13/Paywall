@@ -100,15 +100,24 @@ namespace Paywall {
 		/// </summary>
 		protected virtual void CheckDeathConditions() {
 			if ((GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress) && (LevelManagerIRE_PW.Instance.CheckDeathCondition(CharacterBoxCollider.bounds))) {
-				if (RescueModule.IsActive) {
-                    transform.position = InitialPosition;
-					MMGameEvent.Trigger("Rescue");
+				if (PaywallProgressManager.Instance.ModulesDict[RescueModule.Name].IsActive) {
+					Rescue();
                 }
 				else {
                     LevelManagerIRE_PW.Instance.KillCharacterOutOfBounds(this);
                 }
             }
 		}
+
+		/// <summary>
+		/// Rescues player when going OOB
+		/// </summary>
+		protected virtual void Rescue() {
+			ActivateDamageInvincibility();
+			transform.SafeSetTransformPosition(InitialPosition, LayerMask.GetMask("Ground"), PaywallExtensions.SetTransformModes.PlusX);
+			CharacterRigidBody.velocity = Vector3.zero;
+            MMGameEvent.Trigger("Rescue");
+        }
 
 		/// <summary>
 		/// Gets the playable character bounds.

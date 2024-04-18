@@ -144,7 +144,18 @@ namespace Paywall {
             // we determine the distance between the ground and the character
             ComputeDistanceToTheGround();
             if (Grounded) {
-                MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
+                // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of jumping
+                if (!(MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping
+                    && CharacterRigidBody.velocity.y > 0)) {
+                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
+                }
+            }
+            else {
+                // If we are airborne and moving down, change state to falling
+                if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
+                    && CharacterRigidBody.velocity.y < 0) {
+                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
+                }
             }
 
             EarlyProcessAbilities();

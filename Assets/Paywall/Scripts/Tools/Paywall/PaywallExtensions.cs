@@ -64,7 +64,7 @@ namespace Paywall.Tools {
             // Otherwise, search for a safe location
             else {
                 if (setTransformMode == SetTransformModes.PlusX) {
-                    Vector2 newDestination = new Vector2(destination.x + 0.1f, destination.y);
+                    Vector2 newDestination = new(destination.x + 0.1f, destination.y);
                     while ((newDestination.x - destination.x) <= maxDisplacement) {
                         hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
                         // If we found empty space, move the transform there
@@ -72,13 +72,13 @@ namespace Paywall.Tools {
                             transform.position = newDestination;
                             return false;
                         }
-                        newDestination = new Vector2(newDestination.x + 0.1f, destination.y);
+                        newDestination = new(newDestination.x + 0.1f, destination.y);
                     }
                     // If we couldn't find any safe position, just set the transform position to the originally provided position
                     transform.position = destination;
                 }
                 else {
-                    Vector2 newDestination = new Vector2(destination.x, destination.y + 0.1f);
+                    Vector2 newDestination = new(destination.x, destination.y + 0.1f);
                     while ((newDestination.y - destination.y) <= maxDisplacement) {
                         hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
                         // If we found empty space, move the transform there
@@ -86,7 +86,7 @@ namespace Paywall.Tools {
                             transform.position = newDestination;
                             return false;
                         }
-                        newDestination = new Vector2(destination.x, destination.y + 0.1f);
+                        newDestination = new(destination.x, destination.y + 0.1f);
                     }
                     // If we couldn't find any safe position, just set the transform position to the originally provided position
                     transform.position = destination;

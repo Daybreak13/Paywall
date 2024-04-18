@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b09d34423f319947a89a38af1dc18b6, type: 3}
+  m_Name: TransitionSegmentList
+  m_EditorClassIdentifier: 
+  <Items>k__BackingField:
+  - <Segment>k__BackingField: {fileID: 1202036208524614419, guid: ec9d781642fb45e45b355627e1ad7a53,
+      type: 3}
+    <InitialWeight>k__BackingField: 10
+    <StartingDifficulty>k__BackingField: 0
+  - <Segment>k__BackingField: {fileID: 1202036208524614419, guid: 0cbe79d84d39ab641b38fd1e7a17bccb,
+      type: 3}
+    <InitialWeight>k__BackingField: 10
+    <StartingDifficulty>k__BackingField: 0

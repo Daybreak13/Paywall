@@ -156,7 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed79965dabbf91e4fa408a0100c4c8c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <UseLaunchHeight>k__BackingField: 1
+  <LaunchType>k__BackingField: 2
   <LaunchForce>k__BackingField: 10
   <LaunchHeight>k__BackingField: 2.5
-  <RaysToCast>k__BackingField: 5
+  <RaysToCast>k__BackingField: 7

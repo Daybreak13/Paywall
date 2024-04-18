@@ -19,6 +19,20 @@ namespace Paywall {
         [field: SerializeField] public ButtonSelectType SelectType { get; protected set; }
 
         /// <summary>
+        /// Sets up the button in the depot with an item
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="outline"></param>
+        public virtual void SetupButton(BaseScriptableDepotItem item, bool outline) {
+            TextComponent.text = item.Name;
+            DepotItem = item;
+            if (item.UISprite != null) {
+                InnerImageComponent.sprite = item.UISprite;
+            }
+            SetOutline(outline);
+        }
+
+        /// <summary>
         /// Sets the item corresponding to this button
         /// </summary>
         /// <param name="item"></param>

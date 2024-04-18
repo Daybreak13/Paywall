@@ -1,0 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Paywall {
+
+    public static class PaywallTagManager {
+        public static readonly string PlayerTag = "Player";
+        public static readonly string PlayerDamageTag = "PlayerDamage";
+        public static readonly string LevelSegmentTag = "LevelSegment";
+        public static readonly string EnemyTag = "Enemy";
+    }
+}

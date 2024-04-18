@@ -28,7 +28,7 @@ namespace Paywall {
     public class SpawnableWeightedObjectPooler : MonoBehaviour, MMEventListener<PaywallDifficultyEvent> {
         /// the type of pooler this is
         [field: Tooltip("the type of pooler this is")]
-        [field: SerializeField] public SpawnablePoolerTypes SpawnablePoolerType { get; protected set; }
+        [field: SerializeField] public ScriptableSpawnType SpawnablePoolerType { get; protected set; }
         /// the list of simple object pools
         [field: Tooltip("the list of simple object pools")]
         [field: SerializeField] public List<SpawnableWeightedPool> WeightedPools { get; protected set; }
@@ -59,7 +59,7 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Pulls a random object from the pool
+        /// Pulls a random object from a random pool
         /// </summary>
         /// <returns></returns>
         public virtual GameObject GetPooledGameObject() {
@@ -85,11 +85,11 @@ namespace Paywall {
         }
 
         protected virtual void OnEnable() {
-
+            this.MMEventStartListening<PaywallDifficultyEvent>();
         }
 
         protected virtual void OnDisable() {
-
+            this.MMEventStopListening<PaywallDifficultyEvent>();
         }
 
     }

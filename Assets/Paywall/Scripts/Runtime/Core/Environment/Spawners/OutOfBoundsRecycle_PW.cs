@@ -6,6 +6,8 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
+	public enum OutOfBoundsTypes { Recycle, Death }
+
 	/// <summary>
 	/// Recycles a poolable object so it can be pulled again
 	/// </summary>
@@ -14,17 +16,36 @@ namespace Paywall {
 		/// Distance past the bounds to destroy this object
 		[field: Tooltip("Distance past the bounds to destroy this object")]
 		[field: SerializeField] public float DestroyDistanceBehindBounds { get; protected set; } = 1f;
+        /// Distance past the bounds to destroy this object
+        [field: Tooltip("Distance past the bounds to destroy this object")]
+        [field: SerializeField] public OutOfBoundsTypes OutOfBoundType { get; protected set; } = OutOfBoundsTypes.Recycle;
 
-		protected const string _tag = "LevelSegment";
+		protected Health_PW _health;
+
+		protected virtual void Awake() {
+            if (gameObject.CompareTag(PaywallTagManager.EnemyTag)) {
+				TryGetComponent(out _health);
+            }
+        }
 
 		/// <summary>
 		/// On update, if the object meets the level's recycling conditions, we recycle it
 		/// </summary>
 		protected virtual void Update() {
-			if (LevelManagerIRE_PW.Instance.CheckRecycleCondition(GetComponent<MMPoolableObject>().GetBounds(), DestroyDistanceBehindBounds)) {
+			if (LevelManagerIRE_PW.Instance.CheckRecycleCondition(GetComponent<MMPoolableObject>().GetBounds(), DestroyDistanceBehindBounds, OutOfBoundType)) {
 				GetComponent<MMPoolableObject>().Destroy();
-				if (gameObject.CompareTag(_tag)) {
+
+				// Level segments decrement active segment count when recycled
+				if (gameObject.CompareTag(PaywallTagManager.LevelSegmentTag)) {
 					ProceduralLevelGenerator.Instance.DecrementActiveObjects();
+				}
+
+				// If an object is pushed OOB by player damage, it should give EX on death
+				if (_health != null && _health.CurrentHealth < _health.InitialHealth) {
+					if (transform.position.x > LevelManagerIRE_PW.Instance.RecycleBounds.min.x
+						&& transform.position.y <= LevelManagerIRE_PW.Instance.RecycleBounds.min.y) {
+						PaywallKillEvent.Trigger(true, gameObject);
+					}
 				}
 			}
 		}

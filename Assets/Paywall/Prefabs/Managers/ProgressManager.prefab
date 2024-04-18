@@ -50,10 +50,15 @@ MonoBehaviour:
   CreateSaveGameBtn: 0
   DisplayedCredits: 0
   <Credits>k__BackingField: 0
-  <Trinkets>k__BackingField: 0
+  <Trinkets>k__BackingField: 40
   <EmailsDictionary>k__BackingField: {fileID: 11400000, guid: 5fee0469efc457f46bc515463662f36a,
     type: 2}
   <UpgradesDictionary>k__BackingField: {fileID: 0}
   <ModulesList>k__BackingField: {fileID: 11400000, guid: ce00838ecf584b44e93fe3b4d7438fad,
     type: 2}
-  <ShopItemsList>k__BackingField: {fileID: 0}
+  <ShopItemSets>k__BackingField: {fileID: 11400000, guid: df2e657fc3e83e4418a49c80de7005c7,
+    type: 2}
+  <RitualItemsList>k__BackingField: {fileID: 11400000, guid: 63884a8cc8f281341a7e525d9e1010a7,
+    type: 2}
+  <DefaultShopItemsList>k__BackingField: {fileID: 11400000, guid: d26a5b505f709f642a94550350ae5c6a,
+    type: 2}

@@ -24,9 +24,18 @@ namespace Paywall {
 
 		/// the actual object pool
 		protected List<GameObject> _pooledGameObjects;
+		protected List<LevelSegmentController> _controllers = new();
 
 		public List<LevelSegmentPooler> Owner { get; set; }
 		private void OnDestroy() { Owner?.Remove(this); }
+
+		/// <summary>
+		/// Sets the segment to pool
+		/// </summary>
+		/// <param name="segment"></param>
+		public virtual void SetSegment(LevelSegmentController segment) {
+			SegmentToPool = segment;
+		}
 
 		/// <summary>
 		/// Fills the object pool with the gameobject type you've specified in the inspector
@@ -51,6 +60,11 @@ namespace Paywall {
 			if (_objectPool != null) {
 				objectsToSpawn -= _objectPool.PooledGameObjects.Count;
 				_pooledGameObjects = new List<GameObject>(_objectPool.PooledGameObjects);
+				foreach (GameObject obj in _objectPool.PooledGameObjects) {
+					if (obj.TryGetComponent(out LevelSegmentController controller)) {
+						_controllers.Add(controller);
+					}
+				}
 			}
 
 			// we add to the pool the specified number of objects
@@ -87,6 +101,22 @@ namespace Paywall {
 			return null;
 		}
 
+		public virtual LevelSegmentController GetPooledSegmentController() {
+            // we go through the pool looking for an inactive object
+            for (int i = 0; i < _controllers.Count; i++) {
+                if (!_controllers[i].gameObject.activeInHierarchy) {
+                    // if we find one, we return it
+                    return _controllers[i];
+                }
+            }
+            // if we haven't found an inactive object (the pool is empty), and if we can extend it, we add one new object to the pool, and return it		
+            if (PoolCanExpand) {
+                return AddOneObjectToThePool().GetComponent<LevelSegmentController>();
+            }
+            // if the pool is empty and can't grow, we return nothing.
+            return null;
+        }
+
 		/// <summary>
 		/// Adds one object of the specified type (in the inspector) to the pool.
 		/// </summary>
@@ -107,7 +137,11 @@ namespace Paywall {
 			}
 			newGameObject.name = SegmentToPool.name + "-" + _pooledGameObjects.Count;
 
-			_pooledGameObjects.Add(newGameObject);
+            if (newGameObject.TryGetComponent(out LevelSegmentController controller)) {
+                _controllers.Add(controller);
+            }
+
+            _pooledGameObjects.Add(newGameObject);
 
 			_objectPool.PooledGameObjects.Add(newGameObject);
 

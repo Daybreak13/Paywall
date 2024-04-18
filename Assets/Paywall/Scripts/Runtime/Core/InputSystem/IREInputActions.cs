@@ -794,7 +794,7 @@ namespace Paywall
                     ""name"": """",
                     ""id"": ""718c44c1-d1f1-4622-953e-5ba74f28e990"",
                     ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
+                    ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Click"",

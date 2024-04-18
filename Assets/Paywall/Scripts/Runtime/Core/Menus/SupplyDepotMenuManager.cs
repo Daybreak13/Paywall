@@ -9,33 +9,21 @@ using System.Text;
 using Paywall.Tools;
 using System.Linq;
 using static UnityEditor.Progress;
+using System;
 
 namespace Paywall {
 
-    public enum DepotItemTypes { None, EX, Health, Ammo, OverclockHealth, OverclockAmmo, Module }
+    public enum DepotItemTypes { None, EX, Health, Ammo, OverclockHealth, Module }
 
     /// <summary>
     /// Handles UI button presses, input, while in the supply depot menu
     /// </summary>
     public class SupplyDepotMenuManager : Singleton_PW<SupplyDepotMenuManager>, MMEventListener<MMGameEvent>, MMEventListener<PaywallDialogueEvent> {
-        /// How much to increase level speed when overclocking
-        [field: Tooltip("How much to increase level speed when overclocking")]
-        [field: SerializeField] public float OverclockSpeed { get; protected set; } = 5f;
+        [field: Header("Price Multiplier")]
 
-        [field: Header("Item Amounts")]
-
-        /// How much EX is given
-        [field: Tooltip("How much EX is given")]
-        [field: SerializeField] public float EXGain { get; protected set; } = 30f;
-        /// How much health is given
-        [field: Tooltip("How much health is given")]
-        [field: SerializeField] public int HealthGain { get; protected set; } = 1;
-        /// How much ammo is given
-        [field: Tooltip("How much ammo is given")]
-        [field: SerializeField] public int AmmoGain { get; protected set; } = 1;
-        /// How much health/ammo is given when overclocking
-        [field: Tooltip("How much health/ammo is given when overclocking")]
-        [field: SerializeField] public int OverclockGain { get; protected set; } = 1;
+        /// How much to increase the price with each subsequent level
+        [field: Tooltip("How much to increase the price with each subsequent level")]
+        [field: SerializeField] public float PriceMultiplier { get; protected set; } = 1.1f;
 
         [field: Header("Buttons")]
 
@@ -75,9 +63,12 @@ namespace Paywall {
         /// The container for shop options
         [field: Tooltip("The container for shop options")]
         [field: SerializeField] public GameObject ShopContainer { get; protected set; }
-        /// The leave depot button
-        [field: Tooltip("The leave depot button")]
-        [field: SerializeField] public GameObject OverclockContainer { get; protected set; }
+        /// The container for ritual options
+        [field: Tooltip("The container for ritual options")]
+        [field: SerializeField] public GameObject RitualContainer { get; protected set; }
+        /// The container for selling module buttons
+        [field: Tooltip("The container for selling module buttons")]
+        [field: SerializeField] public GameObject SellModulesContainer { get; protected set; }
 
         [field: Header("Descriptions")]
 
@@ -87,10 +78,6 @@ namespace Paywall {
         /// The selected item's description
         [field: Tooltip("The selected item's description")]
         [field: SerializeField] public TextMeshProUGUI ItemDescriptionText { get; protected set; }
-        /// The generic overclock description
-        [field: Tooltip("The generic overclock description")]
-        [field: TextArea]
-        [field: SerializeField] public string OverclockDescription { get; protected set; }
 
         [field: Header("Dialogue Controls")]
 
@@ -116,10 +103,6 @@ namespace Paywall {
         /// The dialogue text when depot is entered for the first time
         [field: Tooltip("The dialogue text when depot is entered for the first time")]
         [field: SerializeField] public List<DialogueLine> EnterDepotDialogueLines { get; protected set; }
-        /// The dialogue text when overclock is selected
-        [field: Tooltip("The dialogue text when overclock is selected")]
-        [field: TextArea]
-        [field: SerializeField] public string OverclockDialogue { get; protected set; }
 
         [field: Header("Modules")]
 
@@ -132,17 +115,25 @@ namespace Paywall {
         /// List of module buttons
         [field: Tooltip("List of module buttons")]
         [field: SerializeField] public List<DepotButtonDataReference> ModuleButtonList { get; protected set; }
-        /// List of module buttons
-        [field: Tooltip("List of module buttons")]
+        /// List of shop buttons
+        [field: Tooltip("List of shop buttons")]
         [field: SerializeField] public List<DepotButtonDataReference> ShopButtonList { get; protected set; }
+        /// List of ritual buttons
+        [field: Tooltip("List of ritual buttons")]
+        [field: SerializeField] public List<DepotButtonDataReference> RitualButtonList { get; protected set; }
 
         /// List of inactive valid modules (ones that are in the shop pool)
         protected List<ScriptableModule> _inactiveModuleList = new();
+        protected List<DepotItemList> _validDepotSets = new();
+        protected List<ScriptableRitualItem> _validRitualItems = new();
 
         protected BaseScriptableDepotItem _currentItem;
         protected DepotButtonDataReference _currentButton;
         protected bool _firstEntered;
         protected int _firstEmptyShopButton;
+        protected System.Random _moduleRandomizer;
+        protected System.Random _shopRandomizer;
+        protected System.Random _ritualRandomizer;
 
         /// <summary>
         /// Initialize module dict
@@ -156,14 +147,25 @@ namespace Paywall {
                 }
             }
 
+            // Set the default item buttons, since these will never change
             foreach (BaseScriptableDepotItem item in PaywallProgressManager.Instance.DefaultShopItemsList.Items) {
                 if (!PaywallProgressManager.Instance.DefaultShopItemsDict[item.Name].IsValid) 
                     return;
                 DepotButtonDataReference button = ShopButtonList[_firstEmptyShopButton++];
-                //button.ImageComponent.sprite = item.UISprite;
-                button.TextComponent.text = item.Name;
-                button.SetItem(item);
+                button.SetupButton(item, false);
             }
+
+            // First ritual is health, which always appears, don't add that to the randomizer
+            foreach (DepotItemData data in PaywallProgressManager.Instance.RitualItemsDict.Values) {
+                if (data.IsValid && !data.Name.Equals(PaywallProgressManager.Instance.RitualItemsList.Items[0].Name)) {
+                    _validRitualItems.Add((ScriptableRitualItem)data.DepotItem);
+                }
+            }
+            RitualButtonList[0].SetupButton(PaywallProgressManager.Instance.RitualItemsList.Items[0], false);
+
+            _moduleRandomizer = RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
+            _shopRandomizer = RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
+            _ritualRandomizer = RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
         }
 
         /// <summary>
@@ -191,6 +193,7 @@ namespace Paywall {
             // Generate module options and fill out the buttons accordingly
             GenerateModuleSelection();
             GenerateShopSelection();
+            GenerateRitualSelection();
 
             EventSystem.current.sendNavigationEvents = true;
             //EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
@@ -200,14 +203,31 @@ namespace Paywall {
 
             // Set the proper active state of all objects
             LeaveButton.gameObject.SetActive(false);
-            OverclockContainer.SetActive(false);
             ItemButtonContainer.SetActive(true);
             StandardSelectionContainer.SetActive(true);
-            ModulesContainer.SetActive(true);
-            ShopContainer.SetActive(false);
+            if (_inactiveModuleList.Count < NumberOfModulesDisplayed) {
+                ModulesContainer.SetActive(false);
+                ShopContainer.SetActive(true);
+            }
+            else {
+                ModulesContainer.SetActive(true);
+                ShopContainer.SetActive(false);
+            }
+            RitualContainer.SetActive(false);
+            SellModulesContainer.SetActive(false);
         }
 
         #region On Click/Select
+        
+        /// <summary>
+        /// Switches shop display between regular shop and rituals
+        /// </summary>
+        public virtual void SwitchTab() {
+            ShopContainer.SetActive(!ShopContainer.activeSelf);
+            RitualContainer.SetActive(!RitualContainer.activeSelf);
+            _currentButton = null;
+            _currentItem = null;
+        }
 
         /// <summary>
         /// Leave depot immediately. Use for debugging
@@ -235,8 +255,13 @@ namespace Paywall {
                 ItemDescriptionText.text = item.Description;
             }
             _currentItem = item;
-            _currentButton.SetOutline(false);
-            _currentButton = button;
+            if (_currentButton == null) {
+                _currentButton = button;
+            }
+            else {
+                _currentButton.SetOutline(false);
+                _currentButton = button;
+            }
             _currentButton.SetOutline(true);
         }
 
@@ -257,21 +282,16 @@ namespace Paywall {
             }
             // Buy shop option (usually requires trinkets)
             else {
+                // If we are selecting a ritual
+                if (RitualContainer.activeSelf) {
+
+                }
+
                 if (PaywallProgressManager.Instance.Trinkets < _currentItem.Cost) {
                     return;
                 }
                 PaywallCreditsEvent.Trigger(MoneyTypes.Trinket, MoneyMethods.Add, -_currentItem.Cost);
-                switch (_currentItem.DepotItemType) {
-                    case DepotItemTypes.EX:
-                        PickEX(EXGain);
-                        break;
-                    case DepotItemTypes.Health:
-                        PickHealth(HealthGain);
-                        break;
-                    case DepotItemTypes.Ammo:
-                        PickAmmo(AmmoGain);
-                        break;
-                }
+                _currentItem.BuyAction();
 
                 // Grey out a shop button if it costs more than what we can afford
                 foreach(DepotButtonDataReference button in ShopButtonList) {
@@ -313,20 +333,26 @@ namespace Paywall {
         /// Called every time a depot is entered and the player has module space left
         /// </summary>
         protected virtual void GenerateModuleSelection() {
+            if (_inactiveModuleList.Count < NumberOfModulesDisplayed) {
+                return;
+            }
             int idx;
-            System.Random rand = new();
             List<ScriptableModule> modules = _inactiveModuleList.ToList();
             // Randomly pull modules from the list, with removal
-            for (int i = 0; i < NumberOfModulesDisplayed; i++) {
-                idx = rand.Next(0, modules.Count);
-                if (modules[idx].UISprite != null) {
-                    ModuleButtonList[i].SetImage(modules[idx].UISprite);
-                    ModuleButtonList[i].image.sprite = modules[idx].UISprite;
+            for (int i = 0; i < ModuleButtonList.Count; i++) {
+                if (i < NumberOfModulesDisplayed) {
+                    idx = _moduleRandomizer.Next(0, modules.Count);
+                    if (modules[idx].UISprite != null) {
+                        ModuleButtonList[i].SetImage(modules[idx].UISprite);
+                        ModuleButtonList[i].image.sprite = modules[idx].UISprite;
+                    }
+                    ModuleButtonList[i].SetupButton(modules[idx], false);
+                    ModuleButtonList[i].gameObject.SetActive(true);
+                    modules.RemoveAt(idx);
                 }
-                ModuleButtonList[i].TextComponent.text = modules[idx].Name;
-                ModuleButtonList[i].SetItem(modules[idx]);
-                ModuleButtonList[i].SetOutline(false);
-                modules.RemoveAt(idx);
+                else {
+                    ModuleButtonList[i].gameObject.SetActive(false);
+                }
             }
         }
 
@@ -335,16 +361,31 @@ namespace Paywall {
         /// Displayed after selecting a module
         /// </summary>
         protected virtual void GenerateShopSelection() {
-            //int idx;
-            //System.Random rand = new();
+            if (_validDepotSets.Count == 0) {
+                foreach (DepotItemListData data in PaywallProgressManager.Instance.ShopItemSetsDict.Values) {
+                    if (data.Active) {
+                        _validDepotSets.Add(data.ItemList);
+                    }
+                }
+            }
+            DepotItemList list = _validDepotSets[_shopRandomizer.Next(0, _validDepotSets.Count)];
+            int idx = 0;
+
             for (int i = 0; i < ShopButtonList.Count; i++) {
-                //ShopButtonList[i].TextComponent.text = 
                 ShopButtonList[i].SetOutline(false);
                 if (i < _firstEmptyShopButton) {
                     ShopButtonList[i].gameObject.SetActive(true);
+                    ShopButtonList[i].SetOutline(false);
                 }
                 else {
-                    ShopButtonList[i].gameObject.SetActive(false);
+                    if (idx < list.Items.Count) {
+                        ShopButtonList[i].SetupButton(list.Items[idx], false);
+                        ShopButtonList[i].gameObject.SetActive(true);
+                        idx++;
+                    }
+                    else {
+                        ShopButtonList[i].gameObject.SetActive(false);
+                    }
                 }
             }
 
@@ -362,45 +403,30 @@ namespace Paywall {
         }
 
         /// <summary>
+        /// Generates ritual selection
+        /// </summary>
+        protected virtual void GenerateRitualSelection() {
+            int i = 0;
+            ScriptableRitualItem item = _validRitualItems[_ritualRandomizer.Next(0, _validRitualItems.Count)];
+            
+            foreach (DepotButtonDataReference button in RitualButtonList) {
+                if (i == 0) { i++; continue; }
+                if (i > 1) { i++; button.gameObject.SetActive(false); continue; }
+                button.SetupButton(item, false);
+            }
+
+        }
+
+        /// <summary>
         /// Activates the leave button and allows for the player to leave the depot
         /// </summary>
         protected virtual void ActivateLeave() {
             LeaveButton.gameObject.SetActive(true);
         }
 
-        /// <summary>
-        /// Overclock exosuit, gain additional fragments and increase level speed
-        /// The overclock gain is added on top of the normal gain
-        /// </summary>
-        /// <param name="powerUpType"></param>
-        protected virtual void Overclock(PowerUpTypes powerUpType) {
-            switch (powerUpType) {
-                case PowerUpTypes.EX:
-                    break;
-                case PowerUpTypes.Health:
-                    PickHealth(OverclockGain);
-                    break;
-                case PowerUpTypes.Ammo:
-                    PickAmmo(OverclockGain);
-                    break;
-            }
-
-            ItemButtonContainer.SetActive(false);
-            LeaveButton.gameObject.SetActive(true);
-
-            IncreaseLevelSpeed();
-        }
-
         protected virtual IEnumerator WaitToSelect(GameObject selected) {
             yield return new WaitForEndOfFrame();
             EventSystem.current.SetSelectedGameObject(selected);
-        }
-
-        /// <summary>
-        /// Overclocking the exosuit increases running speed
-        /// </summary>
-        public virtual void IncreaseLevelSpeed() {
-            LevelManagerIRE_PW.Instance.IncreaseLevelSpeed(OverclockSpeed);
         }
 
         /// <summary>
@@ -425,6 +451,8 @@ namespace Paywall {
             }
         }
 
+        #region Item Effects
+
         /// <summary>
         /// Add health fragment(s) to runner inventory
         /// </summary>
@@ -448,6 +476,8 @@ namespace Paywall {
         protected virtual void PickEX(float amount) {
             PaywallEXChargeEvent.Trigger(amount, ChangeAmountMethods.Add);
         }
+
+        #endregion
 
         protected virtual void ChangeToShopDisplay() {
             ModulesContainer.SetActive(false);
@@ -484,8 +514,8 @@ namespace Paywall {
                 SupplyDepotMenuCanvas.GetComponent<CanvasGroup>().interactable = true;
                 SetDialogueText(EnterDepotDialogue);
             }
-            _currentItem = ModuleButtonList[0].DepotItem;
-            _currentButton = ModuleButtonList[0];
+            //_currentItem = ModuleButtonList[0].DepotItem;
+            //_currentButton = ModuleButtonList[0];
             //EventSystem.current.SetSelectedGameObject(ModuleButtonList[0].gameObject);
             //ItemNameText.text = item.Name;
             //ItemDescriptionText .text = item.Description;

@@ -126,7 +126,8 @@ namespace Paywall {
 		[field: Tooltip("How long of a buffer the jump input has")]
 		[field: SerializeField] public bool GetJumpTime { get; protected set; }
 
-        public int FinalNumJumpsAllowed => ExtraJumpModule.IsActive ? NumberOfJumpsAllowed : NumberOfJumpsAllowed + 1;
+        //public int FinalNumJumpsAllowed => ExtraJumpModule.IsActive ? NumberOfJumpsAllowed : NumberOfJumpsAllowed + 1;
+		public int FinalNumJumpsAllowed { get; protected set; }
 
         protected bool _jumping = false;
 		protected bool _doubleJumping = false;
@@ -150,27 +151,18 @@ namespace Paywall {
 
         protected override void Initialization() {
             base.Initialization();
-            //if (PaywallProgressManager.Instance.Upgrades.TryGetValue(_jumpUpgradeName, out Upgrade upgrade)) {
-            //    if (upgrade.Unlocked) {
-            //        NumberOfJumpsAllowed++;
-            //    }
-            //}
             if (UseJumpHeight) {
                 _jumpForce = CalculateJumpForce(JumpHeight);
             }
             else {
                 _jumpForce = JumpForce;
             }
-            //if (ExtraJumpModule.IsActive) {
-            //    NumberOfJumpsAllowed++;
-            //}
+			FinalNumJumpsAllowed = NumberOfJumpsAllowed;
         }
 
         #region Every Frame
 
         public override void ProcessAbility() {
-			//HandleLaunchPad();
-
 			// we reset our jump variables if needed
 			if (_character.Grounded) {
 				if ((Time.time - _lastJumpTime > MinimalDelayBetweenJumps)
@@ -189,18 +181,17 @@ namespace Paywall {
 
 				_noJumpFalling = false;
 				_doubleJumping = false;
-			} else {
+			} 
+			else {
 				if (!_jumping) {
 					_noJumpFalling = true;
 					_character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
                 }
             }
-			// If airborne without having jumped, decrement jump count
+			// If airborne without having jumped, decrement jump count if we are still at max jumps
 			if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
 				NumberOfJumpsLeft--;
             }
-
-
 		}
 
 		// Debug
@@ -219,7 +210,7 @@ namespace Paywall {
 					_origin = _rigidbody2D.position.y;
 					falling = false;
 				}
-				//
+				
 			}
 			if (_jumping) {
 				_jumpFrames++;
@@ -262,7 +253,7 @@ namespace Paywall {
 
             if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasPressedThisFrame()) {
                 if (!UseJumpStartUp) {
-                    Jump();
+                    JumpNoStartup();
                 }
                 else {
                     JumpWithStartup();
@@ -322,7 +313,7 @@ namespace Paywall {
         /// <param name="ctx"></param>
         protected virtual void JumpPerformed(InputAction.CallbackContext ctx) {
 			if (!UseJumpStartUp) {
-				Jump();
+				JumpNoStartup();
 			}
 			else {
 				JumpWithStartup();
@@ -391,7 +382,7 @@ namespace Paywall {
 			yield return new WaitForSeconds(JumpBuffer);
 			_bufferingJump = false;
 			if (EvaluateJumpConditions()) {
-				Jump();
+				JumpNoStartup();
             }
         }
 
@@ -399,7 +390,7 @@ namespace Paywall {
 		/// Evaluates jump conditions and initiates jump if allowed
 		/// No jump startup, use InitiateJump() if using jump startup
 		/// </summary>
-		public virtual void Jump() {
+		public virtual void JumpNoStartup() {
 			if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
 				NumberOfJumpsLeft--;
 			}
@@ -579,13 +570,14 @@ namespace Paywall {
                         break;
                 }
 			}
-		}
+            MMEventManager.TriggerEvent(new MMGameEvent("Jump"));
+        }
 
-		/// <summary>
-		/// Set number of remaining jumps
-		/// </summary>
-		/// <param name="jumpsLeft"></param>
-		public virtual void SetJumpsLeft(int jumpsLeft) {
+        /// <summary>
+        /// Set number of remaining jumps
+        /// </summary>
+        /// <param name="jumpsLeft"></param>
+        public virtual void SetJumpsLeft(int jumpsLeft) {
 			NumberOfJumpsLeft = jumpsLeft;
 		}
 
@@ -648,12 +640,12 @@ namespace Paywall {
 		/// <param name="moduleEvent"></param>
         public void OnMMEvent(PaywallModuleEvent moduleEvent) {
             if (moduleEvent.Module.Name.Equals(ExtraJumpModule.Name)) {
-				//if (moduleEvent.Module.IsActive) {
-				//	NumberOfJumpsAllowed++;
-				//}
-				//else {
-				//	NumberOfJumpsAllowed--;
-				//}
+				if (PaywallProgressManager.Instance.ModulesDict[moduleEvent.Module.Name].IsActive) {
+					FinalNumJumpsAllowed++;
+				}
+				else {
+                    FinalNumJumpsAllowed--;
+				}
 			}
         }
 

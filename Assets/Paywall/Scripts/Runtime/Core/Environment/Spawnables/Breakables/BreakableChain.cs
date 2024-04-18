@@ -1,3 +1,4 @@
+using Paywall.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,10 +9,10 @@ namespace Paywall {
     /// <summary>
     /// Spawns random breakables in a pattern
     /// </summary>
-    public class BreakableChain : MonoBehaviour {
+    public class BreakableChain : MonoBehaviour_PW {
         /// What type of breakable to get from poolers
         [field: Tooltip("What type of breakable to get from poolers")]
-        [field: SerializeField] public SpawnablePoolerTypes SpawnablePoolerType { get; protected set; } = SpawnablePoolerTypes.Brick;
+        [field: SerializeField] public ScriptableSpawnType SpawnablePoolerType { get; protected set; }
         /// Minimum possible length of breakable chain
         [field: Tooltip("Minimum possible length of breakable chain")]
         [field: SerializeField] public int MinLength { get; protected set; } = 3;
@@ -23,6 +24,7 @@ namespace Paywall {
         [field: SerializeField] public bool ManualSpawn { get; protected set; } = true;
 
         protected List<GameObject> _spawnables = new();
+        protected System.Random _random;
 
         /// <summary>
         /// Set min and max lengths
@@ -59,13 +61,14 @@ namespace Paywall {
             else {
                 a = min; b = max;
             }
-            int length = UnityEngine.Random.Range(a, b + 1);
+            _random ??= RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
+            int length = _random.Next(a, b + 1);
             float offset =  0.5f;     // -length / 2f + 0.5f
             Vector2 prevPosition = new(transform.position.x + offset, transform.position.y);
             Vector2 startingPos = prevPosition;
             Vector2 currentPos = Vector2.zero;
             for (int i = 0; i < length; i++) {
-                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType].Pooler.GetPooledGameObject();
+                GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
                 spawnable.SetActive(true);
                 spawnable.transform.SetParent(transform);
                 _spawnables.Add(spawnable);

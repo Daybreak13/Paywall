@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: -486459816362540606}
   m_Layer: 13
   m_Name: Angry Red
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -153,7 +153,7 @@ MonoBehaviour:
   <LaunchType>k__BackingField: 0
   <LaunchForce>k__BackingField: 10
   <LaunchHeight>k__BackingField: 2.5
-  <RaysToCast>k__BackingField: 5
+  <RaysToCast>k__BackingField: 3
   <KillsPlayer>k__BackingField: 1
   <KillsPlayerRegardless>k__BackingField: 0
 --- !u!114 &2184224819797414365
@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9a0ed8262b0114f8d6e028d1364fe3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Speed>k__BackingField: 0.08
+  <Speed>k__BackingField: 5
   <Direction>k__BackingField: {x: -1, y: 0, z: 0}
   <UseEnemySpeed>k__BackingField: 1
   <BlockMovementUntil>k__BackingField: 1
@@ -212,6 +212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 5
+  <OutOfBoundType>k__BackingField: 0
 --- !u!114 &-486459816362540606
 MonoBehaviour:
   m_ObjectHideFlags: 0

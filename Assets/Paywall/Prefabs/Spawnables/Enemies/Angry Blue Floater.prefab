@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 1341740614510363464}
   m_Layer: 13
   m_Name: Angry Blue Floater
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9aa7c05b1ce236b4487e3c66b6c6e9dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <UseLaunchHeight>k__BackingField: 1
+  <LaunchType>k__BackingField: 0
   <LaunchForce>k__BackingField: 10
   <LaunchHeight>k__BackingField: 2
   <RaysToCast>k__BackingField: 5
@@ -212,6 +212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 1
+  <OutOfBoundType>k__BackingField: 0
 --- !u!114 &1341740614510363464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,6 +258,8 @@ MonoBehaviour:
   <GivesTrinketsOnKill>k__BackingField: 1
   <Trinkets>k__BackingField: 2
   <GivesStreakOnKill>k__BackingField: 1
+  <EXGainOnKill>k__BackingField: 1
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0
   <PostDamageInvincibilityDuration>k__BackingField: 0
+  <ImmuneToIK>k__BackingField: 0

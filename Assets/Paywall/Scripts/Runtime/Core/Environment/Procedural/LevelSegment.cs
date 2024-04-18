@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Paywall.Tools;
 using MoreMountains.Tools;
+using System;
 
 namespace Paywall {
 
@@ -25,19 +26,13 @@ namespace Paywall {
 
     [System.Serializable]
     public class WeightedLevelSegment {
-        [field: SerializeField] public LevelSegmentPooler SegmentPooler { get; set; }
-        [field: SerializeField] public int InitialWeight { get; protected set; }
+        [field: SerializeField] public LevelSegmentController Segment { get; set; }
+        [field: SerializeField] public int InitialWeight { get; protected set; } = 10;
         [field: SerializeField] public int StartingDifficulty { get; protected set; }
+        [field: NonSerialized]
         public int CurrentWeight { get; protected set; }
         public void SetWeight(int weight) {
             CurrentWeight = weight;
         }
-
-    }
-
-    [System.Serializable]
-    public class WeightedLevelSegmentList {
-        [field: SerializeField] public string Category { get; protected set; }
-        [field: SerializeField] public List<WeightedLevelSegment> LevelSegments { get; set; }
     }
 }
