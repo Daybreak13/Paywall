@@ -24,13 +24,14 @@ namespace Paywall {
     /// <summary>
     /// Weighted pooler for spawnables
     /// Each object of this class contains various spawnables of a single type, each with different weights
+    /// When a specific type of spawnable is required, this pooler randomly spits one out of that type
     /// </summary>
     public class SpawnableWeightedObjectPooler : MonoBehaviour, MMEventListener<PaywallDifficultyEvent> {
-        /// the type of pooler this is
-        [field: Tooltip("the type of pooler this is")]
+        /// the type of spawnable this pooler contains
+        [field: Tooltip("the type of spawnable this pooler contains")]
         [field: SerializeField] public ScriptableSpawnType SpawnablePoolerType { get; protected set; }
-        /// the list of simple object pools
-        [field: Tooltip("the list of simple object pools")]
+        /// the list of object pools
+        [field: Tooltip("the list of object pools")]
         [field: SerializeField] public List<SpawnableWeightedPool> WeightedPools { get; protected set; }
 
         public List<SpawnableWeightedObjectPooler> Owner { get; set; }

@@ -1546,7 +1546,7 @@ MonoBehaviour:
   <OverrideGapLength>k__BackingField: 0
   <DoNotSpawnShop>k__BackingField: 1
   <LevelSegmentSequence>k__BackingField:
-  - PlatformShortStandard
+  - LaunchPadSegment
 --- !u!4 &1213809061
 Transform:
   m_ObjectHideFlags: 0

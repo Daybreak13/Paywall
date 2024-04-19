@@ -52,7 +52,8 @@ namespace Paywall {
 
         protected virtual void OnCollisionEnter2D(Collision2D collision) {
             if (collision.collider.CompareTag(_playerTag)) {
-                if (collision.collider.TryGetComponent(out _character)) {
+                if (collision.collider.TryGetComponent(out CharacterJumpIRE charJump)) {
+                    _character = (PlayerCharacterIRE)charJump.Character;
                     if ((_character.CharacterRigidBody.velocity.y <= StaticData.VelocityBuffer) && CastRaysAbove()) {
                         switch (LaunchType) {
                             case LaunchTypes.Height:

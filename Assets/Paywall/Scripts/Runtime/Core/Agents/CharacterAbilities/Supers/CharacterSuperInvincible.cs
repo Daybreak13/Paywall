@@ -26,9 +26,9 @@ namespace Paywall {
         /// </summary>
         protected virtual void PerformSuperInvincible() {
             SuperActive = true;
-            _character.ToggleInvincibility(true);
+            Character.ToggleInvincibility(true);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, true);
-            _character.Model.color = Color.blue;
+            Character.Model.color = Color.blue;
         }
 
         /// <summary>
@@ -37,9 +37,9 @@ namespace Paywall {
         protected override void EndSuper() {
             base.EndSuper();
             SuperActive = false;
-            _character.ToggleInvincibility(false);
+            Character.ToggleInvincibility(false);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(0f, false);
-            _character.Model.color = _initialColor;
+            Character.Model.color = _initialColor;
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Paywall {
                 if (collision.gameObject.TryGetComponent(out Health_PW health)) {
                     // If we IKed, add EX if applicable
                     if (health.InstantKill(gameObject)) {
-                        (_character as PlayerCharacterIRE).AddEX(InvincibleEXOnKill);
+                        (Character as PlayerCharacterIRE).AddEX(InvincibleEXOnKill);
                     }
                 }
             }

@@ -36,7 +36,7 @@ namespace Paywall {
         protected bool ValidInput {
             get {
                 return (InputSystemManager_PW.InputActions.PlayerControls.Jump.IsPressed()
-                && !_character.Grounded && _stallingEnabled);
+                && !Character.Grounded && _stallingEnabled);
             }
         }
 
@@ -48,13 +48,13 @@ namespace Paywall {
             if (!AbilityAuthorized) {
                 return;
             }
-            if (_character.Grounded) { 
+            if (Character.Grounded) { 
                 _stallingEnabled = true; 
                 return; 
             }
 
             if (ValidInput) {
-                if (!_stalling && _character.CharacterRigidBody.velocity.y < 0) { InitiateStall(); }
+                if (!_stalling && Character.CharacterRigidBody.velocity.y < 0) { InitiateStall(); }
             }
             else if (_stalling) {
                 _stalling = false;
@@ -82,8 +82,8 @@ namespace Paywall {
         /// </summary>
         protected virtual void FixedUpdate() {
             if (_stalling) {
-                if (_character.CharacterRigidBody.velocity.y < MaxFallSpeedInternal) {
-                    _character.CharacterRigidBody.velocity = new(_character.CharacterRigidBody.velocity.x, MaxFallSpeedInternal);
+                if (Character.CharacterRigidBody.velocity.y < MaxFallSpeedInternal) {
+                    Character.CharacterRigidBody.velocity = new(Character.CharacterRigidBody.velocity.x, MaxFallSpeedInternal);
                 }
             }
         }
@@ -101,7 +101,7 @@ namespace Paywall {
                 return;
             }
 
-            if (_character.CharacterRigidBody.velocity.y < 0) {
+            if (Character.CharacterRigidBody.velocity.y < 0) {
                 _stallTime += Time.deltaTime;
             }
 

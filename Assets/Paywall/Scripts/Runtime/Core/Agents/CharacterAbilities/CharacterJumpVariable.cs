@@ -9,9 +9,7 @@ using static Paywall.LaunchPad;
 
 namespace Paywall {
 
-    public enum JumpTypes { Normal, Low }
-
-    public class CharacterJumpIRE : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent> {
+    public class CharacterJumpVariable : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent> {
         [field: Header("Jumper")]
 
         /// the vertical force applied to the character when jumping
@@ -98,6 +96,20 @@ namespace Paywall {
         /// How long of a buffer the jump input has
         [field: Tooltip("How long of a buffer the jump input has")]
         [field: SerializeField] public float JumpBuffer { get; protected set; }
+
+        [field: Header("Jump Time")]
+
+        /// How long of a buffer the jump input has
+        [field: Tooltip("How long of a buffer the jump input has")]
+        [field: SerializeField] public bool OverrideJumpTimes { get; protected set; }
+        /// How long of a buffer the jump input has
+        [field: Tooltip("How long of a buffer the jump input has")]
+        [field: FieldCondition("OverrideJumpTimes", true)]
+        [field: SerializeField] public float NormalJumpTime { get; protected set; }
+        /// How long of a buffer the jump input has
+        [field: Tooltip("How long of a buffer the jump input has")]
+        [field: FieldCondition("OverrideJumpTimes", true)]
+        [field: SerializeField] public float LowJumpTime { get; protected set; }
 
         [field: Header("Upgrades and Modules")]
 

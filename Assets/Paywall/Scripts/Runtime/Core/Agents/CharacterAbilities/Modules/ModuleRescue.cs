@@ -14,7 +14,7 @@ namespace Paywall {
         /// When the player goes out of bounds, reset their position to the starting position
         /// </summary>
         protected virtual void Rescue() {
-            _character.transform.position = (_character as PlayerCharacterIRE).InitialPosition;
+            Character.transform.position = (Character as PlayerCharacterIRE).InitialPosition;
         }
 
         public override void PermitAbility(bool permit) {

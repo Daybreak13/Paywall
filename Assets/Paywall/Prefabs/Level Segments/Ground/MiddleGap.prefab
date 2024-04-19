@@ -414,6 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 5
+  <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4001176027348682172
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -293,14 +293,16 @@ namespace Paywall {
         protected virtual bool DetermineIfGroudedConditionsAreMet() {
             // if the distance to the ground is equal to -1, this means the raycast never found the ground, thus there's no ground, thus the character isn't grounded anymore
             if (DistanceToTheGround == -1) {
-                return (false);
+                _ground = null;
+                return false;
             }
             // if the distance to the ground is within the tolerated bounds, the character is grounded, otherwise it's not.
             if (DistanceToTheGround < (GroundDistanceTolerance + CharacterBoxCollider.edgeRadius)) {
-                return (true);
+                return true;
             }
             else {
-                return (false);
+                _ground = null;
+                return false;
             }
         }
 

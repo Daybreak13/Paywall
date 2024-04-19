@@ -58,7 +58,7 @@ namespace Paywall {
             base.Initialization();
             Setup();
             if (CurrentWeapon is ProjectileWeapon_PW) {
-                (CurrentWeapon as ProjectileWeapon_PW).SetOwner(_character, this);
+                (CurrentWeapon as ProjectileWeapon_PW).SetOwner(Character, this);
             }
             if (CurrentWeapon.MagazineBased) {
                 _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
@@ -146,7 +146,7 @@ namespace Paywall {
         /// Updates the GUI ammo display during Update() cycle
         /// </summary>
         protected virtual void UpdateAmmoDisplay() {
-            if ((GUIManagerIRE_PW.HasInstance) && (_character != null)) {
+            if ((GUIManagerIRE_PW.HasInstance) && (Character != null)) {
                 // If nothing has changed, do nothing
                 if ((_ammoLastFrame == CurrentWeapon.CurrentAmmoLoaded) && (_magSizeLastFrame == CurrentWeapon.MagazineSize)) {
                     return;
@@ -201,7 +201,7 @@ namespace Paywall {
         /// </summary>
         /// <param name="itemPickEvent"></param>
         public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
-            if ((itemPickEvent.PickedPowerUpType == PowerUpTypes.Ammo) && _character.CompareTag("Player")) {
+            if ((itemPickEvent.PickedPowerUpType == PowerUpTypes.Ammo) && Character.CompareTag("Player")) {
 
             }
         }

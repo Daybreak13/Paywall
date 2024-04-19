@@ -14,9 +14,9 @@ namespace Paywall {
 
         public bool AbilityInitialized { get { return _initialized; } }
         public IREInputActions InputActions { get; protected set; }
+        public CharacterIRE Character { get; protected set; }
 
         protected bool _initialized;
-        protected CharacterIRE _character;
         protected Animator _animator;
         protected Rigidbody2D _rigidbody2D;
         protected BoxCollider2D _boxCollider;
@@ -27,8 +27,8 @@ namespace Paywall {
         /// </summary>
         public bool AbilityAuthorized {
             get {
-                if (_character != null) {
-                    if (_character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal) {
+                if (Character != null) {
+                    if (Character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal) {
                         return false;
                     }
                 }
@@ -48,13 +48,13 @@ namespace Paywall {
 
         protected virtual void Initialization() {
             if (_initialized) return;
-            if (_character == null) {
-                _character = GetComponentInParent<CharacterIRE>();
+            if (Character == null) {
+                Character = GetComponentInParent<CharacterIRE>();
             }
-            if (_character != null) {
-                _animator = _character.CharacterAnimator;
-                _rigidbody2D = _character.CharacterRigidBody;
-                _boxCollider = _character.CharacterBoxCollider;
+            if (Character != null) {
+                _animator = Character.CharacterAnimator;
+                _rigidbody2D = Character.CharacterRigidBody;
+                _boxCollider = Character.CharacterBoxCollider;
                 _initialGravityScale = _rigidbody2D.gravityScale;
                 _initialized = true;
             }
@@ -62,7 +62,7 @@ namespace Paywall {
         }
 
         public virtual void SetCharacter(CharacterIRE character) {
-            _character = character;
+            Character = character;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Paywall {
         }
 
         protected virtual void InternalHandleInput() {
-            if (_character.CharacterType == CharacterTypes.AI) {
+            if (Character.CharacterType == CharacterTypes.AI) {
                 return;
             }
             HandleInput();

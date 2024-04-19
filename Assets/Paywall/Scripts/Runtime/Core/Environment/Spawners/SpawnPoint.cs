@@ -9,6 +9,7 @@ namespace Paywall {
 
     /// <summary>
     /// A single spawn pooler with weight and associated spawn patterns
+    /// Spawns only one specific spawn type, but with multiple possible patterns
     /// </summary>
     [System.Serializable]
     public class SingleSpawner {
@@ -122,7 +123,7 @@ namespace Paywall {
                     return;
                 }
             }
-            // Randomly choose a SpawnPoint to spawn to
+            // Randomly choose a spawner and spawn type to spawn from
             string key = _spawnerRandomizer.Next();
             SingleSpawner ss = _singleSpawners[key];
 
@@ -134,7 +135,7 @@ namespace Paywall {
 
                     // Safely set position
                     Vector2 destination = child.transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
-                    spawnable.transform.SafeSetTransformPosition(destination, LayerMask.GetMask("Ground"));
+                    spawnable.transform.SafeSetTransformPosition(destination, PaywallLayerManager.GroundLayerMask);
 
                     if (spawnable.TryGetComponent(out SpawnablePoolableObject spo)) {
                         spo.SetParentSpawnPoint(this);

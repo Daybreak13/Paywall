@@ -45,7 +45,7 @@ namespace Paywall {
 
         public override void ProcessAbility() {
             base.ProcessAbility();
-            if (_character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
                 _currentDodgeTime += Time.deltaTime;
             }
         }
@@ -60,15 +60,15 @@ namespace Paywall {
             }
 
             // Spend the EX or do nothing if there is insufficient EX
-            if (!(_character as PlayerCharacterIRE).SpendEXBars(EXCost)) {
+            if (!(Character as PlayerCharacterIRE).SpendEXBars(EXCost)) {
                 return;
             }
             _dodgeCoroutine = StartCoroutine(DodgeCo());
         }
 
         protected virtual void FixedUpdate() {
-            if (FreezeY && _character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
-                _character.CharacterRigidBody.velocity = Vector2.zero;
+            if (FreezeY && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+                Character.CharacterRigidBody.velocity = Vector2.zero;
             }
         }
 
@@ -80,24 +80,24 @@ namespace Paywall {
             // Slow time if applicable, increase level speed, animate dodge, change character state
             GameManagerIRE_PW.Instance.SetTimeScale(GameManagerIRE_PW.Instance.TimeScale * DodgeTimeScaleMultiplier);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeed(DodgeLevelSpeedBoost, DodgeDuration);
-            _initialColor = _character.Model.color;
-            _initialVelocity = _character.CharacterRigidBody.velocity;
-            _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Dodging);
+            _initialColor = Character.Model.color;
+            _initialVelocity = Character.CharacterRigidBody.velocity;
+            Character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Dodging);
 
             Color newColor = _initialColor;
             newColor.a = 0.2f;
-            _character.Model.color = newColor;
-            _initialLayer = _character.gameObject.layer;
-            _character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily. Cannot collide with Enemy or Projectiles
+            Character.Model.color = newColor;
+            _initialLayer = Character.gameObject.layer;
+            Character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily. Cannot collide with Enemy or Projectiles
             _currentDodgeTime = 0f;
 
             yield return new WaitForSeconds(DodgeDuration);
 
             GameManagerIRE_PW.Instance.ResetTimeScale();
-            _character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
+            Character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
             transform.SafeSetTransformPosition(transform.position, PaywallLayerManager.EnemyLayerMask, PaywallExtensions.SetTransformModes.PlusX);
-            _character.gameObject.layer = _initialLayer;
-            _character.Model.color = _initialColor;
+            Character.gameObject.layer = _initialLayer;
+            Character.Model.color = _initialColor;
             _currentDodgeTime = 0f;
             _timeLastDodgeEnded = Time.time;
         }

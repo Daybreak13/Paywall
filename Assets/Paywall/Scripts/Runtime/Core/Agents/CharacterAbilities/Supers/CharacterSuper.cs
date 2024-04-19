@@ -46,7 +46,7 @@ namespace Paywall {
 
         protected override void Initialization() {
             base.Initialization();
-            _initialColor = _character.Model.color;
+            _initialColor = Character.Model.color;
             CurrentDrainRate = InitialDrainRate;
         }
 
@@ -55,7 +55,7 @@ namespace Paywall {
         /// </summary>
         /// <returns></returns>
         protected virtual bool EvaluateSuperConditions() {
-            if ((_character as PlayerCharacterIRE).CurrentEX < MinEXForActivation) {
+            if ((Character as PlayerCharacterIRE).CurrentEX < MinEXForActivation) {
                 return false;
             }
             return true;
@@ -89,8 +89,8 @@ namespace Paywall {
             // Increase drain rate every frame
             CurrentDrainRate += DrainRateAcceleration * Time.deltaTime;
 
-            (_character as PlayerCharacterIRE).AddEX(-CurrentDrainRate * Time.deltaTime);
-            if ((_character as PlayerCharacterIRE).CurrentEX <= 0) {
+            (Character as PlayerCharacterIRE).AddEX(-CurrentDrainRate * Time.deltaTime);
+            if ((Character as PlayerCharacterIRE).CurrentEX <= 0) {
                 EndSuper();
             }
         }
@@ -102,12 +102,12 @@ namespace Paywall {
             if (!AbilityAuthorized || !EvaluateSuperConditions()) {
                 return;
             }
-            (_character as PlayerCharacterIRE).SetEXDraining(true);
+            (Character as PlayerCharacterIRE).SetEXDraining(true);
             CurrentDrainRate = InitialDrainRate;
         }
 
         protected virtual void EndSuper() {
-            (_character as PlayerCharacterIRE).SetEXDraining(false);
+            (Character as PlayerCharacterIRE).SetEXDraining(false);
         }
 
         public void OnMMEvent(MMGameEvent eventType) {

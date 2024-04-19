@@ -283,27 +283,23 @@ MonoBehaviour:
   <NumberOfJumpsAllowed>k__BackingField: 2
   <CooldownBetweenJumps>k__BackingField: 0.1
   <JumpsAllowedWhenGroundedOnly>k__BackingField: 0
-  <JumpReleaseSpeed>k__BackingField: 30
-  <JumpProportionalToPress>k__BackingField: 0
+  <JumpReleaseSpeed>k__BackingField: 50
+  <JumpProportionalToPress>k__BackingField: 1
+  <JumpReleaseBuffer>k__BackingField: 0.02
   <MinimalDelayBetweenJumps>k__BackingField: 0.02
   <UngroundedDurationAfterJump>k__BackingField: 0.2
   <UseDoubleJumpHeight>k__BackingField: 1
   <DoubleJumpForce>k__BackingField: 10
-  <DoubleJumpHeight>k__BackingField: 2
+  <DoubleJumpHeight>k__BackingField: 3
   <UseJumpHeight>k__BackingField: 1
   <JumpHeight>k__BackingField: 3
-  <LowJumpBufferFrames>k__BackingField: 8
+  <LowJumpBufferFrames>k__BackingField: 3
   <NumberOfJumpsLeft>k__BackingField: 0
   <OverrideLaunchHeight>k__BackingField: 0
   <LaunchHeight>k__BackingField: 2
   <LowJumpForce>k__BackingField: 10
   <LowJumpHeight>k__BackingField: 2.5
-  <UseJumpStartUp>k__BackingField: 0
-  <JumpStartup>k__BackingField: 0.07
-  <JumpBuffer>k__BackingField: 0
-  <OverrideJumpTimes>k__BackingField: 1
-  <NormalJumpTime>k__BackingField: 0.9
-  <LowJumpTime>k__BackingField: 0.7
+  <JumpBuffer>k__BackingField: 0.1
   <ExtraJumpModule>k__BackingField: {fileID: 11400000, guid: 38ed0a6d03978674a81b9381a8021b2b,
     type: 2}
   <GetJumpTime>k__BackingField: 0
