@@ -87,11 +87,8 @@ namespace Paywall {
             }
         }
 
-        /// <summary>
-        /// Every frame, check for inputs and stop or use the weapon depending
-        /// </summary>
-        public override void ProcessAbility() {
-            base.ProcessAbility();
+        protected override void HandleInput() {
+            base.HandleInput();
             if (InputActions.PlayerControls.Attack.WasPerformedThisFrame()) {
                 _sameFrame = true;
                 AttackStart();
@@ -105,6 +102,13 @@ namespace Paywall {
                 }
             }
             _sameFrame = false;
+        }
+
+        /// <summary>
+        /// Every frame, check for inputs and stop or use the weapon depending
+        /// </summary>
+        public override void ProcessAbility() {
+            base.ProcessAbility();
             UpdateAmmoDisplay();
             HandleBuffer();
         }

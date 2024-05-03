@@ -11,10 +11,12 @@ GameObject:
   - component: {fileID: 6553815000953251736}
   - component: {fileID: 8075506299424422726}
   - component: {fileID: 5989792704175651659}
+  - component: {fileID: 3847838293035965957}
   - component: {fileID: 6850843437636439954}
   - component: {fileID: 2800995571191886443}
   - component: {fileID: 6544850617812271314}
-  m_Layer: 0
+  - component: {fileID: 6285303405759526683}
+  m_Layer: 19
   m_Name: Trinket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -114,6 +116,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!50 &3847838293035965957
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095806965007268914}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!114 &6850843437636439954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,5 +186,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 5
+  <DestroyDistanceBehindBounds>k__BackingField: 1
   <OutOfBoundType>k__BackingField: 0
+--- !u!114 &6285303405759526683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095806965007268914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: beed1fe235fefdf419f0e1c23e39ed5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

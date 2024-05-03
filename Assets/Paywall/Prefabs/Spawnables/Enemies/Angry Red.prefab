@@ -156,6 +156,7 @@ MonoBehaviour:
   <RaysToCast>k__BackingField: 3
   <KillsPlayer>k__BackingField: 1
   <KillsPlayerRegardless>k__BackingField: 0
+  <HealthComponent>k__BackingField: {fileID: -486459816362540606}
 --- !u!114 &2184224819797414365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 5
+  <DestroyDistanceBehindBounds>k__BackingField: 1
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &-486459816362540606
 MonoBehaviour:

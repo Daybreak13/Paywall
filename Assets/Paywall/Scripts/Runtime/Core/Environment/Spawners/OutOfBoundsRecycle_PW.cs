@@ -21,18 +21,30 @@ namespace Paywall {
         [field: SerializeField] public OutOfBoundsTypes OutOfBoundType { get; protected set; } = OutOfBoundsTypes.Recycle;
 
 		protected Health_PW _health;
+		protected EdgeCollider2D _edgeCollider;
+		protected MMPoolableObject _mmpo;
 
 		protected virtual void Awake() {
             if (gameObject.CompareTag(PaywallTagManager.EnemyTag)) {
 				TryGetComponent(out _health);
             }
+			TryGetComponent(out _edgeCollider);
+			TryGetComponent(out _mmpo);
         }
 
 		/// <summary>
 		/// On update, if the object meets the level's recycling conditions, we recycle it
 		/// </summary>
 		protected virtual void Update() {
-			if (LevelManagerIRE_PW.Instance.CheckRecycleCondition(GetComponent<MMPoolableObject>().GetBounds(), DestroyDistanceBehindBounds, OutOfBoundType)) {
+			Bounds bounds;
+			if (_edgeCollider != null && _mmpo.BoundsBasedOn == MMObjectBounds.WaysToDetermineBounds.Collider2D) {
+				bounds = _edgeCollider.bounds;
+			}
+			else {
+				bounds = _mmpo.GetBounds();
+			}
+
+            if (LevelManagerIRE_PW.Instance.CheckRecycleCondition(bounds, DestroyDistanceBehindBounds, OutOfBoundType)) {
 				GetComponent<MMPoolableObject>().Destroy();
 
 				// Level segments decrement active segment count when recycled

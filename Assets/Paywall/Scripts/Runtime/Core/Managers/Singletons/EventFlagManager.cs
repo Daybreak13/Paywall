@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Paywall {
 
     /// <summary>
-    /// Manages event flags.
+    /// Manages event flags. Serializable so it can be saved by PaywallProgressManager
     /// </summary>
     [Serializable]
     public class EventFlagManager {
@@ -14,12 +14,5 @@ namespace Paywall {
         [field: Tooltip("Has the depot been entered at least once?")]
         [field: SerializeField] public bool EnterDepotFirstTime { get; set; }
 
-        public virtual void PopulateDictionary() {
-
-        }
-
-        public virtual void SetDictionary() {
-
-        }
     }
 }

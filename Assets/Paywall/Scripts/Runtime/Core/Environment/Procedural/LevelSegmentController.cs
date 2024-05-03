@@ -41,8 +41,8 @@ namespace Paywall {
 
         [field: Header("Segment Info")]
 
-        /// The segment's type
-        [field: Tooltip("The segment's type")]
+        /// The segment's type. This should be set by ProceduralLevelGenerator based on the type of the SegmentList it belongs to.
+        [field: Tooltip("The segment's type. This should be set by ProceduralLevelGenerator based on the type of the SegmentList it belongs to.")]
         [field: SerializeField] public SegmentTypes SegmentType { get; protected set; }
 
         [field: Header("Spawners")]
@@ -64,7 +64,7 @@ namespace Paywall {
         [field: SerializeField] public Transform RightOut { get; protected set; }
         /// The box collider for this segment, used to detect if the segment is out of bounds for OutOfBoundsRecycle
         [field: Tooltip("The point at which the next segment connects to this one")]
-        [field: SerializeField] public BoxCollider2D BoundsBox { get; protected set; }
+        [field: SerializeField] public EdgeCollider2D BoundsBox { get; protected set; }
         public Vector2 LeftBound { get { return new Vector2(BoundsBox.bounds.min.x, BoundsBox.bounds.center.y); } }
         public Vector2 RightBound { get { return new Vector2(BoundsBox.bounds.max.x, BoundsBox.bounds.center.y); } }
 
@@ -96,8 +96,16 @@ namespace Paywall {
 
         protected virtual void Awake() {
             if (BoundsBox == null) {
-                BoundsBox = GetComponent<BoxCollider2D>();
+                BoundsBox = GetComponent<EdgeCollider2D>();
             }
+        }
+
+        /// <summary>
+        /// Segment type is set by ProceduralLevelGenerator based on the SegmentList that this segment belongs to, to avoid user errors
+        /// </summary>
+        /// <param name="type"></param>
+        public virtual void SetSegmentType(SegmentTypes type) {
+            SegmentType = type;
         }
 
         /// <summary>
@@ -108,10 +116,7 @@ namespace Paywall {
         public virtual void SetBounds(Vector2 leftIn, Vector2 rightOut) {
             LeftIn.localPosition = leftIn;
             RightOut.localPosition = rightOut;
-            float length = rightOut.x - leftIn.x;
-            float center = leftIn.x + length / 2;
-            BoundsBox.offset = new Vector2(center, 0);
-            BoundsBox.size = new Vector2(length, 1);
+            BoundsBox.SetPoints(new() { new Vector2(leftIn.x, BoundsBox.points[0].y), new Vector2(rightOut.x, BoundsBox.points[1].y) });
         }
 
         /// <summary>

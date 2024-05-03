@@ -143,7 +143,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3179397583565073411}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7, y: 0, z: 0}
+  m_LocalPosition: {x: 6, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -196,7 +196,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 6, y: 1}
+  m_Size: {x: 4, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -215,12 +215,12 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 1}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 6, y: 1}
+    newSize: {x: 4, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
     adaptiveTiling: 0
@@ -239,10 +239,12 @@ GameObject:
   - component: {fileID: 8759614016798888083}
   - component: {fileID: 859746925610287144}
   - component: {fileID: 7550903049800712361}
+  - component: {fileID: 4480265465493889759}
   - component: {fileID: 7868345051246654813}
   - component: {fileID: 4791704436001864941}
   - component: {fileID: 4001176027348682172}
   - component: {fileID: 414155896872350589}
+  - component: {fileID: 3406511465790250132}
   m_Layer: 0
   m_Name: LaserGap
   m_TagString: LevelSegment
@@ -288,7 +290,7 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 8532476315084962811}
   <RightOut>k__BackingField: {fileID: 5842946402105816177}
-  <BoundsBox>k__BackingField: {fileID: 7550903049800712361}
+  <BoundsBox>k__BackingField: {fileID: 4480265465493889759}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
@@ -302,7 +304,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3403085084297396267}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 1
@@ -319,8 +321,30 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 20, y: 1}
+  m_Size: {x: 16, y: 1}
   m_EdgeRadius: 0
+--- !u!68 &4480265465493889759
+EdgeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3403085084297396267}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: -8, y: 0}
+  - {x: 8, y: 0}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0
 --- !u!50 &7868345051246654813
 Rigidbody2D:
   serializedVersion: 4
@@ -354,7 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 5
+  <DestroyDistanceBehindBounds>k__BackingField: 2
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4001176027348682172
 MonoBehaviour:
@@ -397,6 +421,24 @@ MonoBehaviour:
   <UseRigidbody>k__BackingField: 1
   <ShouldResetVelocity>k__BackingField: 1
   <ResetVelocityAcceleration>k__BackingField: 1
+--- !u!114 &3406511465790250132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3403085084297396267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0c6d6567dd606641ab1007cc28f3b2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <SpriteComponent>k__BackingField: {fileID: 9211886984687163363}
+  <ParentController>k__BackingField: {fileID: 859746925610287144}
+  <MinLength>k__BackingField: 2
+  <MaxLength>k__BackingField: 5
+  <LeftEnd>k__BackingField: {fileID: 2665963273517336040}
+  <RightEnd>k__BackingField: {fileID: 7234576420223433097}
 --- !u!1 &3442252315172938638
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +530,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6803167871420512173}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: 0, z: 0}
+  m_LocalPosition: {x: -6, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -541,7 +583,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 6, y: 1}
+  m_Size: {x: 4, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -560,12 +602,12 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 1}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 6, y: 1}
+    newSize: {x: 4, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
     adaptiveTiling: 0
@@ -629,7 +671,7 @@ PrefabInstance:
     - target: {fileID: 2296904587844024107, guid: 176424bf8265544458209dd6b433c336,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 2296904587844024107, guid: 176424bf8265544458209dd6b433c336,
         type: 3}
@@ -686,6 +728,12 @@ PrefabInstance:
 --- !u!4 &1255497877802715457 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2296904587844024107, guid: 176424bf8265544458209dd6b433c336,
+    type: 3}
+  m_PrefabInstance: {fileID: 1048303142469926506}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &9211886984687163363 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 8168228179552168329, guid: 176424bf8265544458209dd6b433c336,
     type: 3}
   m_PrefabInstance: {fileID: 1048303142469926506}
   m_PrefabAsset: {fileID: 0}

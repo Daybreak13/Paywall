@@ -16,7 +16,8 @@ namespace Paywall {
             Running,
             Jumping,
             Falling,
-            Stalling
+            Stalling,
+            RailRiding
         }
     }
 }

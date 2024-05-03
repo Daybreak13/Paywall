@@ -17,10 +17,6 @@ namespace Paywall {
 		protected const string _playerHurtboxTag = "PlayerHurtbox";
 		protected const string _playerTag = "Player";
 
-		/// <summary>
-		/// Trigger on collision enter
-		/// </summary>
-		/// <param name="collision"></param>
 		protected virtual void OnCollisionEnter2D(Collision2D collision) {
 			KillCharacter(collision.gameObject);
         }
@@ -28,6 +24,14 @@ namespace Paywall {
 		protected virtual void OnCollisionStay2D(Collision2D collision) {
 			KillCharacter(collision.gameObject);
 		}
+
+		protected virtual void OnTriggerEnter2D(Collider2D collider) {
+            KillCharacter(collider.gameObject);
+        }
+
+        protected virtual void OnTriggerStay2D(Collider2D collider) {
+            KillCharacter(collider.gameObject);
+        }
 
 		protected virtual void KillCharacter(GameObject collidingObject) {
 			// If colliding object is not on target layer, do nothing

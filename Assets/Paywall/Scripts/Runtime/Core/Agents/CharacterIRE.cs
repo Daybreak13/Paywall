@@ -153,7 +153,8 @@ namespace Paywall {
             else {
                 // If we are airborne and moving down, change state to falling
                 if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
-                    && CharacterRigidBody.velocity.y < 0) {
+                    && CharacterRigidBody.velocity.y < 0
+                    && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
                     MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
                 }
             }
@@ -218,26 +219,24 @@ namespace Paywall {
         }
 
         protected virtual bool CheckCollisionRight() {
-            Vector2 topOrigin = new(CharacterBoxCollider.bounds.max.x, CharacterBoxCollider.bounds.max.y);
-            Vector2 bottomOrigin = new(CharacterBoxCollider.bounds.max.x, CharacterBoxCollider.bounds.min.y);
+            float edge = CharacterBoxCollider.edgeRadius;
+            Vector2 topOrigin = new(CharacterBoxCollider.bounds.max.x + edge, CharacterBoxCollider.bounds.max.y);
+            Vector2 bottomOrigin = new(CharacterBoxCollider.bounds.max.x + edge, CharacterBoxCollider.bounds.min.y);
             int RaysToCast = 5;
             RaycastHit2D raycastHit2D;
 
             for (int i = 0; i < RaysToCast; i++) {
                 Vector2 originPoint = Vector2.Lerp(topOrigin, bottomOrigin, i / (RaysToCast - 1));
-                raycastHit2D = Physics2D.Raycast(originPoint, Vector2.right, 1f + CharacterBoxCollider.edgeRadius, 1 << LayerMask.NameToLayer("Ground"));
+                raycastHit2D = Physics2D.Raycast(originPoint, Vector2.right, 1f, PaywallLayerManager.ObstaclesLayerMask);
                 if (raycastHit2D.collider != null) {
-                    if (raycastHit2D.distance < (GroundDistanceTolerance + CharacterBoxCollider.edgeRadius)) {
+                    if (raycastHit2D.distance < GroundDistanceTolerance + 0.2) {
                         CollidingRight = true;
                         _rightObject = raycastHit2D.collider.gameObject;
-                        if (raycastHit2D.distance <= 0) {
-                            //float vx = raycastHit2D.collider.gameObject.GetComponent<>
-                            //CharacterRigidBody.velocity = new Vector2(CharacterRigidBody.velocity.y);
-                        }
                         return true;
                     }
                 }
             }
+
             CollidingRight = false;
             _rightObject = null;
             return false;
@@ -482,5 +481,20 @@ namespace Paywall {
         }
 
         #endregion
+
+        protected virtual void OnDrawGizmosSelected() {
+            if (CharacterBoxCollider == null) {
+                CharacterBoxCollider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
+            }
+            float edge = CharacterBoxCollider.edgeRadius;
+
+            Vector2 leftOrigin = new(CharacterBoxCollider.bounds.max.x + 0f + edge, CharacterBoxCollider.bounds.max.y - 0f);
+            Vector2 rightOrigin = new(CharacterBoxCollider.bounds.max.x - 0f + edge, CharacterBoxCollider.bounds.min.y - 0f);
+            for (int i = 0; i < 5; i++) {
+                Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(5 - 1f));
+                Gizmos.color = Color.blue;
+                Gizmos.DrawRay(originPoint, new Vector3(0.5f, 0, 0));
+            }
+        }
     }
 }

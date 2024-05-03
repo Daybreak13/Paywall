@@ -32,6 +32,7 @@ namespace Paywall.Editors {
         protected const string _currentStageSegmentPropertyName = "CurrentStage";
 
         protected const string _spawnPoolersPropertyName = "SpawnPoolers";
+        protected const string _weightIncrementPropertyName = "WeightIncrement";
 
         protected const string _groundSegmentWeightPropertyName = "GroundSegmentWeight";
         protected const string _jumperSegmentWeightPropertyName = "JumperSegmentWeight";
@@ -75,6 +76,7 @@ namespace Paywall.Editors {
         protected SerializedProperty _currentStageSegmentProperty;
 
         protected SerializedProperty _spawnPoolersProperty;
+        protected SerializedProperty _weightIncrementProperty;
 
         protected SerializedProperty _groundSegmentWeightProperty;
         protected SerializedProperty _jumperSegmentWeightProperty;
@@ -126,6 +128,7 @@ namespace Paywall.Editors {
             _currentStageSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_currentStageSegmentPropertyName);
 
             _spawnPoolersProperty = serializedObject.FindPropertyByAutoPropertyName(_spawnPoolersPropertyName);
+            _weightIncrementProperty = serializedObject.FindPropertyByAutoPropertyName(_weightIncrementPropertyName);
 
             _groundSegmentWeightProperty = serializedObject.FindPropertyByAutoPropertyName(_groundSegmentWeightPropertyName);
             _transitionSegmentChanceProperty = serializedObject.FindPropertyByAutoPropertyName(_transitionSegmentChancePropertyName);
@@ -190,6 +193,7 @@ namespace Paywall.Editors {
             _showSpawnPoolers = EditorGUILayout.Foldout(_showSpawnPoolers, "Spawn Poolers", true);
             if (_showSpawnPoolers) {
                 EditorGUILayout.PropertyField(_spawnPoolersProperty);
+                EditorGUILayout.PropertyField(_weightIncrementProperty);
             }
 
             EditorGUILayout.Space(10);

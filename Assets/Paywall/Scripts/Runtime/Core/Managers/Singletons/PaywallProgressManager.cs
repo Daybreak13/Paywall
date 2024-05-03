@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.Tools;
@@ -6,6 +5,7 @@ using UnityEngine.SceneManagement;
 using Paywall.Documents;
 using MoreMountains.InventoryEngine;
 using MoreMountains.InfiniteRunnerEngine;
+using System.Linq;
 
 namespace Paywall {
 	
@@ -101,9 +101,15 @@ namespace Paywall {
         [field: Tooltip("List of default shop options (ones that always appear)")]
         [field: SerializeField] public DepotItemList DefaultShopItemsList { get; protected set; }
 
+		[field: Header("Event Flags")]
+
+        /// List of scriptable event flags to initialize save file with
+        [field: Tooltip("List of scriptable event flags to initialize save file with")]
+        [field: SerializeField] public EventFlagList EventFlagsList { get; protected set; }
+
         // The scriptable objects store the immutable item lists
         // The dictionaries' objects can be modified at runtime
-		// Other classes that need up-to-date info on these items can get it from this manager
+        // Other classes that need up-to-date info on these items can get it from this manager
         public Dictionary<string, DepotItemData> RitualItemsDict { get; protected set; } = new();
 		public Dictionary<string, DepotItemListData> ShopItemSetsDict { get; protected set;} = new();
         public Dictionary<string, DepotItemData> DefaultShopItemsDict { get; protected set; } = new();
@@ -114,7 +120,7 @@ namespace Paywall {
 		/// Dictionary of all unlocked upgrades
 		/// </summary>
 		public Dictionary<string, Upgrade> Upgrades { get; private set; } = new();
-		public EventFlagManager EventFlags { get; protected set; } = new();
+		public EventFlagManager EventFlags { get; protected set; }
 		public enum SaveMethods { All, Inventory }
 
 		protected EmailInventory _emailInventory;

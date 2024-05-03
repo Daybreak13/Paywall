@@ -7,7 +7,7 @@ namespace Paywall.Editors {
 
     [CustomEditor(typeof(ScriptableSegmentList))]
     public class SegmentListEditor : Editor {
-        public ScriptableSegmentList segmentList {
+        public ScriptableSegmentList SegmentsList {
             get {
                 return (ScriptableSegmentList)target;
             }
@@ -21,8 +21,8 @@ namespace Paywall.Editors {
 
             EditorGUILayout.Space(10);
             if (GUILayout.Button("Sort")) {
-                if (segmentList.Items != null &&  segmentList.Items.Count > 0) {
-                    segmentList.Items.Sort((a, b) => string.Compare(a.Segment.SegmentName, b.Segment.SegmentName));
+                if (SegmentsList.Items != null &&  SegmentsList.Items.Count > 0) {
+                    SegmentsList.Items.Sort((a, b) => string.Compare(a.Segment.SegmentName, b.Segment.SegmentName));
                 }
             }
 

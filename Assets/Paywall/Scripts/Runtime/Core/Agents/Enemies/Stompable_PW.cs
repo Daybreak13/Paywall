@@ -20,10 +20,21 @@ namespace Paywall {
 		[field: Tooltip("If true, this object kills the player on touch even if stomped on")]
 		[field: FieldCondition("KillsPlayer", true)]
 		[field: SerializeField] public bool KillsPlayerRegardless { get; protected set; }
+        /// Health component to use for death feedbacks
+        [field: Tooltip("Health component to use for death feedbacks")]
+        [field: SerializeField] public Health_PW HealthComponent { get; protected set; }
 
-		protected bool _killedPlayer;
+        protected bool _killedPlayer;
+		protected bool _dead;
 
-		protected override void OnCollisionEnter2D(Collision2D collision) {
+        protected override void Awake() {
+            base.Awake();
+			if (HealthComponent == null) {
+				//HealthComponent = GetComponent<Health_PW>();
+			}
+        }
+
+        protected override void OnCollisionEnter2D(Collision2D collision) {
 			base.OnCollisionEnter2D(collision);
 			_killedPlayer = false;
 			if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
@@ -36,6 +47,7 @@ namespace Paywall {
 				// If the player stomped on this, kill it
 				if (_collidingAbove) {
 					DestroySelf();
+					_dead = true;
 					if (!_killedPlayer) {
 						PaywallKillEvent.Trigger(true, gameObject);
 					}
@@ -44,6 +56,9 @@ namespace Paywall {
         }
 
 		protected virtual void OnCollisionStay2D(Collision2D collision) {
+			if (_dead) {
+				return;
+			}
             _killedPlayer = false;
             if (collision.collider.CompareTag(_playerTag) && (_character != null)) {
 				if (KillsPlayer) {
@@ -56,7 +71,12 @@ namespace Paywall {
 		/// Kills this object
 		/// </summary>
 		protected virtual void DestroySelf() {
-			gameObject.SetActive(false);
+			if (HealthComponent == null) {
+				gameObject.SetActive(false);
+			}
+			else {
+				HealthComponent.Kill();
+			}
         }
 
 		/// <summary>
@@ -84,5 +104,8 @@ namespace Paywall {
 			LevelManagerIRE_PW.Instance.KillCharacter(_character);
 		}
 
+		protected virtual void OnEnable() {
+			_dead = false;
+		}
 	}
 }

@@ -159,8 +159,10 @@ namespace Paywall {
             if (MagazineBased) {
                 if (CurrentAmmoLoaded > 0) {
                     WeaponState.ChangeState(WeaponStates.WeaponUse);
-                    //WeaponUse();
                 }
+            }
+            else {
+                WeaponState.ChangeState(WeaponStates.WeaponUse);
             }
         }
 
@@ -178,6 +180,7 @@ namespace Paywall {
 
         /// <summary>
         /// Every frame, shoot or stop depending on weapon state
+        /// Processes in LateUpdate so that WeaponUse starts on the same frame as the input was received
         /// </summary>
         protected virtual void ProcessWeaponState() {
             switch (WeaponState.CurrentState) {
@@ -196,15 +199,18 @@ namespace Paywall {
         /// Use the weapon
         /// </summary>
         protected virtual void CaseWeaponUse() {
-            if (CurrentAmmoLoaded <= 0) {
-                WeaponState.ChangeState(WeaponStates.WeaponIdle);
-                return;
+            if (MagazineBased) {
+                if (CurrentAmmoLoaded <= 0) {
+                    WeaponState.ChangeState(WeaponStates.WeaponIdle);
+                    return;
+                }
+                CurrentAmmoLoaded -= AmmoConsumedPerShot;
             }
+
             _lastShot = Time.time;
-            CurrentAmmoLoaded -= AmmoConsumedPerShot;
             _delayBetweenUsesCounter = TimeBetweenUses;
             WeaponState.ChangeState(WeaponStates.WeaponDelayBetweenUses);
-            HandleWeapon.AirStall(AirStallTime);
+            if (HandleWeapon != null) HandleWeapon.AirStall(AirStallTime);
             DetermineSpawnPosition();
             for (int i = 0; i < ProjectilesPerShot; i++) {
                 SpawnProjectile(SpawnPosition, i, ProjectilesPerShot, true);
@@ -255,7 +261,7 @@ namespace Paywall {
             nextGameObject.transform.position = spawnPosition;
             // we set its direction
 
-            Projectile_PW projectile = nextGameObject.GetComponent<Projectile_PW>();
+            nextGameObject.TryGetComponent(out Projectile_PW projectile);
             if (projectile != null) {
                 projectile.SetWeapon(this);
                 if (Owner != null) {
@@ -263,7 +269,7 @@ namespace Paywall {
                 }
             }
             // we activate the object
-            nextGameObject.gameObject.SetActive(true);
+            nextGameObject.SetActive(true);
 
 
             if (projectile != null) {
@@ -284,7 +290,6 @@ namespace Paywall {
                 }
 
                 Quaternion spread = Quaternion.Euler(_randomSpreadDirection);
-                //bool facingRight = (Owner == null) || Owner.IsFacingRight;
                 bool facingRight = Owner != null;
                 projectile.SetDirection(spread * transform.right * (Flipped ? -1 : 1), transform.rotation, facingRight);
                 if (RotateWeaponOnSpread) {
@@ -338,14 +343,6 @@ namespace Paywall {
 
             Gizmos.color = Color.white;
             Gizmos.DrawWireSphere(SpawnPosition, 0.2f);
-        }
-
-        protected virtual void OnEnable() {
-
-        }
-
-        protected virtual void OnDisable() {
-
         }
     }
 }

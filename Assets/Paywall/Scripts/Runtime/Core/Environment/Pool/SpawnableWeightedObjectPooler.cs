@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Weighted_Randomizer;
 using MoreMountains.Tools;
+using KaimiraGames;
 
 namespace Paywall {
 
@@ -11,9 +10,10 @@ namespace Paywall {
     /// </summary>
     [System.Serializable]
     public class SpawnableWeightedPool {
-        public SpawnableObjectPooler Pooler;
-        public int InitialWeight = 10;
-        public int StartingDifficulty;
+        [field: SerializeField] public SpawnableObjectPooler Pooler;
+        [field: SerializeField] public int InitialWeight = 10;
+        [field: SerializeField] public int MaxWeight = 10;
+        [field: SerializeField] public int StartingDifficulty;
         [field: MMReadOnly]
         [field: SerializeField] public int CurrentWeight { get; protected set; }
         public void SetWeight(int weight) {
@@ -37,26 +37,34 @@ namespace Paywall {
         public List<SpawnableWeightedObjectPooler> Owner { get; set; }
         private void OnDestroy() { Owner?.Remove(this); }
 
-        protected List<SpawnableObjectPooler> _poolerList = new();
-        protected Dictionary<string, SpawnableObjectPooler> _poolerDict = new();
-        protected IWeightedRandomizer<string> _randomizer = new DynamicWeightedRandomizer<string>();
-        protected IWeightedRandomizer<string> _originalRandomizer;
+        protected Dictionary<string, SpawnableWeightedPool> _poolerDict = new();
+        protected Dictionary<int, List<SpawnableWeightedPool>> _unusedPoolers = new();
+        protected WeightedList<string> _randomizer;
 
-        /// <summary>
-        /// Initialize lists
-        /// </summary>
         protected virtual void Start() {
             Initialization();
         }
 
+        /// <summary>
+        /// Initialize lists/dictionaries
+        /// </summary>
         public virtual void Initialization() {
-            int key = 0;
+            _randomizer = new(new System.Random(PaywallProgressManager.RandomSeed));
             foreach (SpawnableWeightedPool pooler in WeightedPools) {
-                _poolerDict.Add(pooler.Pooler.SpawnableToPool.name, pooler.Pooler);
-                _randomizer.Add(pooler.Pooler.SpawnableToPool.name, pooler.InitialWeight);
-                key++;
+                if (pooler.StartingDifficulty == 0) {
+                    _poolerDict.Add(pooler.Pooler.SpawnableToPool.name, pooler);
+                    _randomizer.Add(pooler.Pooler.SpawnableToPool.name, pooler.InitialWeight);
+                }
+                // Poolers that don't spawn at Difficulty 0 are set aside to be added later
+                else {
+                    if (_unusedPoolers.ContainsKey(pooler.StartingDifficulty)) {
+                        _unusedPoolers[pooler.StartingDifficulty].Add(pooler);
+                    }
+                    else {
+                        _unusedPoolers.Add(pooler.StartingDifficulty, new List<SpawnableWeightedPool> { pooler });
+                    }
+                }
             }
-            _originalRandomizer = _randomizer;
         }
 
         /// <summary>
@@ -67,17 +75,34 @@ namespace Paywall {
             if (WeightedPools.Count == 0) {
                 return null;
             }
-            string key = _randomizer.NextWithReplacement();
-            if (_poolerDict.TryGetValue(key, out SpawnableObjectPooler pooler)) {
-                return pooler.GetPooledGameObject();
+            if (_randomizer.Count == 0) {
+                return null;
+            }
+            string key = _randomizer.Next();
+            if (_poolerDict.TryGetValue(key, out SpawnableWeightedPool pooler)) {
+                return pooler.Pooler.GetPooledGameObject();
             }
             return null;
         }
 
+        /// <summary>
+        /// Modify weights of each pooler when difficulty is incremented
+        /// </summary>
+        /// <param name="difficulty"></param>
         protected virtual void SetDifficulty(int difficulty) {
-            foreach (SpawnableWeightedPool pooler in WeightedPools) {
-                int newWeight = _originalRandomizer.GetWeight(pooler.Pooler.SpawnableToPool.name) + difficulty * 10;
-                _randomizer.SetWeight(pooler.Pooler.SpawnableToPool.name, newWeight);
+            foreach (SpawnableWeightedPool pool in WeightedPools) {
+                if (pool.CurrentWeight >= pool.MaxWeight) {
+                    continue;
+                }
+                int newWeight = pool.InitialWeight + ProceduralLevelGenerator.Instance.WeightIncrement;
+                _randomizer.SetWeight(pool.Pooler.SpawnableToPool.name, newWeight);
+                pool.SetWeight(newWeight);
+            }
+            // Add any poolers that start spawning at this difficulty
+            if (_unusedPoolers.ContainsKey(difficulty)) {
+                foreach (SpawnableWeightedPool pool in _unusedPoolers[difficulty]) {
+                    _randomizer.Add(pool.Pooler.SpawnableToPool.name, pool.InitialWeight);
+                }
             }
         }
 

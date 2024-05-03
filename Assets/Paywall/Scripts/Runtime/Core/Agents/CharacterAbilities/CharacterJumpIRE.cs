@@ -33,10 +33,10 @@ namespace Paywall {
         /// if this is set to false, the jump height won't depend on the jump button release speed
         [field: Tooltip("if this is set to false, the jump height won't depend on the jump button release speed")]
         [field: SerializeField] public bool JumpProportionalToPress { get; protected set; }
-        /// Window after jump pressed that release is checked. When released, apply downward force to shorten jump.
-        [field: Tooltip("Window after jump pressed that release is checked. When released, apply downward force to shorten jump.")]
+        /// Window immediately after jump input that release is checked. When released, apply downward force to shorten jump.
+        [field: Tooltip("Window immediately after jump input that release is checked. When released, apply downward force to shorten jump.")]
         [field: FieldCondition("JumpProportionalToPress", true)]
-        [field: SerializeField] public float JumpReleaseBuffer { get; protected set; } = 0.02f;
+        [field: SerializeField] public float JumpReleaseBuffer { get; protected set; } = 0.1f;
         /// the minimal time, in seconds, that needs to have passed for a new jump to be authorized
         [field: Tooltip("the minimal time, in seconds, that needs to have passed for a new jump to be authorized")]
         [field: SerializeField] public float MinimalDelayBetweenJumps { get; protected set; } = 0.02f;
@@ -167,6 +167,7 @@ namespace Paywall {
                 _doubleJumping = false;
             }
             else {
+                // If we are not grounded and not jumping, change movement state to falling
                 if (!_jumping) {
                     _noJumpFalling = true;
                     Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);

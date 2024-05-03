@@ -62,3 +62,5 @@ MonoBehaviour:
     type: 2}
   <DefaultShopItemsList>k__BackingField: {fileID: 11400000, guid: d26a5b505f709f642a94550350ae5c6a,
     type: 2}
+  <EventFlagsList>k__BackingField: {fileID: 11400000, guid: 6e83597d407a6e140b3fdd6d5761a1ad,
+    type: 2}

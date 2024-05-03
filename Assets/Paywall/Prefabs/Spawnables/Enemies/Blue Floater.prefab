@@ -12,13 +12,13 @@ GameObject:
   - component: {fileID: -1344323639130543607}
   - component: {fileID: -9212082400431202335}
   - component: {fileID: -475922308585229652}
-  - component: {fileID: -4813951914559907051}
   - component: {fileID: 1426966788412531410}
-  - component: {fileID: -2860342381278707712}
-  - component: {fileID: 6592607083185581626}
-  - component: {fileID: 1341740614510363464}
+  - component: {fileID: 2184224819797414365}
+  - component: {fileID: -4725364043685930818}
+  - component: {fileID: 7751094415004044089}
+  - component: {fileID: -486459816362540606}
   m_Layer: 13
-  m_Name: Angry Blue Floater
+  m_Name: Blue Floater
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 38eb303a0b4a2d747a9f468535248509, type: 3}
-  m_Color: {r: 0, g: 0.08923578, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.12151098, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -104,7 +104,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.02}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -115,8 +115,8 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Size: {x: 0.7, y: 0.72}
+  m_EdgeRadius: 0.1
 --- !u!50 &-475922308585229652
 Rigidbody2D:
   serializedVersion: 4
@@ -133,32 +133,11 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 3918efaa0d35f8e49b98ef9c0da746a3, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &-4813951914559907051
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1180568482630557396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca9a0ed8262b0114f8d6e028d1364fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <Speed>k__BackingField: 0.08
-  <Direction>k__BackingField: {x: -1, y: 0, z: 0}
-  <UseEnemySpeed>k__BackingField: 1
-  <BlockMovementUntil>k__BackingField: 1
-  <DirectionCanBeChangedBySpawner>k__BackingField: 1
-  <MovementSpace>k__BackingField: 0
-  <UseRigidbody>k__BackingField: 1
-  <ShouldResetVelocity>k__BackingField: 1
-  <ResetVelocityAcceleration>k__BackingField: 1
 --- !u!114 &1426966788412531410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,11 +152,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <LaunchType>k__BackingField: 0
   <LaunchForce>k__BackingField: 10
-  <LaunchHeight>k__BackingField: 2
-  <RaysToCast>k__BackingField: 5
+  <LaunchHeight>k__BackingField: 2.5
+  <RaysToCast>k__BackingField: 3
   <KillsPlayer>k__BackingField: 1
   <KillsPlayerRegardless>k__BackingField: 0
---- !u!114 &-2860342381278707712
+  <HealthComponent>k__BackingField: {fileID: -486459816362540606}
+--- !u!114 &2184224819797414365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180568482630557396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca9a0ed8262b0114f8d6e028d1364fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Speed>k__BackingField: 5
+  <Direction>k__BackingField: {x: -1, y: 0, z: 0}
+  <UseEnemySpeed>k__BackingField: 1
+  <BlockMovementUntil>k__BackingField: 1
+  <DirectionCanBeChangedBySpawner>k__BackingField: 1
+  <MovementSpace>k__BackingField: 0
+  <UseRigidbody>k__BackingField: 1
+  <ShouldResetVelocity>k__BackingField: 1
+  <ResetVelocityAcceleration>k__BackingField: 1
+--- !u!114 &-4725364043685930818
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -199,7 +200,7 @@ MonoBehaviour:
   LifeTime: 0
   <SpawnOffset>k__BackingField: {x: 0, y: 0, z: 0}
   <AnchorToSpawn>k__BackingField: 0
---- !u!114 &6592607083185581626
+--- !u!114 &7751094415004044089
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -213,7 +214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 1
   <OutOfBoundType>k__BackingField: 0
---- !u!114 &1341740614510363464
+--- !u!114 &-486459816362540606
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -228,8 +229,8 @@ MonoBehaviour:
   CurrentHealth: 0
   TemporarilyInvulnerable: 0
   PostDamageInvulnerable: 0
-  InitialHealth: 10
-  MaximumHealth: 10
+  InitialHealth: 2
+  MaximumHealth: 2
   Invulnerable: 0
   ImmuneToDamage: 0
   DamageFeedbacks: {fileID: 0}
@@ -256,8 +257,8 @@ MonoBehaviour:
   KillOnMasterHealthDeath: 0
   TargetDamageResistanceProcessor: {fileID: 0}
   <GivesTrinketsOnKill>k__BackingField: 1
-  <Trinkets>k__BackingField: 2
-  <GivesStreakOnKill>k__BackingField: 1
+  <Trinkets>k__BackingField: 5
+  <GivesStreakOnKill>k__BackingField: 0
   <EXGainOnKill>k__BackingField: 1
   <EXChargeOnDamageMultiplier>k__BackingField: 0
   <OverridePostDamageInvincibilityDuration>k__BackingField: 0

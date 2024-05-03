@@ -8323,6 +8323,8 @@ MonoBehaviour:
   - {fileID: 7470816527583464963}
   - {fileID: 8370328780664139051}
   - {fileID: 775757918638637904}
+  <EnterDepotFirstTime>k__BackingField: {fileID: 11400000, guid: 5c7f1e642131ed148bc2ffaa3fc3da5a,
+    type: 2}
 --- !u!1 &7042500383711611842
 GameObject:
   m_ObjectHideFlags: 0

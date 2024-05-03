@@ -140,9 +140,8 @@ namespace Paywall {
 		/// </summary>
 		protected virtual void ResetPosition() {
 			if (ShouldResetPosition) {
-				if (!CollidingRight && transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
+				if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
 					CharacterRigidBody.velocity = new Vector3((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
-					//CharacterRigidBody.velocity = new Vector3(0, CharacterRigidBody.velocity.y);
 				}
 			}
 		}

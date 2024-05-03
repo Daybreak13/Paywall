@@ -42,7 +42,7 @@ namespace Paywall {
     /// Only one pattern will be chosen to spawn.
     /// </summary>
     [System.Serializable]
-    public class SpawnPoint : MonoBehaviour, MMEventListener<PaywallChanceUpdateEvent> {
+    public class SpawnPoint : MonoBehaviour {
         /// If false, use ProceduralLevelGenerator.NoneChance instead
         [field: Tooltip("If false, use ProceduralLevelGenerator.NoneChance instead")]
         [field: SerializeField] public bool UseLocalNoneChance { get; protected set; } = false;
@@ -132,6 +132,9 @@ namespace Paywall {
                 int i = ss.PatternRandomizer.Next();
                 foreach (Transform child in ss.SpawnPatterns[i].Pattern.transform) {
                     GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
+                    if (spawnable == null) {
+                        continue;
+                    }
 
                     // Safely set position
                     Vector2 destination = child.transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
@@ -151,9 +154,12 @@ namespace Paywall {
             // Else, get a pooled object and spawn at this location
             else {
                 GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
+                if (spawnable == null) {
+                    return;
+                }
 
                 Vector2 destination = transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
-                spawnable.transform.SafeSetTransformPosition(destination, LayerMask.GetMask("Ground"));
+                spawnable.transform.SafeSetTransformPosition(destination, PaywallLayerManager.ObstaclesLayerMask);
 
                 spawnable.SetActive(true);
                 _spawnables.Add(spawnable.GetComponent<SpawnablePoolableObject>());
@@ -168,20 +174,11 @@ namespace Paywall {
             _spawnables.Remove(spawnable);
         }
 
-        public virtual void OnMMEvent(PaywallChanceUpdateEvent updateEvent) {
-            LocalNoneChance = updateEvent.Chance;
-        }
-
         /// <summary>
         /// On enable, randomly retrieve and spawn new objects in a random spawn pattern (if applicable)
         /// </summary>
         protected virtual void OnEnable() {
-            this.MMEventStartListening<PaywallChanceUpdateEvent>();
             StartCoroutine(WaitToSpawn());
-        }
-
-        protected virtual void OnDisable() {
-            this.MMEventStopListening<PaywallChanceUpdateEvent>();
         }
 
         protected virtual void OnDestroy() {

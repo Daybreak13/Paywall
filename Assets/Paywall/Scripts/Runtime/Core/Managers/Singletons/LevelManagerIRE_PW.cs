@@ -29,6 +29,15 @@ namespace Paywall {
         [field: Tooltip("The current speed the level is traveling at")]
         [field: MMReadOnly]
         [field: SerializeField] public float EnemySpeed { get; protected set; }
+        /// If the character's simulated x movement is blocked, we slow the level speed to this value
+        [field: Tooltip("If the character's simulated x movement is blocked, we slow the level speed to this value")]
+        [field: SerializeField] public float BlockedSpeed { get; protected set; } = 0f;
+        /// Rate at which we slow to BlockedSpeed when blocked
+        [field: Tooltip("Rate at which we slow to BlockedSpeed when blocked")]
+        [field: SerializeField] public float BlockedDeceleration { get; protected set; } = 20f;
+        /// Rate at which we accelerate to preblock speed after unblocking
+        [field: Tooltip("Rate at which we accelerate to preblock speed after unblocking")]
+        [field: SerializeField] public float BlockedAcceleration { get; protected set; } = 20f;
         /// The distance traveled since the start of the level
         [field: Tooltip("The distance traveled since the start of the level")]
         [field: SerializeField] public float DistanceTraveled { get; protected set; }
@@ -113,10 +122,13 @@ namespace Paywall {
         protected bool _tempSpeedAddedActive;
         protected float _tempSpeedSwitchFactor;
         protected float _temporarySpeedFactorRemainingTime;
-        protected float _temporarySavedSpeed;
+        protected float _currentAddedSpeed;
 
         protected bool _retainEnemySpeed;
         protected int _coroutineCount = 0;
+        protected bool _charBlocking;
+        protected float _preBlockSpeed;
+        protected float _lastBlockTime;
 
         protected const string _enterSupplyDepotEventName = "EnterSupplyDepot";
 
@@ -198,7 +210,7 @@ namespace Paywall {
         /// <summary>
         /// Handles the start of the level : starts the autoincrementation of the score, sets the proper status and triggers the corresponding event.
         /// </summary>
-        public virtual void LevelStart() {
+        protected virtual void LevelStart() {
             GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.GameInProgress);
             MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
         }
@@ -232,18 +244,10 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Resets the level : repops dead characters, sets everything up for a new game
-        /// </summary>
-        public virtual void ResetLevel() {
-            InstantiateCharacters();
-            PrepareStart();
-        }
-
-        /// <summary>
         /// Update points, increment distance traveled, accelerate level speed, handle speed factor
         /// Only execute if game is in progress
         /// </summary>
-        public virtual void Update() {
+        protected virtual void Update() {
             if (!_retainEnemySpeed) {
                 EnemySpeed = Speed;
             }
@@ -253,6 +257,8 @@ namespace Paywall {
 
             _savedPoints = GameManagerIRE_PW.Instance.Points;
             _started = DateTime.UtcNow;
+
+            HandleCharacterBlocked();
 
             // we increment the total distance traveled so far
             DistanceTraveled += (SegmentSpeed + Speed) * SpeedMultiplier * Time.deltaTime;
@@ -266,6 +272,52 @@ namespace Paywall {
             if (!_tempSpeedAddedActive && !TempSpeedSwitchActive && Speed != 0) {
                 CurrentUnmodifiedSpeed = Speed;
             }
+        }
+
+        /// <summary>
+        /// Handles speed multipliers
+        /// </summary>
+        protected virtual void HandleSpeedFactor() {
+            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
+            if (Speed > 0) {
+                GameManagerIRE_PW.Instance.SetPointsPerSecond(PointsPerUnit * (Speed / InitialSpeed));
+            }
+            else {
+                GameManagerIRE_PW.Instance.SetPointsPerSecond(0f);
+            }
+        }
+
+        /// <summary>
+        /// What to do if the character's simulated movement is blocked (character begins to move in -x direction)
+        /// </summary>
+        protected virtual void HandleCharacterBlocked() {
+            if (CurrentPlayableCharacters[0].transform.position.x < StartingPosition.transform.position.x && CurrentPlayableCharacters[0].CollidingRight) {
+                if (_charBlocking) {
+                    if (Speed > BlockedSpeed) {
+                        Speed -= BlockedDeceleration * Time.deltaTime;
+                        if (Speed < BlockedSpeed) {
+                            Speed = BlockedSpeed;
+                        }
+                    }
+                }
+                else {
+                    _charBlocking = true;
+                    _preBlockSpeed = Speed;
+                    _lastBlockTime = Time.time;
+                }
+            }
+            else if (_charBlocking && !CurrentPlayableCharacters[0].CollidingRight && (Time.time - _lastBlockTime > 0.1f)) {
+                _charBlocking = false;
+                Speed = _preBlockSpeed;
+            }
+        }
+
+        /// <summary>
+        /// Resets the level : repops dead characters, sets everything up for a new game
+        /// </summary>
+        public virtual void ResetLevel() {
+            InstantiateCharacters();
+            PrepareStart();
         }
 
         /// <summary>
@@ -284,9 +336,15 @@ namespace Paywall {
             }
 
             _temporarySpeedFactorRemainingTime = duration;
-
-            Speed += factor;
             _tempSpeedAddedActive = true;
+
+            if (_charBlocking) {
+                _preBlockSpeed += factor;
+            }
+            else {
+                Speed += factor;
+            }
+            _currentAddedSpeed += factor;
 
             StartCoroutine(TemporarilyAddSpeedCo(factor, duration));
         }
@@ -294,7 +352,15 @@ namespace Paywall {
         protected IEnumerator TemporarilyAddSpeedCo(float factor, float duration) {
             _coroutineCount++;
             yield return new WaitForSeconds(duration);
-            Speed -= factor;
+
+            if (_charBlocking) {
+                _preBlockSpeed -= factor;
+            }
+            else {
+                Speed -= factor;
+            }
+            _currentAddedSpeed -= factor;
+
             _coroutineCount--;
             if (_coroutineCount == 0) {
                 _tempSpeedAddedActive = false;
@@ -304,7 +370,7 @@ namespace Paywall {
         /// <summary>
         /// Temporarily add to speed. Only one speed switch is active at a time, and must be turned off manually.
         /// </summary>
-        /// <param name="factor"></param>
+        /// <param name="factor">Only turning the speed switch on uses factor, otherwise the saved value is used</param>
         /// <param name="on"></param>
         /// <param name="retainEnemySpeed"></param>
         public virtual void TemporarilyAddSpeedSwitch(float factor, bool on, bool retainEnemySpeed = false) {
@@ -321,12 +387,25 @@ namespace Paywall {
 
                 _tempSpeedSwitchFactor = factor;
 
-                Speed += _tempSpeedSwitchFactor;
                 TempSpeedSwitchActive = true;
+
+                if (_charBlocking) {
+                    _preBlockSpeed += factor;
+                }
+                else {
+                    Speed += factor;
+                }
+                _currentAddedSpeed += factor;
             }
             else if (TempSpeedSwitchActive) {
                 TempSpeedSwitchActive = false;
-                Speed -= _tempSpeedSwitchFactor;
+                if (_charBlocking) {
+                    _preBlockSpeed -= _tempSpeedSwitchFactor;
+                }
+                else {
+                    Speed -= _tempSpeedSwitchFactor;
+                }
+                _currentAddedSpeed -= factor;
             }
         }
 
@@ -350,18 +429,6 @@ namespace Paywall {
             else {
                 Speed = CurrentUnmodifiedSpeed;
                 _retainEnemySpeed = false;
-            }
-        }
-
-        /// <summary>
-        /// Handles speed multipliers
-        /// </summary>
-        protected virtual void HandleSpeedFactor() {
-            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
-            if (Speed > 0) {
-                GameManagerIRE_PW.Instance.SetPointsPerSecond(PointsPerUnit * (Speed / InitialSpeed));
-            } else {
-                GameManagerIRE_PW.Instance.SetPointsPerSecond(0f);
             }
         }
 

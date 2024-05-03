@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 212000010073301924}
   - component: {fileID: 61000013902612140}
   - component: {fileID: 50000011384318294}
-  - component: {fileID: 114000013697282846}
   - component: {fileID: 1017599083018724609}
   - component: {fileID: -8135341168866896240}
   - component: {fileID: -7160198386759166846}
+  - component: {fileID: 3590705366274183573}
   m_Layer: 15
   m_Name: MinimalBullet
   m_TagString: PlayerDamage
@@ -139,39 +139,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &114000013697282846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e1a732e2aa364c569bbb79498af8c5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BoundsBasedOn: 1
-  ExecuteOnEnable:
-    m_PersistentCalls:
-      m_Calls: []
-  ExecuteOnDisable:
-    m_PersistentCalls:
-      m_Calls: []
-  LifeTime: 5
-  FaceDirection: 1
-  Speed: 200
-  Acceleration: 0
-  Direction: {x: 1, y: 0, z: 0}
-  DirectionCanBeChangedBySpawner: 1
-  FlipValue: {x: -1, y: 1, z: 1}
-  ProjectileIsFacingRight: 1
-  InitialInvulnerabilityDuration: 0
-  DamageOwner: 0
-  SpawnSecurityCheck: 0
-  SpawnSecurityCheckLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &1017599083018724609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,7 +209,7 @@ MonoBehaviour:
   TypedDamages: []
   DamageCausedKnockbackType: 1
   DamageCausedKnockbackDirection: 0
-  DamageCausedKnockbackForce: {x: 20, y: 0}
+  DamageCausedKnockbackForce: {x: 15, y: 0}
   InvincibilityDuration: 0
   RepeatDamageOverTime: 0
   AmountOfRepeats: 3
@@ -275,6 +242,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <DestroyDistanceBehindBounds>k__BackingField: 0
   <OutOfBoundType>k__BackingField: 1
+--- !u!114 &3590705366274183573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83dc79eabdc6cdc43a1516ab1542899c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoundsBasedOn: 1
+  ExecuteOnEnable:
+    m_PersistentCalls:
+      m_Calls: []
+  ExecuteOnDisable:
+    m_PersistentCalls:
+      m_Calls: []
+  LifeTime: 5
+  FaceDirection: 1
+  Speed: 200
+  Acceleration: 0
+  Direction: {x: -1, y: 0, z: 0}
+  DirectionCanBeChangedBySpawner: 1
+  FlipValue: {x: -1, y: 1, z: 1}
+  ProjectileIsFacingRight: 1
+  InitialInvulnerabilityDuration: 0
+  DamageOwner: 0
+  SpawnSecurityCheck: 0
+  SpawnSecurityCheckLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &7758844376465442526
 GameObject:
   m_ObjectHideFlags: 0

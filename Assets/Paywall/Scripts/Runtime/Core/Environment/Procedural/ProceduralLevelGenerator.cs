@@ -108,6 +108,9 @@ namespace Paywall {
         /// List of poolers for spawnable objects/enemies/items
         [field: Tooltip("List of poolers for spawnable objects/enemies/items")]
         [field: SerializeField] public List<WeightedSpawnPooler> SpawnPoolers { get; protected set; }
+        /// How much to increase weight if applicable, each time difficulty is incremented
+        [field: Tooltip("How much to increase weight if applicable, each time difficulty is incremented")]
+        [field: SerializeField] public int WeightIncrement { get; protected set; } = 1;
 
         [field: Header("Type Weight")]
 
@@ -213,6 +216,7 @@ namespace Paywall {
 
         protected Dictionary<SegmentTypes, float> _repeatModifiers = new();
         protected Dictionary<SegmentTypes, int> _initialWeights = new();
+        protected Dictionary<int, List<WeightedLevelSegment>> UnusedSegments = new();       // Segments that do not spawn at Difficulty 0 and have to be added to the randomizer as difficulty increases
 
         public LevelSegmentController NextSegment { get; private set; }      // Lookahead segment used to determine transition type
         protected int _activeSegments = 0;
@@ -277,18 +281,37 @@ namespace Paywall {
 
             if ((GroundSegmentList != null) && (GroundSegmentList.SegmentList != null) && (GroundSegmentList.SegmentList.Items.Count > 0)) {
                 foreach (WeightedLevelSegment segment in GroundSegmentList.SegmentList.Items) {
+                    segment.Segment.SetSegmentType(SegmentTypes.Ground);
                     PoolerPrefab.SetSegment(segment.Segment);
                     LevelSegmentPooler pooler = Instantiate(PoolerPrefab, GroundSegmentList.PoolParent.transform);
                     pooler.gameObject.name = segment.Segment.SegmentName;
-                    _groundSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
+
+                    if (segment.InitialWeight > 0) {
+                        if (segment.StartingDifficulty == 0) {
+                            _groundSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
+                        }
+                        else {
+                            if (UnusedSegments.ContainsKey(segment.StartingDifficulty)) {
+                                UnusedSegments[segment.StartingDifficulty].Add(segment);
+                            }
+                            else {
+                                UnusedSegments.Add(segment.StartingDifficulty, new List<WeightedLevelSegment> { segment });
+                            }
+                        }
+                    }
                     _levelSegments.Add(segment.Segment.SegmentName, pooler);
                 }
             }
             if ((TransitionSegmentList != null) && (TransitionSegmentList.SegmentList != null) && (TransitionSegmentList.SegmentList.Items.Count > 0)) {
                 foreach (WeightedLevelSegment segment in TransitionSegmentList.SegmentList.Items) {
+                    segment.Segment.SetSegmentType(SegmentTypes.Transition);
                     PoolerPrefab.SetSegment(segment.Segment);
                     LevelSegmentPooler pooler = Instantiate(PoolerPrefab, TransitionSegmentList.PoolParent.transform);
                     pooler.gameObject.name = segment.Segment.SegmentName;
+
+                    if (segment.InitialWeight == 0) {
+                        continue;
+                    }
 
                     _transitionSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
                     _levelSegments.Add(segment.Segment.SegmentName, pooler);
@@ -309,11 +332,27 @@ namespace Paywall {
             }
             if ((JumperSegmentList != null) && (JumperSegmentList.SegmentList != null) && (JumperSegmentList.SegmentList.Items.Count > 0)) {
                 foreach (WeightedLevelSegment segment in JumperSegmentList.SegmentList.Items) {
+                    segment.Segment.SetSegmentType(SegmentTypes.Jumper);
                     PoolerPrefab.SetSegment(segment.Segment);
                     LevelSegmentPooler pooler = Instantiate(PoolerPrefab, JumperSegmentList.PoolParent.transform);
                     pooler.gameObject.name = segment.Segment.SegmentName;
 
-                    _jumperSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
+                    if (segment.InitialWeight > 0) {
+                        if (segment.StartingDifficulty == 0) {
+                            _jumperSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
+                        }
+                        else {
+                            if (UnusedSegments.ContainsKey(segment.StartingDifficulty)) {
+                                UnusedSegments[segment.StartingDifficulty].Add(segment);
+                            }
+                            else {
+                                UnusedSegments.Add(segment.StartingDifficulty, new List<WeightedLevelSegment> { segment });
+                            }
+                        }
+                    }
+
+                    if (segment.InitialWeight > 0)
+                        _jumperSegmentRandomizer.Add(segment.Segment.SegmentName, segment.InitialWeight);
                     _levelSegments.Add(segment.Segment.SegmentName, pooler);
                 }
             }
@@ -443,11 +482,20 @@ namespace Paywall {
             }
 
             // The previous segment's segment type is less likely to be chosen (less chance of repeat segment types)
-            // Its weight is reduced multiplicatively by its RepeatModifier
-            int newWeight = (int)Mathf.Floor(_typeRandomizer.GetWeightOf((int)PreviousSegment.SegmentType));  // * _repeatModifiers[PreviousSegment.SegmentType]
-            _typeRandomizer.SetWeight((int)PreviousSegment.SegmentType, newWeight);
+            // Its weight is reduced by its RepeatModifier
+            //switch (PreviousSegment.SegmentType) {
+            //    case SegmentTypes.Ground:
+            //        break;
+            //    case SegmentTypes.Jumper:
+            //        int newWeight = _typeRandomizer.GetWeightOf((int)PreviousSegment.SegmentType) - 1;
+            //        if (newWeight < 1) {
+            //            newWeight = 1;
+            //        }
+            //        _typeRandomizer.SetWeight((int)PreviousSegment.SegmentType, newWeight);
+            //        break;
+            //}
             SegmentTypes typeToUse = (SegmentTypes)_typeRandomizer.Next();
-            // If it is a new segment type, reset the weight
+            // If it is a new segment type, reset segment weights
             if (typeToUse != PreviousSegment.SegmentType) {
                 _typeRandomizer.SetWeight((int)PreviousSegment.SegmentType, _initialWeights[PreviousSegment.SegmentType]);
             }

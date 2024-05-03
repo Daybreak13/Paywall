@@ -11,6 +11,8 @@ TagManager:
   - LaunchPad
   - PlayerDamage
   - Enemy
+  - Magnet
+  - Rail
   layers:
   - Default
   - TransparentFX
@@ -21,8 +23,8 @@ TagManager:
   - 
   - Player
   - Ground
-  - LevelBounds
-  - Editor
+  - OneWayPlatforms
+  - 
   - NoCollisions
   - Wall
   - Enemy
@@ -31,7 +33,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Pickables
   - Dodging
   - 
   - 

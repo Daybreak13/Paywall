@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 2357596866159161764}
   - component: {fileID: 1202036208524614419}
   - component: {fileID: 2123058069103200215}
-  - component: {fileID: 5669798184886145367}
+  - component: {fileID: 883019318589857818}
   - component: {fileID: 2475194569340927322}
   - component: {fileID: 8934884600401730753}
   - component: {fileID: 4300990212206320517}
@@ -87,7 +87,7 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 2996644156721059726}
   <RightOut>k__BackingField: {fileID: 8250956572146935542}
-  <BoundsBox>k__BackingField: {fileID: 5669798184886145367}
+  <BoundsBox>k__BackingField: {fileID: 883019318589857818}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
@@ -119,8 +119,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!61 &5669798184886145367
-BoxCollider2D:
+--- !u!68 &883019318589857818
+EdgeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -132,19 +132,15 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Offset: {x: 0, y: 0.5}
   m_EdgeRadius: 0
+  m_Points:
+  - {x: -0.5, y: 0}
+  - {x: 0.5, y: 0}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0
 --- !u!114 &2475194569340927322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 5
+  <DestroyDistanceBehindBounds>k__BackingField: 2
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4300990212206320517
 MonoBehaviour:
@@ -247,7 +243,7 @@ MonoBehaviour:
   <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
     type: 2}
   <MinLength>k__BackingField: 3
-  <MaxLength>k__BackingField: 3
+  <MaxLength>k__BackingField: 4
   <ManualSpawn>k__BackingField: 1
 --- !u!1 &6842856211426541111
 GameObject:
@@ -412,5 +408,5 @@ MonoBehaviour:
   <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
     type: 2}
   <MinLength>k__BackingField: 3
-  <MaxLength>k__BackingField: 3
+  <MaxLength>k__BackingField: 4
   <ManualSpawn>k__BackingField: 1

@@ -20,19 +20,6 @@ namespace Paywall {
         }
     }
 
-    public struct PaywallChanceUpdateEvent {
-        public float Chance;
-
-        public PaywallChanceUpdateEvent(float chance) {
-            Chance = chance;
-        }
-        static PaywallChanceUpdateEvent e;
-        public static void Trigger(float chance) {
-            e.Chance = chance;
-            MMEventManager.TriggerEvent(e);
-        }
-    }
-
     public struct PaywallDeathEvent {
         public GameObject DeadObject;
         public bool IncreaseStreak;

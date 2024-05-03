@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 2357596866159161764}
   - component: {fileID: 516504500700139267}
   - component: {fileID: 5669798184886145367}
+  - component: {fileID: 9143586561717896122}
   - component: {fileID: 2475194569340927322}
   - component: {fileID: 8934884600401730753}
   - component: {fileID: 4300990212206320517}
@@ -199,7 +200,7 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 2996644156721059726}
   <RightOut>k__BackingField: {fileID: 8250956572146935542}
-  <BoundsBox>k__BackingField: {fileID: 5669798184886145367}
+  <BoundsBox>k__BackingField: {fileID: 9143586561717896122}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
@@ -213,7 +214,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5233181535991135446}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 1
@@ -232,6 +233,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!68 &9143586561717896122
+EdgeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5233181535991135446}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.5}
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: -0.5, y: 0}
+  - {x: 0.5, y: 0}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0
 --- !u!114 &2475194569340927322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,7 +287,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 5
+  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4300990212206320517
 MonoBehaviour:
   m_ObjectHideFlags: 0
