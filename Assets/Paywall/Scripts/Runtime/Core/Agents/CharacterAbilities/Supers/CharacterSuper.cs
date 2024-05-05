@@ -66,7 +66,12 @@ namespace Paywall {
         /// </summary>
         /// <param name="ctx"></param>
         protected virtual void InputSuper(InputAction.CallbackContext ctx) {
-            PerformSuper();
+            if (!SuperActive) {
+                PerformSuper();
+            }
+            else {
+                EndSuper();
+            }
         }
 
         /// <summary>
@@ -107,6 +112,7 @@ namespace Paywall {
         }
 
         protected virtual void EndSuper() {
+            SuperActive = false;
             (Character as PlayerCharacterIRE).SetEXDraining(false);
         }
 

@@ -39,6 +39,10 @@ namespace Paywall {
         // the speed at which the object should try to go back to its starting position
         [field: Tooltip("the speed at which the object should try to go back to its starting position")]
         [field: SerializeField] public float ResetPositionSpeed { get; protected set; } = 0.5f;
+        /// returns true if the character is currently grounded
+        // if true, the object will try to go back to its starting position
+        [field: Tooltip("if true, the object will try to go back to its starting position")]
+        [field: SerializeField] public bool ResetPositionBlocked { get; set; }
 
         [field: Header("Grounded")]
 

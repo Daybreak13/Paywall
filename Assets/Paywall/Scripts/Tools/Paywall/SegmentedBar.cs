@@ -62,7 +62,9 @@ namespace Paywall.Tools {
 
         protected bool UseExistingSegments { get { return (FilledSegmentPrefab == null); } }
 
-        protected virtual void Start() {
+        protected bool _initialized;
+
+        protected virtual void Awake() {
             Initialization();
         }
 
@@ -70,6 +72,9 @@ namespace Paywall.Tools {
         /// Set initial fill if applicable
         /// </summary>
         protected virtual void Initialization() {
+            if (_initialized) return;
+            _initialized = true;
+
             if (SetInitialFillValue) {
                 SetCurrentValue(InitialFillValue);
             } else {

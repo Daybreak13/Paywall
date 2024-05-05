@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,13 @@ namespace Paywall {
         /// EX gain for enemy killed by invincible super
         [field: Tooltip("EX gain for enemy killed by invincible super")]
         [field: SerializeField] public float InvincibleEXOnKill { get; protected set; } = 5f;
+
+        Guid _speedGuid;
+
+        protected override void Initialization() {
+            base.Initialization();
+            _speedGuid = Guid.NewGuid();
+        }
 
         public override void ProcessAbility() {
             base.ProcessAbility();
@@ -27,7 +35,7 @@ namespace Paywall {
         protected virtual void PerformSuperInvincible() {
             SuperActive = true;
             Character.ToggleInvincibility(true);
-            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, true);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid);
             Character.Model.color = Color.blue;
         }
 
@@ -38,16 +46,11 @@ namespace Paywall {
             base.EndSuper();
             SuperActive = false;
             Character.ToggleInvincibility(false);
-            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(0f, false);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid);
             Character.Model.color = _initialColor;
         }
 
-        /// <summary>
-        /// Handles collisions for invincible super
-        /// If colliding with an enemy, kill it
-        /// </summary>
-        /// <param name="collision"></param>
-        protected virtual void OnCollisionEnter2D(Collision2D collision) {
+        protected virtual void KillContact(Collision2D collision) {
             if ((CurrentSuperType == SuperTypes.Invincible) && SuperActive
                 && (collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))) {
 
@@ -59,6 +62,19 @@ namespace Paywall {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles collisions for invincible super
+        /// If colliding with an enemy, kill it
+        /// </summary>
+        /// <param name="collision"></param>
+        protected virtual void OnCollisionEnter2D(Collision2D collision) {
+            KillContact(collision);
+        }
+
+        protected virtual void OnCollisionStay2D(Collision2D collision) {
+            KillContact(collision);
         }
     }
 }

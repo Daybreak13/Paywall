@@ -296,7 +296,7 @@ MonoBehaviour:
   <FlickerDuration>k__BackingField: 0.1
   <UseDefaultMecanim>k__BackingField: 1
   <ShouldResetPosition>k__BackingField: 1
-  <ResetPositionSpeed>k__BackingField: 0.5
+  <ResetPositionSpeed>k__BackingField: 0.7
   <DistanceToTheGround>k__BackingField: 0
   <GroundDistanceTolerance>k__BackingField: 0.05
   <InitialInvincibilityDuration>k__BackingField: 3

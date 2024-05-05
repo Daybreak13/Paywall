@@ -6,6 +6,7 @@ PluginImporter:
   iconMap: {}
   executionOrder:
     ImmersiveVRTools.Runtime.Common.Debug.RuntimeDebugDraw: 9990
+    ImmersiveVRTools.Runtime.Common.Utilities.ColliderSetter: 10100
   defineConstraints:
   - UNITY_EDITOR || LiveScriptReload_IncludeInBuild_Enabled
   isPreloaded: 0

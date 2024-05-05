@@ -8,7 +8,8 @@ namespace Paywall {
         public enum ConditionStates {
             Normal,
             Dodging,
-            Parrying
+            Parrying,
+            Teleporting
         }
 
         public enum MovementStates {

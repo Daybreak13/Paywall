@@ -139,20 +139,62 @@ namespace Paywall {
 		/// Called on fixed update, tries to return the object to its initial position
 		/// </summary>
 		protected virtual void ResetPosition() {
-			if (ShouldResetPosition) {
+			if (ShouldResetPosition && !ResetPositionBlocked) {
 				if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
-					CharacterRigidBody.velocity = new Vector3((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
+					float deltaX = InitialPosition.x - transform.position.x;
+					//if (Mathf.Abs(deltaX) > 0.02f) {
+					//	float direction = Mathf.Sign(deltaX);
+					//	CharacterRigidBody.velocity = new(direction * ResetPositionSpeed, CharacterRigidBody.velocity.y);
+					//}
+					//else {
+					//	CharacterRigidBody.velocity = new(0f, CharacterRigidBody.velocity.y);
+					//	CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+					//}
+					if (Mathf.Abs(deltaX) > 0.05f) {
+						CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
+					}
+					else {
+						CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
+						CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+					}
 				}
 			}
+			else if (ResetPositionBlocked) {
+                float deltaX = InitialPosition.x - transform.position.x;
+                if (Mathf.Abs(deltaX) > 1f) {
+                    CharacterRigidBody.velocity = new Vector2(4, CharacterRigidBody.velocity.y);
+                }
+                else {
+                    CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
+                    CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+                }
+            }
 		}
 
 		#endregion
 
 		/// <summary>
-		/// Checks the EX draining flag
+		/// Sets character state if it is teleporting
 		/// </summary>
-		/// <param name="draining"></param>
-		public virtual void SetEXDraining(bool draining) {
+		/// <param name="on"></param>
+		public virtual void SetTeleportState(bool on) {
+			if (on) {
+				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Teleporting);
+                gameObject.layer = PaywallLayerManager.TeleportingLayer;
+				Model.enabled = false;
+			}
+			else {
+				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
+                gameObject.layer = PaywallLayerManager.PlayerLayer;	
+                Model.enabled = true;
+			}
+		}
+
+        /// <summary>
+        /// Checks the EX draining flag
+        /// </summary>
+        /// <param name="draining"></param>
+        public virtual void SetEXDraining(bool draining) {
 			EXDraining = draining;
 		}
 

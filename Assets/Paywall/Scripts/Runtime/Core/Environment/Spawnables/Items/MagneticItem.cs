@@ -8,6 +8,8 @@ namespace Paywall {
     public class MagneticItem : MonoBehaviour {
         protected GameObject _player;
         protected Rigidbody2D _rigidbody;
+        protected float _speed;
+        protected float _resetDistance = 10f;
 
         protected virtual void Awake() {
             if (_rigidbody == null) {
@@ -16,9 +18,9 @@ namespace Paywall {
         }
 
         protected virtual void FixedUpdate() {
-            if (_player == null) {
-                return;
-            }
+            if (_player == null) { return; }
+            if (Vector2.Distance(_player.transform.position, transform.position) > _resetDistance) { ResetItem(); return; }
+
             //Vector2 direction = (transform.position - _player.transform.position).normalized;
             //float travelSpeed = Vector2.Distance(transform.position, _player.transform.position);
             //_rigidbody.velocity = -direction * travelSpeed;
@@ -39,7 +41,7 @@ namespace Paywall {
             _rigidbody.velocity = Vector2.zero;
         }
 
-        protected virtual void OnDisable() {
+        protected virtual void OnEnable() {
             ResetItem();
         }
     }
