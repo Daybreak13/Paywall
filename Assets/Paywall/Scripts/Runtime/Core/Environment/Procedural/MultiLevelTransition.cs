@@ -25,7 +25,7 @@ namespace Paywall {
 
         protected virtual void OnEnable() {
             RightPiece.transform.position = new(RightPiece.position.x,
-            LeftPiece.position.y + ParentController.StoredHeightDelta * ProceduralLevelGenerator.Instance.HeightInterval);
+                LeftPiece.position.y + ParentController.StoredHeightDelta * ProceduralLevelGenerator.Instance.HeightInterval);
         }
     }
 }

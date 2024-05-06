@@ -6,7 +6,7 @@ using MoreMountains.Tools;
 
 namespace Paywall {
 
-    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW>, MMEventListener<PaywallDeathEvent>, MMEventListener<PaywallEXChargeEvent>, MMEventListener<MMGameEvent> {
+    public class GameManagerIRE_PW : Singleton_PW<GameManagerIRE_PW>, MMEventListener<PaywallDeathEvent>, MMEventListener<MMGameEvent> {
 		/// the number of lives the player gets (you lose a life when your character (or your characters all) die.
 		/// lose all lives you lose the game and your points.
 		[Tooltip("the number of lives the player gets (you lose a life when your character (or your characters all) die.")]
@@ -39,10 +39,7 @@ namespace Paywall {
 
 		// storage
 		protected float _savedTimeScale;
-		protected IEnumerator _scoreCoroutine;
-		protected float _pointsPerSecond;
 		protected GameStatus _statusBeforePause;
-		protected Coroutine _autoIncrementCoroutine;
 
 		protected PauseScreenMethods _currentPauseScreenMethod;
 		protected bool _supplyDepotMenuOpen;
@@ -61,22 +58,14 @@ namespace Paywall {
 			}
 		}
 
-		protected virtual void Update() {
-
-		}
-
-		public virtual void SetPointsPerSecond(float newPointsPerSecond) {
-			_pointsPerSecond = newPointsPerSecond;
-		}
-
 		/// <summary>
 		/// Sets the status. Status can be accessed by other classes to check if the game is paused, starting, etc
 		/// </summary>
 		/// <param name="newStatus">New status.</param>
 		public virtual void SetStatus(GameStatus newStatus) {
 			Status = newStatus;
-			if (GameManagerInspectorNeedRedraw != null) { GameManagerInspectorNeedRedraw(); }
-		}
+            GameManagerInspectorNeedRedraw?.Invoke();
+        }
 
 		/// <summary>
 		/// this method resets the whole game manager
@@ -87,34 +76,6 @@ namespace Paywall {
 			GameManagerIRE_PW.Instance.SetStatus(GameStatus.GameInProgress);
 			MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
 			GUIManagerIRE_PW.Instance.RefreshPoints(); //TODO move to GUImanager
-		}
-
-		/// <summary>
-		/// Starts or stops the autoincrement of the score
-		/// </summary>
-		/// <param name="status">If set to <c>true</c> autoincrements the score, if set to false, stops the autoincrementation.</param>
-		public virtual void AutoIncrementScore(bool status) {
-			if (status) {
-				_autoIncrementCoroutine = StartCoroutine(IncrementScore());
-			}
-			else {
-				StopCoroutine(_autoIncrementCoroutine);
-			}
-		}
-
-		/// <summary>
-		/// Each 0.01 second, increments the score by 1/100th of the number of points it's supposed to increase each second
-		/// </summary>
-		/// <returns>The score.</returns>
-		protected virtual IEnumerator IncrementScore() {
-			while (true) {
-				_pointsPerSecond = (LevelManagerIRE_PW.Instance.Speed + LevelManagerIRE_PW.Instance.SegmentSpeed) 
-					* LevelManagerIRE_PW.Instance.SpeedMultiplier * LevelManagerIRE_PW.Instance.PointsPerUnit;
-				if ((Instance.Status == GameStatus.GameInProgress) && (_pointsPerSecond != 0)) {
-					AddPoints(_pointsPerSecond / 10);
-				}
-				yield return new WaitForSeconds(0.1f);
-			}
 		}
 
 		/// <summary>
@@ -241,10 +202,6 @@ namespace Paywall {
 			}
         }
 
-        public void OnMMEvent(PaywallEXChargeEvent chargeEvent) {
-            
-        }
-
         public virtual void OnMMEvent(MMGameEvent gameEvent) {
             if (gameEvent.EventName.Equals(_enterSupplyDepotEventName)) {
 				Instance.Pause(PauseScreenMethods.SupplyDepotScreen);
@@ -253,14 +210,12 @@ namespace Paywall {
 
         protected virtual void OnEnable() {
 			this.MMEventStartListening<PaywallDeathEvent>();
-			this.MMEventStartListening<PaywallEXChargeEvent>();
 			this.MMEventStartListening<MMGameEvent>();
 		}
 
 		protected override void OnDisable() {
 			base.OnDisable();
 			this.MMEventStopListening<PaywallDeathEvent>();
-			this.MMEventStopListening<PaywallEXChargeEvent>();
 			this.MMEventStopListening<MMGameEvent>();
 		}
 

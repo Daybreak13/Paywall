@@ -109,6 +109,13 @@ namespace Paywall {
         }
 
         /// <summary>
+        /// Update animator every frame
+        /// </summary>
+        public virtual void UpdateAnimator() {
+
+        }
+
+        /// <summary>
         /// Resets abilities. Usually called on player out of bounds death.
         /// </summary>
         public virtual void ResetAbility() {

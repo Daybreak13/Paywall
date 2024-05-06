@@ -26,9 +26,7 @@ namespace Paywall {
 
         [field: Header("Animator")]
 
-        /// should we use the default mecanim ?
-        [field: Tooltip("should we use the default mecanim ?")]
-        [field: SerializeField] public bool UseDefaultMecanim { get; protected set; } = true;
+        
 
         [field: Header("Position")]
 
@@ -39,10 +37,14 @@ namespace Paywall {
         // the speed at which the object should try to go back to its starting position
         [field: Tooltip("the speed at which the object should try to go back to its starting position")]
         [field: SerializeField] public float ResetPositionSpeed { get; protected set; } = 0.5f;
+        // the speed at which the object should try to go back to its starting position
+        [field: Tooltip("the speed at which the object should try to go back to its starting position")]
+        [field: SerializeField] public float TeleportResetBuffer { get; protected set; } = 10f;
         /// returns true if the character is currently grounded
         // if true, the object will try to go back to its starting position
         [field: Tooltip("if true, the object will try to go back to its starting position")]
-        [field: SerializeField] public bool ResetPositionBlocked { get; set; }
+        [field: MMReadOnly]
+        [field: SerializeField] public bool Teleporting { get; set; }
 
         [field: Header("Grounded")]
 
@@ -144,25 +146,6 @@ namespace Paywall {
         }
 
         protected virtual void Update() {
-
-            // we determine the distance between the ground and the character
-            ComputeDistanceToTheGround();
-            if (Grounded) {
-                // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of jumping
-                if (!(MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping
-                    && CharacterRigidBody.velocity.y > 0)) {
-                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
-                }
-            }
-            else {
-                // If we are airborne and moving down, change state to falling
-                if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
-                    && CharacterRigidBody.velocity.y < 0
-                    && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
-                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
-                }
-            }
-
             EarlyProcessAbilities();
             ProcessAbilities();
             LateProcessAbilities();
@@ -192,8 +175,18 @@ namespace Paywall {
             }
         }
 
-        protected virtual void FixedProcessAbilities() {
+        /// <summary>
+        /// This is called at Update() and sets each of the animators parameters to their corresponding State values
+        /// </summary>
+        protected virtual void UpdateAnimator() {
+            if (CharacterAnimator == null) { return; }
+            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+                ability.UpdateAnimator();
+            }
 
+            // we send our various states to the animator.
+            MMAnimatorExtensions.UpdateAnimatorBoolIfExists(CharacterAnimator, "Grounded", Grounded);
+            MMAnimatorExtensions.UpdateAnimatorFloatIfExists(CharacterAnimator, "VerticalSpeed", CharacterRigidBody.velocity.y);
         }
 
         public virtual void ResetCharacter() {
@@ -216,6 +209,25 @@ namespace Paywall {
         /// </summary>
         protected virtual void FixedUpdate() {
             CheckCollisionRight();
+
+            // we determine the distance between the ground and the character
+            ComputeDistanceToTheGround();
+            if (Grounded) {
+                // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of jumping
+                if (!(MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping
+                        && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding
+                        && CharacterRigidBody.velocity.y > 0)) {
+                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
+                }
+            }
+            else {
+                // If we are airborne and moving down, change state to falling
+                if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
+                        && CharacterRigidBody.velocity.y < 0
+                        && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
+                    MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
+                }
+            }
         }
 
         public virtual void Die() {
@@ -252,17 +264,16 @@ namespace Paywall {
 
             DistanceToTheGround = -1;
 
-            _raycastLeftOrigin = CharacterBoxCollider.bounds.min;
-            _raycastRightOrigin = CharacterBoxCollider.bounds.min;
-            _raycastRightOrigin.x = CharacterBoxCollider.bounds.max.x;
+            _raycastLeftOrigin = new Vector2(CharacterBoxCollider.bounds.min.x, CharacterBoxCollider.bounds.min.y - CharacterBoxCollider.edgeRadius);
+            _raycastRightOrigin = new Vector2(CharacterBoxCollider.bounds.max.x, CharacterBoxCollider.bounds.min.y - CharacterBoxCollider.edgeRadius);
 
             // we cast a ray to the bottom to check if we're above ground and determine the distance
-            RaycastHit2D raycastLeft = MMDebug.RayCast(_raycastLeftOrigin, Vector2.down, _distanceToTheGroundRaycastLength, 1 << LayerMask.NameToLayer("Ground"), Color.gray, true);
+            RaycastHit2D raycastLeft = MMDebug.RayCast(_raycastLeftOrigin, Vector2.down, _distanceToTheGroundRaycastLength, PaywallLayerManager.ObstaclesLayerMask, Color.gray, true);
             if (raycastLeft) {
                 DistanceToTheGround = raycastLeft.distance;
                 _ground = raycastLeft.collider.gameObject;
             }
-            RaycastHit2D raycastRight = MMDebug.RayCast(_raycastRightOrigin, Vector2.down, _distanceToTheGroundRaycastLength, 1 << LayerMask.NameToLayer("Ground"), Color.gray, true);
+            RaycastHit2D raycastRight = MMDebug.RayCast(_raycastRightOrigin, Vector2.down, _distanceToTheGroundRaycastLength, PaywallLayerManager.ObstaclesLayerMask, Color.gray, true);
             if (raycastRight) {
                 if (raycastLeft) {
                     if (raycastRight.distance < DistanceToTheGround) {
@@ -286,6 +297,11 @@ namespace Paywall {
                 Grounded = false;
                 return;
             }
+            if (CharacterRigidBody.velocity.y > 0) {
+                _ground = null;
+                Grounded = false;
+                return;
+            }
             Grounded = DetermineIfGroudedConditionsAreMet();
         }
 
@@ -300,49 +316,13 @@ namespace Paywall {
                 return false;
             }
             // if the distance to the ground is within the tolerated bounds, the character is grounded, otherwise it's not.
-            if (DistanceToTheGround < (GroundDistanceTolerance + CharacterBoxCollider.edgeRadius)) {
+            if (DistanceToTheGround < GroundDistanceTolerance) {
                 return true;
             }
             else {
                 _ground = null;
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Gets the character bounds.
-        /// </summary>
-        /// <returns>The character bounds.</returns>
-        protected virtual Bounds GetCharacterBounds() {
-            if (gameObject.MMGetComponentNoAlloc<Collider>() != null) {
-                return gameObject.MMGetComponentNoAlloc<Collider>().bounds;
-            }
-
-            if (gameObject.MMGetComponentNoAlloc<Collider2D>() != null) {
-                return gameObject.MMGetComponentNoAlloc<Collider2D>().bounds;
-            }
-
-            return gameObject.MMGetComponentNoAlloc<Renderer>().bounds;
-        }
-
-        /// <summary>
-        /// This is called at Update() and sets each of the animators parameters to their corresponding State values
-        /// </summary>
-        protected virtual void UpdateAnimator() {
-            if (CharacterAnimator == null) { return; }
-
-            // we send our various states to the animator.		
-            if (UseDefaultMecanim) {
-                UpdateAllMecanimAnimators();
-            }
-        }
-
-        /// <summary>
-        /// Updates all mecanim animators.
-        /// </summary>
-        protected virtual void UpdateAllMecanimAnimators() {
-            MMAnimatorExtensions.UpdateAnimatorBoolIfExists(CharacterAnimator, "Grounded", Grounded);
-            MMAnimatorExtensions.UpdateAnimatorFloatIfExists(CharacterAnimator, "VerticalSpeed", CharacterRigidBody.velocity.y);
         }
 
         #endregion
@@ -397,7 +377,7 @@ namespace Paywall {
             Invincible = true;
             _remainingInvincibility = TempInvincibilityDuration;
 
-            if (!FlickerSpriteOnHit) return;
+            if (!FlickerSpriteOnHit) { return; }
             if (_flickerCoroutine != null) {
                 StopCoroutine(_flickerCoroutine);
             }

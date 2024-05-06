@@ -66,9 +66,10 @@ namespace Paywall {
             _dodgeCoroutine = StartCoroutine(DodgeCo());
         }
 
+        // If dodging freezes the character's Y position, set Y velocity to zero every frame
         protected virtual void FixedUpdate() {
             if (FreezeY && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
-                Character.CharacterRigidBody.velocity = Vector2.zero;
+                Character.CharacterRigidBody.velocity = new Vector2(Character.CharacterRigidBody.velocity.x, 0);
             }
         }
 
@@ -88,7 +89,7 @@ namespace Paywall {
             newColor.a = 0.2f;
             Character.Model.color = newColor;
             _initialLayer = Character.gameObject.layer;
-            Character.gameObject.layer = LayerMask.NameToLayer("Dodging");     // Change collision layer temporarily. Cannot collide with Enemy or Projectiles
+            Character.gameObject.layer = PaywallLayerManager.DodgingLayer;     // Change collision layer temporarily. Cannot collide with Enemy or Projectiles
             _currentDodgeTime = 0f;
 
             yield return new WaitForSeconds(DodgeDuration);

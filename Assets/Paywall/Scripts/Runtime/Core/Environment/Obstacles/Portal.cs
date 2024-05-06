@@ -24,45 +24,23 @@ namespace Paywall {
 
         protected virtual void Awake() {
             _guid = Guid.NewGuid();
-            _speed = Distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / 5 - LevelManagerIRE_PW.Instance.FinalSpeed;
-        }
-
-        int count;
-        protected virtual void FixedUpdate() {
-            //if (Exit.position.x <= _entryPos.x
-            //    && !_exited) {
-            //    //LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(_speed, _guid);
-            //    _exited = true;
-            //    _teleporting = false;
-            //}
-            //if (_teleporting) {
-            //    //Debug.Log(count++);
-            //}
-
-            if (_teleporting && Exit.position.x <= _character.transform.position.x) {
-                _teleporting = false;
-                _character.transform.SafeSetTransformPosition(Exit.position, PaywallLayerManager.ObstaclesLayerMask);
-                _character.SetTeleportState(false);
-                _character = null;
-            }
         }
 
         protected virtual void OnTriggerEnter2D(Collider2D collider) {
             if (collider.gameObject.CompareTag(PaywallTagManager.PlayerTag)) {
                 _character = collider.GetComponent<PlayerCharacterIRE>();
                 if (Distance > 0) {
-                    _character.SetTeleportState(true);
+                    _speed = Distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / 12 - LevelManagerIRE_PW.Instance.FinalSpeed;
                     LevelManagerIRE_PW.Instance.TemporarilyAddSpeedDist(_speed, Distance);
-                    _teleporting = true;
+                    _character.Teleporting = true;
                 }
-                else {
-                    collider.transform.SafeSetTransformPosition(Exit.position, PaywallLayerManager.ObstaclesLayerMask);
-                    _character = null;
-                }
+                collider.transform.SafeSetTransformPosition(new Vector3(Exit.position.x, Exit.position.y, _character.transform.position.z), PaywallLayerManager.ObstaclesLayerMask);
+                _character = null;
 
             }
-            else {
 
+            else if (collider.gameObject.layer != PaywallLayerManager.ObstaclesLayerMask && !collider.gameObject.CompareTag(PaywallTagManager.MagnetTag)) {
+                collider.transform.SafeSetTransformPosition(new Vector3(Exit.position.x, Exit.position.y, collider.transform.position.z), PaywallLayerManager.ObstaclesLayerMask);
             }
         }
     }

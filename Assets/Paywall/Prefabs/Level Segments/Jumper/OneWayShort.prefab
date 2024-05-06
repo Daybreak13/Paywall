@@ -526,12 +526,12 @@ PrefabInstance:
     - target: {fileID: 8400469098144930961, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
       propertyPath: m_Points.Array.data[0].x
-      value: -0.99447984
+      value: -1.18
       objectReference: {fileID: 0}
     - target: {fileID: 8400469098144930961, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
       propertyPath: m_Points.Array.data[1].x
-      value: 1.1655202
+      value: 1.18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cc21906bf5e0464bb80df24c0f28277, type: 3}

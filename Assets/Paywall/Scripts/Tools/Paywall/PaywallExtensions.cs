@@ -49,12 +49,13 @@ namespace Paywall.Tools {
         /// <param name="transform"></param>
         /// <param name="destination"></param>
         /// <param name="layerMask"></param>
-        public static bool SafeSetTransformPosition(this Transform transform, Vector2 destination, LayerMask layerMask, SetTransformModes setTransformMode = SetTransformModes.PlusY) {
+        public static bool SafeSetTransformPosition(this Transform transform, Vector3 destination, LayerMask layerMask, SetTransformModes setTransformMode = SetTransformModes.PlusY) {
             float maxDisplacement = 1.5f;
             BoxCollider2D boxCollider = transform.GetComponent<BoxCollider2D>();
+            Collider2D collider = transform.GetComponent<Collider2D>();
 
             // we do a first test to see if there's room enough to move to the destination
-            Collider2D hit = Physics2D.OverlapBox(destination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
+            Collider2D hit = Physics2D.OverlapBox(destination, collider.bounds.size, transform.rotation.eulerAngles.z, layerMask);
 
             // If we found empty space, move the transform there
             if (hit == null) {
@@ -64,9 +65,9 @@ namespace Paywall.Tools {
             // Otherwise, search for a safe location
             else {
                 if (setTransformMode == SetTransformModes.PlusX) {
-                    Vector2 newDestination = new(destination.x + 0.1f, destination.y);
+                    Vector3 newDestination = new(destination.x + 0.1f, destination.y, transform.position.z);
                     while ((newDestination.x - destination.x) <= maxDisplacement) {
-                        hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
+                        hit = Physics2D.OverlapBox(newDestination, collider.bounds.size, transform.rotation.eulerAngles.z, layerMask);
                         // If we found empty space, move the transform there
                         if (hit == null) {
                             transform.position = newDestination;
@@ -78,9 +79,9 @@ namespace Paywall.Tools {
                     transform.position = destination;
                 }
                 else {
-                    Vector2 newDestination = new(destination.x, destination.y + 0.1f);
+                    Vector3 newDestination = new(destination.x, destination.y + 0.1f, transform.position.z);
                     while ((newDestination.y - destination.y) <= maxDisplacement) {
-                        hit = Physics2D.OverlapBox(newDestination, boxCollider.size, transform.rotation.eulerAngles.z, layerMask);
+                        hit = Physics2D.OverlapBox(newDestination, collider.bounds.size, transform.rotation.eulerAngles.z, layerMask);
                         // If we found empty space, move the transform there
                         if (hit == null) {
                             transform.position = newDestination;

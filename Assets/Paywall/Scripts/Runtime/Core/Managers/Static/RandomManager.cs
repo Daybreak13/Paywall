@@ -3,22 +3,27 @@ using System.Collections.Generic;
 
 namespace Paywall {
 
+    public struct RandomGenerator {
+        public Guid GUID { get; set; }
+        public Random RNG { get; set; }
+    }
+
     /// <summary>
     /// Static class containing references to rngs
     /// </summary>
     public static class RandomManager {
-        public static Dictionary<Guid, System.Random> RandomGenerators = new();
+        public static Dictionary<Guid, Random> RandomGenerators = new();
 
-        public static System.Random NewRandom() {
+        public static Random NewRandom() {
             Guid g = Guid.NewGuid();
-            System.Random r = new();
+            Random r = new();
             RandomGenerators.Add(g, r);
             return r;
         }
 
-        public static System.Random NewRandom(int seed) {
+        public static Random NewRandom(int seed) {
             Guid g = Guid.NewGuid();
-            System.Random r = new(seed);
+            Random r = new(seed);
             RandomGenerators.Add(g, r);
             return r;
         }

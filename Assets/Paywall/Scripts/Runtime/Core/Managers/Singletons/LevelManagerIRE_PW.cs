@@ -125,10 +125,12 @@ namespace Paywall {
         protected float _preBlockSpeed;
         protected float _lastBlockTime;
 
-        protected bool _teleporting;
-        protected float _teleportStart;
+        public bool _teleporting;
+        protected float _teleportStartDistance;
         protected float _teleportDistance;
-        protected float _teleportSpeed;
+        protected float _teleportTime;
+        protected float _extraDist;
+        public float TeleportSpeed { get; set; }
 
         protected const string _enterSupplyDepotEventName = "EnterSupplyDepot";
 
@@ -153,7 +155,6 @@ namespace Paywall {
             _savedPoints = GameManagerIRE_PW.Instance.Points;
             _started = DateTime.UtcNow;
             GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.BeforeGameStart);
-            GameManagerIRE_PW.Instance.SetPointsPerSecond(PointsPerUnit);
 
             if (GUIManagerIRE_PW.Instance != null) {
                 // set the level name in the GUI
@@ -257,8 +258,6 @@ namespace Paywall {
 
             HandleCharacterBlocked();
 
-            HandleSpeedFactor();
-
             RunningTime += Time.deltaTime;
             if (!_tempSpeedAddedActive && !TempSpeedSwitchActive && Speed != 0) {
                 CurrentUnmodifiedSpeed = Speed;
@@ -280,36 +279,31 @@ namespace Paywall {
         /// Used by Portal
         /// </summary>
         protected virtual void HandleTempDist() {
-            if (!_teleporting || Mathf.Abs(_teleportStart - DistanceTraveled) < _teleportDistance) {
+            if (!_teleporting) return;
+
+            if (DistanceTraveled - _teleportStartDistance < _teleportDistance) {
+                _teleportTime += Time.fixedDeltaTime;
+                _extraDist += (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime;
+                return;
+            }
+            if (DistanceTraveled - _teleportStartDistance < _teleportDistance + _extraDist) {
                 return;
             }
 
+            // No longer teleporting
             if (_charBlocking) {
-                _preBlockSpeed -= _teleportSpeed;
+                _preBlockSpeed -= TeleportSpeed;
             }
             else {
-                Speed -= _teleportSpeed;
+                Speed -= TeleportSpeed;
             }
-            _currentAddedSpeed -= _teleportSpeed;
+            _currentAddedSpeed -= TeleportSpeed;
             _tempActiveCount--;
 
             if (_tempActiveCount == 0) {
                 _tempSpeedAddedActive = false;
             }
             _teleporting = false;
-        }
-
-        /// <summary>
-        /// Handles speed multipliers
-        /// </summary>
-        protected virtual void HandleSpeedFactor() {
-            // Points per second increases/decreases proportionally to the ratio of the current speed to initial speed
-            if (Speed > 0) {
-                GameManagerIRE_PW.Instance.SetPointsPerSecond(PointsPerUnit * (Speed / InitialSpeed));
-            }
-            else {
-                GameManagerIRE_PW.Instance.SetPointsPerSecond(0f);
-            }
         }
 
         /// <summary>
@@ -394,9 +388,6 @@ namespace Paywall {
         /// <param name="factor"></param>
         /// <param name="distance"></param>
         public virtual void TemporarilyAddSpeedDist(float factor, float distance) {
-            if (_teleporting) {
-                Debug.Log("teleporting");
-            }
             if (!_tempSpeedAddedActive && !TempSpeedSwitchActive) {
                 CurrentUnmodifiedSpeed = Speed;
             }
@@ -413,30 +404,11 @@ namespace Paywall {
 
             _teleporting = true;
             _tempActiveCount++;
-            _teleportStart = DistanceTraveled;
+            _teleportStartDistance = DistanceTraveled;
             _teleportDistance = distance;
-            _teleportSpeed = factor;
-            //StartCoroutine(TemporarilyAddSpeedDistCo(factor, distance));
-        }
-
-        protected IEnumerator TemporarilyAddSpeedDistCo(float factor, float distance) {
-            float start = DistanceTraveled;
-            while (Mathf.Abs(DistanceTraveled - start) < distance) {
-                yield return null;
-            }
-
-            if (_charBlocking) {
-                _preBlockSpeed -= factor;
-            }
-            else {
-                Speed -= factor;
-            }
-            _currentAddedSpeed -= factor;
-            _tempActiveCount--;
-
-            if (_tempActiveCount == 0) {
-                _tempSpeedAddedActive = false;
-            }
+            _teleportTime = 0f;
+            _extraDist = 0f;
+            TeleportSpeed = factor;
         }
 
         /// <summary>

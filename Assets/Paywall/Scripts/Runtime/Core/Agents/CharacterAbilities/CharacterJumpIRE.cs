@@ -82,17 +82,6 @@ namespace Paywall {
         [field: FieldCondition("OverrideLaunchHeight", true)]
         [field: SerializeField] public float LaunchHeight { get; protected set; } = 2f;
 
-        [field: Header("Jump Startup")]
-
-        /// The duration after the first jump is performed to check if we need to do a low or high jump
-        [field: Tooltip("The duration after the first jump is performed to check if we need to do a low or high jump")]
-        [field: FieldCondition("UseJumpHeight", true, true)]
-        [field: SerializeField] public float LowJumpForce { get; protected set; } = 10f;
-        /// The duration after the first jump is performed to check if we need to do a low or high jump
-        [field: Tooltip("The duration after the first jump is performed to check if we need to do a low or high jump")]
-        [field: FieldCondition("UseJumpHeight", true)]
-        [field: SerializeField] public float LowJumpHeight { get; protected set; } = 2f;
-
         [field: Header("Buffers")]
 
         /// How long of a buffer the jump input has
@@ -177,8 +166,6 @@ namespace Paywall {
             if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
                 NumberOfJumpsLeft--;
             }
-
-            //HandleLaunchPad();
         }
 
         // Debug
@@ -255,29 +242,6 @@ namespace Paywall {
 
         }
 
-        /// <summary>
-        /// Called every frame. Launches the character if it came into contact with a launch pad.
-        /// </summary>
-        protected virtual void HandleLaunchPad() {
-            if ((Time.time - _lastJumpTime > MinimalDelayBetweenJumps)
-                    && (Time.time - _lastJumpTime > UngroundedDurationAfterJump)) {
-                if (Character.Grounded && Character.Ground != null && Character.Ground.CompareTag("LaunchPad")) {
-                    _launchPad = Character.Ground.GetComponent<LaunchPad>();
-                    switch (_launchPad.LaunchType) {
-                        case LaunchTypes.Height:
-                            ApplyExternalJumpForce(LaunchTypes.Height, _launchPad.LaunchHeight);
-                            break;
-                        case LaunchTypes.Force:
-                            ApplyExternalJumpForce(LaunchTypes.Force, _launchPad.LaunchForce);
-                            break;
-                        case LaunchTypes.Jump:
-                            ApplyExternalJumpForce(LaunchTypes.Jump, _launchPad.LaunchForce);
-                            break;
-                    }
-                }
-            }
-        }
-
         #endregion
 
         /// <summary>
@@ -334,7 +298,7 @@ namespace Paywall {
                 if (_bufferCoroutine != null) {
                     StopCoroutine(_bufferCoroutine);
                 }
-                if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status == GameManagerIRE_PW.GameStatus.GameInProgress) {
+                if (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress) {
                     _bufferCoroutine = StartCoroutine(BufferJump());
                 }
                 return;
@@ -467,7 +431,7 @@ namespace Paywall {
         /// <returns></returns>
         public virtual float CalculateJumpTime(JumpTypes jumpType) {
             float jumpTime = 0;
-            float Trelease, Vinitial, Vrelease, Tpeak, Vfinal, Tfall;
+            float Vinitial, Tpeak, Vfinal, Tfall;
             switch (jumpType) {
                 case JumpTypes.Normal:
                     Vinitial = CalculateJumpForce(JumpHeight) / _rigidbody2D.mass;
@@ -477,13 +441,7 @@ namespace Paywall {
                     jumpTime = Tpeak + Tfall;
                     break;
                 case JumpTypes.Low:
-                    Trelease = LowJumpBufferFrames * Time.fixedDeltaTime;
-                    Vinitial = CalculateJumpForce(JumpHeight) / _rigidbody2D.mass;
-                    Vrelease = Vinitial + (Physics2D.gravity.y * _initialGravityScale) * Trelease;
-                    Tpeak = (-Vrelease / (-JumpReleaseSpeed + (Physics2D.gravity.y * _initialGravityScale)));
-                    Vfinal = Mathf.Sqrt(Mathf.Abs(2f * (Physics2D.gravity.y * _initialGravityScale) * LowJumpHeight));
-                    Tfall = (Vfinal) / Mathf.Abs((Physics2D.gravity.y * _initialGravityScale));
-                    jumpTime = Trelease + Tpeak + Tfall;
+                    
                     break;
             }
 
@@ -504,6 +462,13 @@ namespace Paywall {
         /// </summary>
         public override void ResetAbility() {
             NumberOfJumpsLeft = FinalNumJumpsAllowed;
+        }
+
+        public override void UpdateAnimator() {
+            base.UpdateAnimator();
+            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal) {
+                MMAnimatorExtensions.UpdateAnimatorBoolIfExists(_animator, "Jumping", Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping);
+            }
         }
 
         /// <summary>

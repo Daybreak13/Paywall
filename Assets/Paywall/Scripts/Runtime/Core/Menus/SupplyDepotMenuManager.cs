@@ -122,12 +122,6 @@ namespace Paywall {
         [field: Tooltip("List of ritual buttons")]
         [field: SerializeField] public List<DepotButtonDataReference> RitualButtonList { get; protected set; }
 
-        [field: Header("Event Flags")]
-
-        /// Event flag corresponding to entering the depot for the first time
-        [field: Tooltip("Event flag corresponding to entering the depot for the first time")]
-        [field: SerializeField] public ScriptableEventFlag EnterDepotFirstTime { get; protected set; }
-
         /// List of inactive valid modules (ones that are in the shop pool)
         protected List<ScriptableModule> _inactiveModuleList = new();
         protected List<DepotItemList> _validDepotSets = new();

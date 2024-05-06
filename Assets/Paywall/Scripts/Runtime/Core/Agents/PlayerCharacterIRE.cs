@@ -64,6 +64,7 @@ namespace Paywall {
 		protected float _exDrainRate;	// EX drain rate per second
 		protected bool _exDraining;
 		protected float _exLastFrame;
+		protected Vector2 _savedVelocity;
 
         protected override void Initialization() {
             if (GUIManagerIRE_PW.HasInstance) {
@@ -139,18 +140,10 @@ namespace Paywall {
 		/// Called on fixed update, tries to return the object to its initial position
 		/// </summary>
 		protected virtual void ResetPosition() {
-			if (ShouldResetPosition && !ResetPositionBlocked) {
+			if (ShouldResetPosition && !Teleporting) {
 				if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
 					float deltaX = InitialPosition.x - transform.position.x;
-					//if (Mathf.Abs(deltaX) > 0.02f) {
-					//	float direction = Mathf.Sign(deltaX);
-					//	CharacterRigidBody.velocity = new(direction * ResetPositionSpeed, CharacterRigidBody.velocity.y);
-					//}
-					//else {
-					//	CharacterRigidBody.velocity = new(0f, CharacterRigidBody.velocity.y);
-					//	CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
-					//}
-					if (Mathf.Abs(deltaX) > 0.05f) {
+					if (Mathf.Abs(deltaX) > 0.1f) {
 						CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
 					}
 					else {
@@ -159,14 +152,18 @@ namespace Paywall {
 					}
 				}
 			}
-			else if (ResetPositionBlocked) {
-                float deltaX = InitialPosition.x - transform.position.x;
-                if (Mathf.Abs(deltaX) > 1f) {
-                    CharacterRigidBody.velocity = new Vector2(4, CharacterRigidBody.velocity.y);
+			else if (Teleporting) {
+                float deltaX = transform.position.x - InitialPosition.x;
+				float d = CharacterRigidBody.velocity.x * Time.fixedDeltaTime;
+				if (transform.position.x - Mathf.Abs(d) > InitialPosition.x
+					) {
+                    CharacterRigidBody.velocity = new Vector2(-LevelManagerIRE_PW.Instance.TeleportSpeed * LevelManagerIRE_PW.Instance.SpeedMultiplier + TeleportResetBuffer, CharacterRigidBody.velocity.y);
                 }
                 else {
-                    CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
-                    CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+                    //CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
+                    //CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+                    CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
+                    Teleporting = false;
                 }
             }
 		}
@@ -182,12 +179,18 @@ namespace Paywall {
 				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Teleporting);
                 gameObject.layer = PaywallLayerManager.TeleportingLayer;
 				Model.enabled = false;
+				_savedVelocity = CharacterRigidBody.velocity;
 			}
 			else {
 				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
                 gameObject.layer = PaywallLayerManager.PlayerLayer;	
                 Model.enabled = true;
+				CharacterRigidBody.velocity = _savedVelocity;
 			}
+		}
+
+		public virtual void TeleportResetPosition() {
+
 		}
 
         /// <summary>
@@ -227,8 +230,8 @@ namespace Paywall {
 		/// <param name="amount"></param>
 		public virtual void AddEX(float amount) {
 			if ((BlockEXGainWhileDraining && _exDraining && (amount > 0))
-				|| (CurrentEX == MaxEX && amount > 0)
-				|| (CurrentEX == MinEX && amount < 0)) {
+					|| (CurrentEX == MaxEX && amount > 0)
+					|| (CurrentEX == MinEX && amount < 0)) {
 				return;
 			}
 			CurrentEX += amount;

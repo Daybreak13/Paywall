@@ -373,7 +373,7 @@ namespace Paywall {
         protected virtual void Update() {
             // If the game is not in progress, do nothing
             if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress
-                || _blockSpawn) {
+                    || _blockSpawn) {
                 return;
             }
             else {
@@ -533,7 +533,7 @@ namespace Paywall {
             // If previous segment was not a transition, current and previous segments aren't jumpers
             // Spawn a transition segment
             if (PreviousSegment.SegmentType != SegmentTypes.Transition
-                && (PreviousSegment.SegmentType != SegmentTypes.Jumper && CurrentSegment.SegmentType != SegmentTypes.Jumper)) {
+                    && (PreviousSegment.SegmentType != SegmentTypes.Jumper && CurrentSegment.SegmentType != SegmentTypes.Jumper)) {
 
                 // Chance to spawn transition
                 float rng = UnityEngine.Random.Range(0f, 1f);
@@ -672,7 +672,7 @@ namespace Paywall {
 
             // If the last two segments are Ground and have no gap, do not change height
             if (NextSegment == null
-                && (PreviousSegment.SegmentType == SegmentTypes.Ground && CurrentSegment.SegmentType == SegmentTypes.Ground)) {
+                    && (PreviousSegment.SegmentType == SegmentTypes.Ground && CurrentSegment.SegmentType == SegmentTypes.Ground)) {
                 if (_currentGapLength == GapLengths.NoGap) {
                     return 0;
                 }

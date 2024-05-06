@@ -24,7 +24,7 @@ namespace Paywall {
         [field: SerializeField] public bool ManualSpawn { get; protected set; } = true;
 
         protected List<GameObject> _spawnables = new();
-        protected System.Random _random;
+        protected static System.Random _random;
 
         /// <summary>
         /// Set min and max lengths
@@ -65,7 +65,6 @@ namespace Paywall {
             int length = _random.Next(a, b + 1);
             float offset =  0.5f;     // -length / 2f + 0.5f
             Vector2 prevPosition = new(transform.position.x + offset, transform.position.y);
-            Vector2 startingPos = prevPosition;
             Vector2 currentPos = Vector2.zero;
             for (int i = 0; i < length; i++) {
                 GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
