@@ -152,6 +152,7 @@ namespace Paywall {
 					}
 				}
 			}
+			// When we teleport, the character's x position gets pushed forward, so we need to reset it
 			else if (Teleporting) {
                 float deltaX = transform.position.x - InitialPosition.x;
 				float d = CharacterRigidBody.velocity.x * Time.fixedDeltaTime;
@@ -159,6 +160,7 @@ namespace Paywall {
 					) {
                     CharacterRigidBody.velocity = new Vector2(-LevelManagerIRE_PW.Instance.TeleportSpeed * LevelManagerIRE_PW.Instance.SpeedMultiplier + TeleportResetBuffer, CharacterRigidBody.velocity.y);
                 }
+				// If moving d distance would overshoot, we use regular reset position speed to slowly get the rest of the way
                 else {
                     //CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
                     //CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));

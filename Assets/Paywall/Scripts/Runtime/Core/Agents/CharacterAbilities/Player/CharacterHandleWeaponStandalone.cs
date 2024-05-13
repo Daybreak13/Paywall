@@ -69,7 +69,7 @@ namespace Paywall {
                 _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
                 _magSizeLastFrame = CurrentWeapon.MagazineSize;
                 if (GUIManagerIRE_PW.HasInstance) {
-                    (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
+                    GUIManagerIRE_PW.Instance.UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
                 }
             }
         }
@@ -212,7 +212,7 @@ namespace Paywall {
                 }
                 _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
                 _magSizeLastFrame = CurrentWeapon.MagazineSize;
-                (GUIManagerIRE_PW.Instance as GUIManagerIRE_PW).UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
+                GUIManagerIRE_PW.Instance.UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
             }
         }
 
@@ -248,7 +248,10 @@ namespace Paywall {
             _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0f);
             _rigidbody2D.gravityScale = 0;
             yield return new WaitForSeconds(stallTime);
-            _rigidbody2D.gravityScale = _initialGravityScale;
+            if (Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
+                _rigidbody2D.gravityScale = _initialGravityScale;
+            }
+            _airStallCoroutine = null;
         }
 
         public override void ResetAbility() {

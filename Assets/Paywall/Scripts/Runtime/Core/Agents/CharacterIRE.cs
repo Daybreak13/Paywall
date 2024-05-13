@@ -55,6 +55,10 @@ namespace Paywall {
         /// the distance tolerance at which a character is considered grounded
         [field: Tooltip("the distance tolerance at which a character is considered grounded")]
         [field: SerializeField] public float GroundDistanceTolerance { get; protected set; } = 0.05f;
+        /// Is the character grounded? Do not change this value manually
+        [field: Tooltip("Is the character grounded? Do not change this value manually")]
+        [field: MMReadOnly]
+        [field: SerializeField] public bool Grounded { get; protected set; }
 
         [field: Header("Invincibility")]
 
@@ -75,7 +79,6 @@ namespace Paywall {
         /// the condition state machine
         public MMStateMachine<CharacterStates_PW.ConditionStates> ConditionState { get; protected set; }
 
-        public bool Grounded { get; protected set; }
         public GameObject Ground { get { return _ground; } }
         public float DistanceToRight { get; protected set; }
         [field: MMReadOnly]
@@ -213,25 +216,20 @@ namespace Paywall {
             // we determine the distance between the ground and the character
             ComputeDistanceToTheGround();
             if (Grounded) {
-                // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of jumping
+                // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of Jumping, otherwise change to Running
                 if (!(MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping
-                        && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding
                         && CharacterRigidBody.velocity.y > 0)) {
                     MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
                 }
             }
             else {
-                // If we are airborne and moving down, change state to falling
+                // If we are airborne and moving down and not Jumping or RailRiding, change state to falling
                 if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
                         && CharacterRigidBody.velocity.y < 0
                         && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
                     MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
                 }
             }
-        }
-
-        public virtual void Die() {
-            Destroy(this);
         }
 
         protected virtual bool CheckCollisionRight() {

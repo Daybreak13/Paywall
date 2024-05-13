@@ -32,7 +32,6 @@ namespace Paywall {
 
         protected float _topBuffer = 0f;
         protected float _sideBuffer = 0f;
-        protected float _velocityBuffer = 0.000001f;        // Sometimes velocity is near-zero when it should be zero
         protected float _rayLength = 0.5f;
 
         protected const string _playerTag = "Player";
@@ -68,6 +67,13 @@ namespace Paywall {
                         }
                     }
                 }
+            }
+            else {
+                //if (collision.gameObject.TryGetComponent(out MovingRigidbody movingRigidbody)) {
+                //    if (movingRigidbody.CanJump) {
+
+                //    }
+                //}
             }
         }
 

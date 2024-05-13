@@ -62,12 +62,14 @@ namespace Paywall {
         /// the line after which playable characters will die - leave it to zero if you don't want to use it
         [field: SerializeField] public Bounds DeathBounds { get; protected set; }
         [field: Space(10)]
-        [field: SerializeField] public GameObject SpawnBarrier { get; protected set; }
+        /// Spawnables and rotators won't move until they've passed this point
+        [field: Tooltip("Spawnables and rotators won't move until they've passed this point")]
+        [field: SerializeField] public Transform MoveBarrier { get; protected set; }
 
         [field: Space(10)]
         [field: Header("Speed")]
         /// the initial speed of the level
-        [field: SerializeField] public float InitialSpeed { get; protected set; } = 10f;
+        [field: SerializeField] public float InitialSpeed { get; protected set; } = 30f;
         /// the maximum speed the level will run at
         [field: SerializeField] public float MaximumSpeed { get; protected set; } = 50f;
         /// the maximum speed the level will run at
@@ -77,7 +79,7 @@ namespace Paywall {
         [field: SerializeField] public float CurrentUnmodifiedSpeed { get; protected set; }
         /// the global speed modifier for level segments
         [field: Tooltip("the global speed modifier for level segments")]
-        [field: SerializeField] public float SegmentSpeed { get; protected set; } = 1f;
+        [field: SerializeField] public float SegmentSpeed { get; protected set; } = 0f;
 
         [field: Space(10)]
         [field: Header("Intro and Outro durations")]
@@ -271,24 +273,27 @@ namespace Paywall {
             if (GUIManagerIRE_PW.HasInstance) {
                 GUIManagerIRE_PW.Instance.RefreshDistance();
             }
-
         }
 
+        int count;
         /// <summary>
         /// Handle temporary speed mod based on distance
         /// Used by Portal
         /// </summary>
         protected virtual void HandleTempDist() {
             if (!_teleporting) return;
-
+            //DistanceTraveled - _teleportStartDistance < _teleportDistance
             if (DistanceTraveled - _teleportStartDistance < _teleportDistance) {
                 _teleportTime += Time.fixedDeltaTime;
-                _extraDist += (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime;
+                //_extraDist += (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime;
+                count++;
                 return;
             }
             if (DistanceTraveled - _teleportStartDistance < _teleportDistance + _extraDist) {
                 return;
             }
+            Debug.Log(count);
+            count = 0;
 
             // No longer teleporting
             if (_charBlocking) {
@@ -407,8 +412,8 @@ namespace Paywall {
             _teleportStartDistance = DistanceTraveled;
             _teleportDistance = distance;
             _teleportTime = 0f;
-            _extraDist = 0f;
             TeleportSpeed = factor;
+            _extraDist = (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime * 12;
         }
 
         /// <summary>

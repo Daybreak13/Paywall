@@ -15,7 +15,7 @@ MonoBehaviour:
   <Items>k__BackingField:
   - <Segment>k__BackingField: {fileID: 859746925610287144, guid: 0bc715f253268d045bbbd4f13eb6f67b,
       type: 3}
-    <InitialWeight>k__BackingField: 0
+    <InitialWeight>k__BackingField: 10
     <StartingDifficulty>k__BackingField: 0
   - <Segment>k__BackingField: {fileID: 859746925610287144, guid: 366d0f9ebdb95c64c8ef0e2bfa85d0a6,
       type: 3}
@@ -23,13 +23,17 @@ MonoBehaviour:
     <StartingDifficulty>k__BackingField: 0
   - <Segment>k__BackingField: {fileID: 859746925610287144, guid: 5278017422d781845a384056b4abe8b9,
       type: 3}
-    <InitialWeight>k__BackingField: 0
+    <InitialWeight>k__BackingField: 10
     <StartingDifficulty>k__BackingField: 0
   - <Segment>k__BackingField: {fileID: 859746925610287144, guid: eaabe9258e00a1d4c9e717cce32e0f59,
       type: 3}
-    <InitialWeight>k__BackingField: 0
+    <InitialWeight>k__BackingField: 10
     <StartingDifficulty>k__BackingField: 0
   - <Segment>k__BackingField: {fileID: 859746925610287144, guid: ed8bf28ba509a234b8454cfa01bc53a8,
       type: 3}
-    <InitialWeight>k__BackingField: 0
+    <InitialWeight>k__BackingField: 10
+    <StartingDifficulty>k__BackingField: 0
+  - <Segment>k__BackingField: {fileID: 859746925610287144, guid: bebd82c763f2a8e4bb1ac6b9dfbd2f22,
+      type: 3}
+    <InitialWeight>k__BackingField: 10
     <StartingDifficulty>k__BackingField: 0

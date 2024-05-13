@@ -186,6 +186,9 @@ namespace Paywall {
         /// Enable debug mode? Generate a predetermined sequence of levels
         [field: Tooltip("Enable debug mode? Generate a predetermined sequence of levels")]
         [field: SerializeField] public bool DebugMode { get; protected set; }
+        /// Disable transition segment generation
+        [field: Tooltip("Disable transition segment generation")]
+        [field: SerializeField] public bool DisableTransitions { get; protected set; }
         /// Override gap length and just use ShortestGapLength
         [field: Tooltip("Override gap length and just use ShortestGapLength")]
         [field: SerializeField] public bool OverrideGapLength { get; protected set; }
@@ -523,7 +526,7 @@ namespace Paywall {
         /// Determines if we should spawn a transition segment, and sets settings
         /// </summary>
         protected virtual void HandleTransitionSegment() {
-            if (DebugMode) {
+            if (DisableTransitions) {
                 return;
             }
             if (TransitionSegmentList == null || TransitionSegmentList.SegmentList.Items.Count == 0 || TransitionSegmentChance == 0) {
@@ -641,7 +644,7 @@ namespace Paywall {
             else if (PreviousSegment.SegmentType == SegmentTypes.Transition || CurrentSegment.SegmentType == SegmentTypes.Transition) {
                 _currentGapLength = GapLengths.NoGap;
             }
-            // Otherwise choose the gap length randomly
+            // Otherwise choose the gap length randomly. 50% chance for no gap or medium gap
             else {
                 int rng = _randomGenerator.Next(0, 2);
                 if (rng == 0) {

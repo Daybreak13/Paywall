@@ -21,17 +21,15 @@ namespace Paywall {
         /// If true, check if this object is past the SpawnBarrier (LevelManager), and don't move until we are past it
         [Tooltip("If true, check if this object is past the SpawnBarrier (LevelManager), and don't move until we are past it")]
         [field: SerializeField] public bool BlockMovementUntil { get; protected set; }
+        /// This is the value used to determine how much knockback this rigidbody takes
+        [Tooltip("This is the value used to determine how much knockback this rigidbody takes")]
+        [field: SerializeField] public float KnockbackModifier { get; protected set; } = 5f;
+        /// Can we apply a jump force to this?
+        [Tooltip("Can we apply a jump force to this?")]
+        [field: SerializeField] public bool CanJump { get; protected set; }
 
         [field: Header("Behaviour")]
 
-        /// if set to true, the spawner can change the direction of the object. If not the one set in its inspector will be used.
-        [field: Tooltip("if set to true, the spawner can change the direction of the object. If not the one set in its inspector will be used.")]
-        [field: SerializeField] public bool DirectionCanBeChangedBySpawner { get; protected set; } = true;
-        /// the space this object moves into, either world or local
-        [field: SerializeField] public Space MovementSpace { get; protected set; } = Space.World;
-        /// If true, use rigidbody physics movement instead of transform movement
-        [field: Tooltip("If true, use rigidbody physics movement instead of transform movement")]
-        [field: SerializeField] public bool UseRigidbody { get; protected set; } = true;
         /// Should we reset velocity if object is knocked back
         [field: Tooltip("Should we reset velocity if object is knocked back")]
         [field: SerializeField] public bool ShouldResetVelocity { get; protected set; } = true;
@@ -42,45 +40,58 @@ namespace Paywall {
 
         protected Rigidbody2D _rigidbody2D;
         protected Vector2 _movement;
-        protected GameObject _spawnBarrier;
+        protected Transform _moveBarrier;
         protected float _initialSpeed;
         protected float _currentSpeed;
+        protected float _initialGravityScale;
         protected bool _movementBlockedUntil;
 
         protected bool _knockbackApplied;
-        protected float _currentKnockbackTime;
         protected float _stallTime;
+        protected float _maxStallTime = 0.7f;
         protected Vector2 _knockbackForce;
-        protected float _knockbackDecceleration = 32f;  // How fast to deccelerate from knockback velocity
+        protected float _knockbackDecceleration = 20f;  // How fast to deccelerate from knockback velocity
         protected float _snapBackAcceleration = 3f;     // How fast to return to original velocity
+        protected Vector2 _levelSpeed;
+        protected float _snapBackVelocity;
 
         // Divide speed by this to get final velocity
         protected float _speedMult = 10f;
 
-        protected bool ShouldUseRigidBody {
-            get {
-                if (UseRigidbody && _rigidbody2D != null) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+        /// <summary>
+        /// Applies knockback force to this object
+        /// </summary>
+        /// <param name="force"></param>
+        public virtual void ApplyKnockback(Vector2 force) {
+            // Determine knockback velocity. The higher the rigidbody's knockback mod, the less knockback it takes
+            _knockbackForce = force * Mathf.Pow(0.9f, KnockbackModifier - 1f);
+            _levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+
+            //_rigidbody2D.velocity = new(_knockbackForce.x + _levelSpeed.x, _rigidbody2D.velocity.y);
+            _knockbackApplied = true;
+            _stallTime = 0;
+            _snapBackVelocity = 0;
         }
 
+        /// <summary>
+        /// Add force to rigidbody to perform a jump of a given height
+        /// </summary>
+        /// <param name="height"></param>
+        public virtual void PerformJump(float height) {
+            float force = Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
+            _rigidbody2D.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        }
+
+        /// <summary>
+        /// Get rigidbody and speed, block movement
+        /// </summary>
         protected virtual void Awake() {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _initialSpeed = _currentSpeed = Speed;
+            _initialGravityScale = _rigidbody2D.gravityScale;
             if (BlockMovementUntil) {
                 _movementBlockedUntil = true;
             }
-            if (Direction.x < 0 || Direction.y < 0) {
-                _snapBackAcceleration = -Mathf.Abs(_snapBackAcceleration);
-                _knockbackDecceleration = -Mathf.Abs(_knockbackDecceleration);
-            } else {
-                _snapBackAcceleration = Mathf.Abs(_snapBackAcceleration);
-                _knockbackDecceleration = Mathf.Abs(_knockbackDecceleration);
-            }
-            //_knockbackDeceleration *= Mathf.Pow(0.9f, _rigidbody2D.mass - 1);
         }
 
         /// <summary>
@@ -88,7 +99,7 @@ namespace Paywall {
         /// </summary>
         protected virtual void Start() {
             if (LevelManagerIRE_PW.HasInstance) {
-                _spawnBarrier = LevelManagerIRE_PW.Instance.SpawnBarrier;
+                _moveBarrier = LevelManagerIRE_PW.Instance.MoveBarrier;
                 // If the object is a level segment, use the global speed
                 if (gameObject.CompareTag("LevelSegment")) {
                     Speed = LevelManagerIRE_PW.Instance.SegmentSpeed;
@@ -97,58 +108,10 @@ namespace Paywall {
             }
         }
 
-        protected virtual void Update() {
-            if (ShouldUseRigidBody) {
-                return;
-            }
-
-            if (_knockbackApplied) {
-                return;
-            }
-
-            Move();
-        }
-
-        /// <summary>
-        /// Moves via transform.Translate
-        /// </summary>
-        protected virtual void Move() {
-            if (!LevelManagerIRE_PW.HasInstance) {
-                _movement = (Speed / _speedMult) * Time.deltaTime * Direction;
-            }
-            else {
-                if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
-                    _movement = (Speed / _speedMult) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
-                } 
-                else if (UseEnemySpeed) {
-                    _movement = ((Speed + LevelManagerIRE_PW.Instance.SegmentSpeed) / _speedMult) * LevelManagerIRE_PW.Instance.InitialSpeed * Time.deltaTime * Direction;
-                }
-                else {
-                    _movement = (Speed / _speedMult) * LevelManagerIRE_PW.Instance.FinalSpeed * Time.deltaTime * Direction;
-                }
-
-                if (BlockMovementUntil && _movementBlockedUntil) {
-                    if ((_spawnBarrier != null) && (transform.position.x > _spawnBarrier.transform.position.x)) {
-                        Speed = 0;
-                    }
-                    else {
-                        Speed = _initialSpeed;
-                        _movementBlockedUntil = false;
-                    }
-                }
-
-            }
-            transform.Translate(_movement, MovementSpace);
-        }
-
         /// <summary>
         /// Determine if we are allowed to move, then move
         /// </summary>
         protected virtual void FixedUpdate() {
-            if (!ShouldUseRigidBody) {
-                return;
-            }
-
             RigidbodyMove();
         }
 
@@ -156,53 +119,40 @@ namespace Paywall {
         /// If the rigidbody has been knocked back, return it to its original velocity over time
         /// </summary>
         protected virtual void HandleKnockback() {
-            if (!_knockbackApplied) {
-                return;
-            }
-
-            // Adjust decceleration according to rigidbody mass
-            //  * Mathf.Pow(0.9f, _rigidbody2D.mass - 1)
-            float adjustedDecceleration = _knockbackDecceleration;
-
-            _currentKnockbackTime += Time.fixedDeltaTime;
-
-            // Apply knockback return acceleration if applicable
-            if (_currentKnockbackTime <= Time.fixedDeltaTime) {
-                //return;
-            }
-
-            Vector2 levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
-            Vector2 speedCap = levelSpeed;
+            // Speed cap is level speed
+            _levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
 
             Vector2 newVelocity;
-            // If we are still traveling backwards (in knockback), deccelerate the knockback velocity until it equals speed cap
-            if (_rigidbody2D.velocity.x > speedCap.x) {
-                newVelocity = new(_rigidbody2D.velocity.x + (adjustedDecceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
-                if (newVelocity.x <= speedCap.x) {
-                    newVelocity = speedCap;
+            // If we are currently getting knocked back, deccelerate the knockback velocity until it reaches 0
+            if (_knockbackForce.x > 0) {
+                _knockbackForce.x += _knockbackDecceleration * Time.fixedDeltaTime * Direction.x;
+                if (_knockbackForce.x <= 0) {
+                    _knockbackForce.x = 0;
                     _stallTime = 0;
                 }
+                newVelocity = new(_knockbackForce.x + _levelSpeed.x, _rigidbody2D.velocity.y);
             }
-            // Otherwise, apply return velocity acceleration
             else {
                 _stallTime += Time.fixedDeltaTime;
-                // Pause before applying return velocity
-                if (_stallTime >= 0.7f) {
-                    newVelocity = new(_rigidbody2D.velocity.x + (_snapBackAcceleration * Time.fixedDeltaTime), _rigidbody2D.velocity.y);
-                } else {
-                    newVelocity = new(speedCap.x, _rigidbody2D.velocity.y);
+                // If we are no longer stalling, accelerate back to MovingRigidbody.Speed
+                if (_stallTime >= _maxStallTime) {
+                    _snapBackVelocity += _snapBackAcceleration * Time.fixedDeltaTime * Direction.x;
                 }
+                // If we are stalling, set speed to the level speed so relative motion is 0
+                else {
+                    _snapBackVelocity = 0;
+                }
+                newVelocity = new(_snapBackVelocity + _levelSpeed.x, _rigidbody2D.velocity.y);
             }
 
+            _rigidbody2D.velocity = newVelocity;
+
+            float targetSpeed = _levelSpeed.x - Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier;
             // If the velocity exceeds or equals original velocity, stop acceleration
-            if (_rigidbody2D.velocity.x <= _movement.x) {
+            if (_rigidbody2D.velocity.x <= targetSpeed) {
                 _knockbackApplied = false;
-                _rigidbody2D.velocity = _movement;
+                _rigidbody2D.velocity = new(targetSpeed, _rigidbody2D.velocity.y);
             }
-            else {
-                _rigidbody2D.velocity = newVelocity;
-            }            
-            
         }
 
         /// <summary>
@@ -210,24 +160,15 @@ namespace Paywall {
         /// If it is an enemy, continue moving at relative speed if EnemySpeed is enabled
         /// </summary>
         protected virtual void RigidbodyMove() {
-            if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
-                _movement = Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
-            }
-            else if (UseEnemySpeed) {
-                _movement = (Speed + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
-            }
-            else {
-                _movement = (Speed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
-            }
-
             // If knockback is applied, HandleKnockback controls the velocity instead of this function
             if (_knockbackApplied) {
                 HandleKnockback();
                 return;
             }
 
+            // If we block until passing the move barrier, set speed to 0
             if (BlockMovementUntil && _movementBlockedUntil) {
-                if ((_spawnBarrier != null) && (transform.position.x > _spawnBarrier.transform.position.x)) {
+                if ((_moveBarrier != null) && (transform.position.x > _moveBarrier.position.x)) {
                     Speed = 0;
                 }
                 else {
@@ -235,40 +176,39 @@ namespace Paywall {
                     _movementBlockedUntil = false;
                 }
             }
+            _movement = GetMovement();
             _rigidbody2D.velocity = new Vector2(_movement.x, _rigidbody2D.velocity.y);
         }
 
         /// <summary>
-        /// Applies knockback force to this object
+        /// Get the movement velocity to set the rigidbody to
         /// </summary>
-        /// <param name="force"></param>
-        public virtual void ApplyKnockback(Vector2 force) {
-            if (ShouldUseRigidBody) {
-                // Determine knockback velocity. The higher the rigidbody's mass, the less knockback it takes
-                // knockback v = force * (modifier) ^ (mass - 1)
-                _knockbackForce = force * Mathf.Pow(0.9f, _rigidbody2D.mass - 1f);
-
-                // Determine knockback velocity
-                float vf = Physics.ElasticCollision(force.x, _rigidbody2D.velocity.x, 1f, _rigidbody2D.mass, ElasticCollisionReturns.VFinal2);
-
-                _rigidbody2D.velocity = new(_knockbackForce.x, _rigidbody2D.velocity.y);
-                _knockbackApplied = true;
-                _currentKnockbackTime = 0f;
-
-            } 
-            else {
-
+        /// <returns></returns>
+        protected virtual Vector2 GetMovement() {
+            Vector2 movement;
+            // If the game is paused and we're an enemy, move at our speed without segment speed
+            if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
+                movement = Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
+            // If the game is not paused and we're an enemy, our speed is the segment speed + our speed
+            else if (UseEnemySpeed) {
+                movement = (Speed + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+            }
+            // If we're not an enemy, just add the speeds normally
+            else {
+                movement = (Speed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+            }
+            return movement;
         }
 
         /// <summary>
         /// Reset movement and block if necessary on disable
         /// </summary>
         protected virtual void OnDisable() {
-            _movementBlockedUntil = true;
-            if (UseRigidbody) {
-                _rigidbody2D.velocity = Vector2.zero;
+            if (BlockMovementUntil) {
+                _movementBlockedUntil = true;
             }
+            _rigidbody2D.velocity = Vector2.zero;
         }
 
     }

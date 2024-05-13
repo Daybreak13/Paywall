@@ -14,10 +14,9 @@ namespace Paywall {
 
         public enum MovementStates {
             Null,
-            Running,
-            Jumping,
-            Falling,
-            Stalling,
+            Running,    // Default state
+            Jumping,    // Includes falling after a jump, in order to set animation parameters correctly
+            Falling,    // Falling without having jumped first
             RailRiding
         }
     }

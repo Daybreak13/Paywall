@@ -125,11 +125,11 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180568482630557396}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 2
+  m_Mass: 7
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
@@ -173,9 +173,8 @@ MonoBehaviour:
   <Direction>k__BackingField: {x: -1, y: 0, z: 0}
   <UseEnemySpeed>k__BackingField: 1
   <BlockMovementUntil>k__BackingField: 1
-  <DirectionCanBeChangedBySpawner>k__BackingField: 1
-  <MovementSpace>k__BackingField: 0
-  <UseRigidbody>k__BackingField: 1
+  <KnockbackModifier>k__BackingField: 5
+  <CanJump>k__BackingField: 0
   <ShouldResetVelocity>k__BackingField: 1
   <ResetVelocityAcceleration>k__BackingField: 1
 --- !u!114 &-4725364043685930818

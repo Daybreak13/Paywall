@@ -446,6 +446,7 @@ GameObject:
   - component: {fileID: 2415671769144772915}
   - component: {fileID: 6595655421247328235}
   - component: {fileID: -1552972658368827041}
+  - component: {fileID: -2410013314957774014}
   m_Layer: 7
   m_Name: Player IRE Current
   m_TagString: Player
@@ -509,7 +510,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 7
+  m_Mass: 2
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 4
@@ -540,6 +541,7 @@ MonoBehaviour:
   <Teleporting>k__BackingField: 0
   <DistanceToTheGround>k__BackingField: 0
   <GroundDistanceTolerance>k__BackingField: 0.05
+  <Grounded>k__BackingField: 0
   <InitialInvincibilityDuration>k__BackingField: 3
   <TempInvincibilityDuration>k__BackingField: 1
   <Invincible>k__BackingField: 0
@@ -588,8 +590,6 @@ MonoBehaviour:
   <NumberOfJumpsLeft>k__BackingField: 0
   <OverrideLaunchHeight>k__BackingField: 0
   <LaunchHeight>k__BackingField: 2
-  <LowJumpForce>k__BackingField: 10
-  <LowJumpHeight>k__BackingField: 2.5
   <JumpBuffer>k__BackingField: 0.1
   <ExtraJumpModule>k__BackingField: {fileID: 11400000, guid: 38ed0a6d03978674a81b9381a8021b2b,
     type: 2}
@@ -740,6 +740,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <AbilityPermitted>k__BackingField: 1
   <RailSpeedBonus>k__BackingField: 20
+  <CanDropDown>k__BackingField: 1
+  <BlockDuration>k__BackingField: 0.2
+--- !u!114 &-2410013314957774014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8783184480488449569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cdd0f30745c5674cb0cbaec19a5b2cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <AbilityPermitted>k__BackingField: 1
+  <IgnoreCollisionDuration>k__BackingField: 0.2
 --- !u!1001 &3121560063307333171
 PrefabInstance:
   m_ObjectHideFlags: 0

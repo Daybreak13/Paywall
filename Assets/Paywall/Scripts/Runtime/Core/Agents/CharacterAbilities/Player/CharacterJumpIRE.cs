@@ -18,8 +18,8 @@ namespace Paywall {
         [field: Tooltip("the vertical force applied to the character when jumping")]
         [field: FieldCondition("UseJumpHeight", true, true)]
         [field: SerializeField] public float JumpForce { get; protected set; } = 15f;
-        /// the number of jumps allowed
-        [field: Tooltip("the number of jumps allowed")]
+        /// the number of jumps allowed by default, before upgrades
+        [field: Tooltip("the number of jumps allowed by default, before upgrades")]
         [field: SerializeField] public int NumberOfJumpsAllowed { get; protected set; } = 2;
         /// the minimum time (in seconds) allowed between two consecutive jumps
         [field: Tooltip("the minimum time (in seconds) allowed between two consecutive jumps")]
@@ -107,8 +107,6 @@ namespace Paywall {
         protected bool _doubleJumping = false;
         protected float _lastJumpTime;
 
-        protected bool _noJumpFalling;  // are we airborne without having jumped?
-
         protected bool _jumpCancelled;
         protected Coroutine _jumpCoroutine;
         protected Coroutine _bufferCoroutine;
@@ -122,6 +120,9 @@ namespace Paywall {
 
         protected float _origin;
 
+        /// <summary>
+        /// Calculate jump force and set jumps allowed
+        /// </summary>
         protected override void Initialization() {
             base.Initialization();
             if (UseJumpHeight) {
@@ -137,7 +138,7 @@ namespace Paywall {
 
         public override void ProcessAbility() {
             // we reset our jump variables if needed
-            if (Character.Grounded) {
+            if (Character.Grounded || Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding) {
                 if ((Time.time - _lastJumpTime > MinimalDelayBetweenJumps)
                     && (Time.time - _lastJumpTime > UngroundedDurationAfterJump)) {
 
@@ -152,18 +153,10 @@ namespace Paywall {
                     NumberOfJumpsLeft = FinalNumJumpsAllowed;
                 }
 
-                _noJumpFalling = false;
                 _doubleJumping = false;
             }
-            else {
-                // If we are not grounded and not jumping, change movement state to falling
-                if (!_jumping) {
-                    _noJumpFalling = true;
-                    Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
-                }
-            }
             // If airborne without having jumped, decrement jump count if we are still at max jumps
-            if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
+            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
                 NumberOfJumpsLeft--;
             }
         }
@@ -225,7 +218,8 @@ namespace Paywall {
                 return;
             }
 
-            if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasPressedThisFrame()) {
+            if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasPressedThisFrame()
+                && !InputSystemManager_PW.InputActions.PlayerControls.Down.IsPressed()) {
                 StartJump();
             }
 
@@ -290,7 +284,7 @@ namespace Paywall {
         /// Evaluates jump conditions and initiates jump if allowed
         /// </summary>
         public virtual void StartJump() {
-            if (_noJumpFalling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
+            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
                 NumberOfJumpsLeft--;
             }
 
@@ -379,7 +373,7 @@ namespace Paywall {
             _rigidbody2D.velocity = Vector3.zero;
             _rigidbody2D.gravityScale = _initialGravityScale;
             _lastJumpTime = Time.time;
-            _noJumpFalling = true;
+            Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Jumping);
             if (resetJumps) {
                 NumberOfJumpsLeft = FinalNumJumpsAllowed - 1;
             }

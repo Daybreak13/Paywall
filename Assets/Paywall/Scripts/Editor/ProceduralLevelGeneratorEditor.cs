@@ -55,6 +55,7 @@ namespace Paywall.Editors {
         protected const string _currentDifficultyPropertyName = "CurrentDifficulty";
 
         protected const string _debugModePropertyName = "DebugMode";
+        protected const string _disableTransitionsPropertyName = "DisableTransitions";
         protected const string _overrideGapLengthPropertyName = "OverrideGapLength";
         protected const string _doNotSpawnShopPropertyName = "DoNotSpawnShop";
         protected const string _levelSegmentSequencePropertyName = "LevelSegmentSequence";
@@ -98,6 +99,7 @@ namespace Paywall.Editors {
         protected SerializedProperty _currentDifficultyProperty;
 
         protected SerializedProperty _debugModeProperty;
+        protected SerializedProperty _disableTransitionsProperty;
         protected SerializedProperty _overrideGapLengthProperty;
         protected SerializedProperty _doNotSpawnShopProperty;
         protected SerializedProperty _levelSegmentSequenceProperty;
@@ -150,6 +152,7 @@ namespace Paywall.Editors {
             _currentDifficultyProperty = serializedObject.FindPropertyByAutoPropertyName(_currentDifficultyPropertyName);
 
             _debugModeProperty = serializedObject.FindPropertyByAutoPropertyName(_debugModePropertyName);
+            _disableTransitionsProperty = serializedObject.FindPropertyByAutoPropertyName(_disableTransitionsPropertyName);
             _overrideGapLengthProperty = serializedObject.FindPropertyByAutoPropertyName(_overrideGapLengthPropertyName);
             _doNotSpawnShopProperty = serializedObject.FindPropertyByAutoPropertyName(_doNotSpawnShopPropertyName);
             _levelSegmentSequenceProperty = serializedObject.FindPropertyByAutoPropertyName(_levelSegmentSequencePropertyName);
@@ -230,6 +233,7 @@ namespace Paywall.Editors {
             _showDebug = EditorGUILayout.Foldout(_showDebug, "Debug", true);
             if (_showDebug) {
                 EditorGUILayout.PropertyField(_debugModeProperty);
+                EditorGUILayout.PropertyField(_disableTransitionsProperty);
                 EditorGUILayout.PropertyField(_overrideGapLengthProperty);
                 EditorGUILayout.PropertyField(_doNotSpawnShopProperty);
                 EditorGUILayout.PropertyField(_levelSegmentSequenceProperty);

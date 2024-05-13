@@ -25,6 +25,9 @@ namespace Paywall {
         }
 
         protected override void PerformSuper() {
+            if (!AbilityAuthorized || !EvaluateSuperConditions()) {
+                return;
+            }
             base.PerformSuper();
             PerformSuperInvincible();
         }
@@ -43,8 +46,8 @@ namespace Paywall {
         /// End invincible super
         /// </summary>
         protected override void EndSuper() {
+            if (!SuperActive) { return; }
             base.EndSuper();
-            SuperActive = false;
             Character.ToggleInvincibility(false);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid);
             Character.Model.color = _initialColor;
