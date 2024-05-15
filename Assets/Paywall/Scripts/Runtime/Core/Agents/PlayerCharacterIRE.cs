@@ -136,11 +136,13 @@ namespace Paywall {
 			return gameObject.MMGetComponentNoAlloc<Renderer>().bounds;
 		}
 
+		int count;
 		/// <summary>
 		/// Called on fixed update, tries to return the object to its initial position
 		/// </summary>
 		protected virtual void ResetPosition() {
-			if (ShouldResetPosition && !Teleporting) {
+			// We use LevelManager's Teleport state in order to synchronize our movement with it
+			if (ShouldResetPosition && !LevelManagerIRE_PW.Instance.Teleporting) {
 				if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
 					float deltaX = InitialPosition.x - transform.position.x;
 					if (Mathf.Abs(deltaX) > 0.1f) {
@@ -153,8 +155,8 @@ namespace Paywall {
 				}
 			}
 			// When we teleport, the character's x position gets pushed forward, so we need to reset it
-			else if (Teleporting) {
-                float deltaX = transform.position.x - InitialPosition.x;
+			else if (LevelManagerIRE_PW.Instance.Teleporting) {
+				count++;
 				float d = CharacterRigidBody.velocity.x * Time.fixedDeltaTime;
 				if (transform.position.x - Mathf.Abs(d) > InitialPosition.x
 					) {
@@ -162,8 +164,7 @@ namespace Paywall {
                 }
 				// If moving d distance would overshoot, we use regular reset position speed to slowly get the rest of the way
                 else {
-                    //CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
-                    //CharacterRigidBody.MovePosition(new Vector2(InitialPosition.x, transform.position.y));
+					Debug.Log("Char: " + count);
                     CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
                     Teleporting = false;
                 }
@@ -189,10 +190,6 @@ namespace Paywall {
                 Model.enabled = true;
 				CharacterRigidBody.velocity = _savedVelocity;
 			}
-		}
-
-		public virtual void TeleportResetPosition() {
-
 		}
 
         /// <summary>

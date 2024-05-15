@@ -12,25 +12,23 @@ namespace Paywall {
         [field: Tooltip("The exit portal")]
         [field: SerializeField] public Transform Exit { get; protected set; }
 
-        protected float _speed = 1000f;
+        protected float _speed;
         protected bool _teleporting;
-        protected int _numTeleportFrames = 12;      // How many FixedUpdate frames should the teleport last
+        protected int _numTeleportFrames = 10;      // How many FixedUpdate frames should the teleport last
         protected PlayerCharacterIRE _character;
 
-        protected float Distance { get {
-                return Exit.position.x - transform.position.x;
-            }
-        }
+        protected float _distance;
 
         protected virtual void OnTriggerEnter2D(Collider2D collider) {
             if (collider.gameObject.CompareTag(PaywallTagManager.PlayerTag)) {
                 _character = collider.GetComponent<PlayerCharacterIRE>();
-                if (Distance > 0) {
+                _distance = Exit.position.x - _character.transform.position.x;
+                if (_distance > 0) {
                     // Speed is divided by SpeedMultiplier, because MovingRigidbodies will multiply by the SpeedMultiplier
-                    _speed = Distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / _numTeleportFrames - LevelManagerIRE_PW.Instance.FinalSpeed;
+                    _speed = _distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / _numTeleportFrames - LevelManagerIRE_PW.Instance.Speed;
                     Debug.Log("Speed: " + _speed);
-                    Debug.Log("Distance: " + Distance);
-                    LevelManagerIRE_PW.Instance.TemporarilyAddSpeedDist(_speed, Distance);
+                    Debug.Log("Distance: " + _distance);
+                    LevelManagerIRE_PW.Instance.TemporarilyAddSpeedDist(_speed, _distance);
                     _character.Teleporting = true;
                 }
                 collider.transform.SafeSetTransformPosition(new Vector3(Exit.position.x, Exit.position.y, _character.transform.position.z), PaywallLayerManager.ObstaclesLayerMask);

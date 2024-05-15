@@ -127,11 +127,13 @@ namespace Paywall {
         protected float _preBlockSpeed;
         protected float _lastBlockTime;
 
-        public bool _teleporting;
         protected float _teleportStartDistance;
         protected float _teleportDistance;
         protected float _teleportTime;
-        protected float _extraDist;
+        protected float _currentTeleportDist;
+        protected float _distanceBuffer = 0.01f;
+
+        public bool Teleporting { get; protected set; }
         public float TeleportSpeed { get; set; }
 
         protected const string _enterSupplyDepotEventName = "EnterSupplyDepot";
@@ -281,17 +283,16 @@ namespace Paywall {
         /// Used by Portal
         /// </summary>
         protected virtual void HandleTempDist() {
-            if (!_teleporting) return;
+            if (!Teleporting) return;
             //DistanceTraveled - _teleportStartDistance < _teleportDistance
             if (DistanceTraveled - _teleportStartDistance < _teleportDistance) {
                 _teleportTime += Time.fixedDeltaTime;
-                //_extraDist += (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime;
+                _currentTeleportDist += TeleportSpeed * SpeedMultiplier * Time.fixedDeltaTime;
                 count++;
+                Debug.Log("Dist: " + (DistanceTraveled - _teleportStartDistance));
                 return;
             }
-            if (DistanceTraveled - _teleportStartDistance < _teleportDistance + _extraDist) {
-                return;
-            }
+            Debug.Log("Velocity: " + FinalSpeed * Time.fixedDeltaTime);
             Debug.Log(count);
             count = 0;
 
@@ -308,7 +309,7 @@ namespace Paywall {
             if (_tempActiveCount == 0) {
                 _tempSpeedAddedActive = false;
             }
-            _teleporting = false;
+            Teleporting = false;
         }
 
         /// <summary>
@@ -407,13 +408,13 @@ namespace Paywall {
             }
             _currentAddedSpeed += factor;
 
-            _teleporting = true;
+            Teleporting = true;
             _tempActiveCount++;
             _teleportStartDistance = DistanceTraveled;
-            _teleportDistance = distance;
+            _teleportDistance = distance - _distanceBuffer;
             _teleportTime = 0f;
+            _currentTeleportDist = 0;
             TeleportSpeed = factor;
-            _extraDist = (Speed - TeleportSpeed) * SpeedMultiplier * Time.fixedDeltaTime * 12;
         }
 
         /// <summary>

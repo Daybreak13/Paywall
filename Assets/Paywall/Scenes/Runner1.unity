@@ -1182,7 +1182,6 @@ MonoBehaviour:
   <StartText>k__BackingField: 
   <ControlScheme>k__BackingField: 0
   <LifeLostExplosion>k__BackingField: {fileID: 0}
-  _teleporting: 0
 --- !u!1 &412886091
 GameObject:
   m_ObjectHideFlags: 0
@@ -2579,7 +2578,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1400757227
 Transform:
   m_ObjectHideFlags: 0
@@ -2987,7 +2986,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1689060400
 Transform:
   m_ObjectHideFlags: 0
