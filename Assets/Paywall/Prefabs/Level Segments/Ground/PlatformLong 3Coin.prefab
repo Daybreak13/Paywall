@@ -144,12 +144,12 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 8532476315084962811}
   <RightOut>k__BackingField: {fileID: 5842946402105816177}
-  <BoundsBox>k__BackingField: {fileID: 6283988897528356617}
+  <BoundsLine>k__BackingField: {fileID: 6283988897528356617}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
   <SetHeight>k__BackingField: 0
-  <MaxHeight>k__BackingField: 0
+  <StaticHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!61 &7550903049800712361
 BoxCollider2D:

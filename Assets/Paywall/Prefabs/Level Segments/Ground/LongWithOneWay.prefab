@@ -144,12 +144,12 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 8532476315084962811}
   <RightOut>k__BackingField: {fileID: 5842946402105816177}
-  <BoundsBox>k__BackingField: {fileID: 4983211453260610380}
+  <BoundsLine>k__BackingField: {fileID: 4983211453260610380}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
   <SetHeight>k__BackingField: 0
-  <MaxHeight>k__BackingField: 0
+  <StaticHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!50 &7868345051246654813
 Rigidbody2D:
@@ -695,8 +695,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8400469098144930961, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
+      propertyPath: m_Points.Array.data[0].y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400469098144930961, guid: 4cc21906bf5e0464bb80df24c0f28277,
+        type: 3}
       propertyPath: m_Points.Array.data[1].x
       value: 4.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400469098144930961, guid: 4cc21906bf5e0464bb80df24c0f28277,
+        type: 3}
+      propertyPath: m_Points.Array.data[1].y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cc21906bf5e0464bb80df24c0f28277, type: 3}

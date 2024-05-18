@@ -64,9 +64,9 @@ namespace Paywall {
         [field: SerializeField] public Transform RightOut { get; protected set; }
         /// The box collider for this segment, used to detect if the segment is out of bounds for OutOfBoundsRecycle
         [field: Tooltip("The point at which the next segment connects to this one")]
-        [field: SerializeField] public EdgeCollider2D BoundsBox { get; protected set; }
-        public Vector2 LeftBound { get { return new Vector2(BoundsBox.bounds.min.x, BoundsBox.bounds.center.y); } }
-        public Vector2 RightBound { get { return new Vector2(BoundsBox.bounds.max.x, BoundsBox.bounds.center.y); } }
+        [field: SerializeField] public EdgeCollider2D BoundsLine { get; protected set; }
+        public Vector2 LeftBound { get { return new Vector2(BoundsLine.bounds.min.x, BoundsLine.bounds.center.y); } }
+        public Vector2 RightBound { get { return new Vector2(BoundsLine.bounds.max.x, BoundsLine.bounds.center.y); } }
 
         [field: Header("Walls")]
 
@@ -85,18 +85,19 @@ namespace Paywall {
         /// Set a specific height for this level segment
         [field: Tooltip("Set a specific height for this level segment")]
         [field: SerializeField] public bool SetHeight { get; protected set; }
-        /// List of valid heights for this segment
-        [field: Tooltip("List of valid heights for this segment")]
+        /// The height to set this segment to
+        [field: Tooltip("The height to set this segment to")]
         [field: FieldCondition("SetHeight", true)]
-        [field: SerializeField] public int MaxHeight { get; protected set; } = 0;
+        [field: Range(1, 3)]
+        [field: SerializeField] public int StaticHeight { get; protected set; }
         /// Height delta between previous segment and this one
         [field: Tooltip("Height delta between previous segment and this one")]
         [field: MMReadOnly]
         [field: SerializeField] public int PreviousHeightDelta { get; protected set; }
 
         protected virtual void Awake() {
-            if (BoundsBox == null) {
-                BoundsBox = GetComponent<EdgeCollider2D>();
+            if (BoundsLine == null) {
+                BoundsLine = GetComponent<EdgeCollider2D>();
             }
         }
 
@@ -108,6 +109,10 @@ namespace Paywall {
             SegmentType = type;
         }
 
+        public virtual void GetBounds() {
+            BoundsLine = GetComponent<EdgeCollider2D>();
+        }
+
         /// <summary>
         /// Sets the bounds for this segment
         /// </summary>
@@ -116,7 +121,7 @@ namespace Paywall {
         public virtual void SetBounds(Vector2 leftIn, Vector2 rightOut) {
             LeftIn.localPosition = leftIn;
             RightOut.localPosition = rightOut;
-            BoundsBox.SetPoints(new() { new Vector2(leftIn.x, BoundsBox.points[0].y), new Vector2(rightOut.x, BoundsBox.points[1].y) });
+            BoundsLine.SetPoints(new() { new Vector2(leftIn.x, BoundsLine.points[0].y), new Vector2(rightOut.x, BoundsLine.points[1].y) });
         }
 
         /// <summary>

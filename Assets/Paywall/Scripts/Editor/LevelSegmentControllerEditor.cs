@@ -32,7 +32,9 @@ namespace Paywall.Editors {
                 levelSegmentController.SetSpawnPoints(null);
             }
 
-
+            if (levelSegmentController.BoundsLine == null) {
+                levelSegmentController.GetBounds();
+            }
 
             if (EditorGUI.EndChangeCheck()) {
                 serializedObject.ApplyModifiedProperties();

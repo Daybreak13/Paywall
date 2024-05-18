@@ -7,11 +7,11 @@ namespace Paywall.Editors {
     /// <summary>
     /// Custom editor for resizer that redraws the collider when changes to the sprite renderer are made
     /// </summary>
-    [CustomEditor(typeof(EdgeColliderResizer))]
-    public class EdgeColliderResizerEditor : Editor {
-        private EdgeColliderResizer script {
+    [CustomEditor(typeof(ColliderResizer))]
+    public class ColliderResizerEditor : Editor {
+        private ColliderResizer script {
             get {
-                return (EdgeColliderResizer)target;
+                return (ColliderResizer)target;
             }
         }
 

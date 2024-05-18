@@ -140,7 +140,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49af896e7e9e3384bb2e35cbfd5a1054, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <EdgeCollider>k__BackingField: {fileID: 8400469098144930961}
+  <Enabled>k__BackingField: 1
+  <Collider>k__BackingField: {fileID: 8400469098144930961}
   <Renderer>k__BackingField: {fileID: 2626765166152492593}
   <SizeModification>k__BackingField: -0.2
   <OverrideYPosition>k__BackingField: 0

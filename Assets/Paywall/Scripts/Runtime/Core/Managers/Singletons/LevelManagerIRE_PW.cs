@@ -129,9 +129,8 @@ namespace Paywall {
 
         protected float _teleportStartDistance;
         protected float _teleportDistance;
-        protected float _teleportTime;
-        protected float _currentTeleportDist;
         protected float _distanceBuffer = 0.01f;
+        protected int _teleportFramesLeft;          // How many frames left in teleport
 
         public bool Teleporting { get; protected set; }
         public float TeleportSpeed { get; set; }
@@ -277,24 +276,17 @@ namespace Paywall {
             }
         }
 
-        int count;
         /// <summary>
         /// Handle temporary speed mod based on distance
         /// Used by Portal
         /// </summary>
         protected virtual void HandleTempDist() {
             if (!Teleporting) return;
-            //DistanceTraveled - _teleportStartDistance < _teleportDistance
-            if (DistanceTraveled - _teleportStartDistance < _teleportDistance) {
-                _teleportTime += Time.fixedDeltaTime;
-                _currentTeleportDist += TeleportSpeed * SpeedMultiplier * Time.fixedDeltaTime;
-                count++;
-                Debug.Log("Dist: " + (DistanceTraveled - _teleportStartDistance));
+            // Teleport always takes the same number of frames
+            if (_teleportFramesLeft > 0) {
+                _teleportFramesLeft--;
                 return;
             }
-            Debug.Log("Velocity: " + FinalSpeed * Time.fixedDeltaTime);
-            Debug.Log(count);
-            count = 0;
 
             // No longer teleporting
             if (_charBlocking) {
@@ -412,8 +404,7 @@ namespace Paywall {
             _tempActiveCount++;
             _teleportStartDistance = DistanceTraveled;
             _teleportDistance = distance - _distanceBuffer;
-            _teleportTime = 0f;
-            _currentTeleportDist = 0;
+            _teleportFramesLeft += Portal.TeleportFrames;
             TeleportSpeed = factor;
         }
 
@@ -423,8 +414,11 @@ namespace Paywall {
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="guid"></param>
-        public virtual void TemporarilyAddSpeedSwitch(float factor, Guid guid) {
-            if (!_tempSpeeds.ContainsKey(guid)) {
+        public virtual void TemporarilyAddSpeedSwitch(float factor, Guid guid, bool on) {
+            if (on) {
+                if (_tempSpeeds.ContainsKey(guid)) {
+                    return;
+                }
                 _tempSpeeds.Add(guid, factor);
 
                 if (!_tempSpeedAddedActive) {
@@ -442,6 +436,10 @@ namespace Paywall {
                 _currentAddedSpeed += factor;
             }
             else {
+                if (!_tempSpeeds.ContainsKey(guid)) {
+                    return;
+                }
+
                 if (_charBlocking) {
                     _preBlockSpeed -= factor;
                 }

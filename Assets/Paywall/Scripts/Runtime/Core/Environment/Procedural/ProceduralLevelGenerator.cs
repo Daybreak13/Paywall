@@ -618,7 +618,7 @@ namespace Paywall {
             }
             // Otherwise change height based on heightdelta
             else {
-                yPos = PreviousSegment.transform.position.y + (heightDelta * HeightInterval);
+                yPos = PreviousSegment.transform.position.y + PreviousSegment.BoundsLine.offset.y - CurrentSegment.BoundsLine.offset.y + (heightDelta * HeightInterval);
             }
             CurrentSegment.transform.position = new Vector3(xPos, yPos);
 
@@ -663,14 +663,12 @@ namespace Paywall {
         /// </summary>
         /// <returns>Int difference between the previous height index and the current height index (height delta to apply to previous height)</returns>
         protected virtual int GetHeightDelta() {
-            int heightDelta;
             int increment;
 
             // If there is a static set height for the segment, use that
             if (CurrentSegment.SetHeight) {
-                increment = _currentHeightIdx - CurrentSegment.MaxHeight;
-                heightDelta = increment;
-                return heightDelta;
+                increment = CurrentSegment.StaticHeight - _currentHeightIdx;
+                return increment;
             }
 
             // If the last two segments are Ground and have no gap, do not change height

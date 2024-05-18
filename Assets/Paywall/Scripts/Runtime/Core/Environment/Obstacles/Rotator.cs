@@ -17,10 +17,10 @@ namespace Paywall {
         [field: SerializeField] public bool BlockMovementUntil { get; protected set; } = true;
 
         protected float Direction => Clockwise ? -1f : 1f;
-        protected float _startAngle;
+        protected Quaternion _initialRotation;
 
         protected virtual void Awake() {
-            _startAngle = transform.rotation.z;
+            _initialRotation = transform.rotation;
         }
 
         protected virtual void Update() {
@@ -55,8 +55,11 @@ namespace Paywall {
             transform.Rotate(Direction * LevelManagerIRE_PW.Instance.CurrentUnmodifiedSpeed * Time.deltaTime * Vector3.forward);
         }
 
+        /// <summary>
+        /// Resets the rotation of this object to the initial rotation
+        /// </summary>
         protected virtual void ResetRotator() {
-            transform.rotation = new(transform.rotation.x, transform.rotation.y, _startAngle, transform.rotation.w);
+            transform.rotation = _initialRotation;
         }
 
         protected virtual void OnEnable() {

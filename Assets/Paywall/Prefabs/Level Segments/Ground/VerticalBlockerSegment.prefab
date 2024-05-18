@@ -200,7 +200,7 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 2996644156721059726}
   <RightOut>k__BackingField: {fileID: 8250956572146935542}
-  <BoundsBox>k__BackingField: {fileID: 9143586561717896122}
+  <BoundsLine>k__BackingField: {fileID: 9143586561717896122}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
@@ -305,9 +305,8 @@ MonoBehaviour:
   <Direction>k__BackingField: {x: -1, y: 0, z: 0}
   <UseEnemySpeed>k__BackingField: 0
   <BlockMovementUntil>k__BackingField: 0
-  <DirectionCanBeChangedBySpawner>k__BackingField: 1
-  <MovementSpace>k__BackingField: 0
-  <UseRigidbody>k__BackingField: 1
+  <KnockbackModifier>k__BackingField: 5
+  <CanJump>k__BackingField: 0
   <ShouldResetVelocity>k__BackingField: 1
   <ResetVelocityAcceleration>k__BackingField: 1
 --- !u!50 &7531182777287470444

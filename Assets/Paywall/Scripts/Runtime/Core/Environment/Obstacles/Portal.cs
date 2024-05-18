@@ -14,10 +14,11 @@ namespace Paywall {
 
         protected float _speed;
         protected bool _teleporting;
-        protected int _numTeleportFrames = 10;      // How many FixedUpdate frames should the teleport last
         protected PlayerCharacterIRE _character;
-
         protected float _distance;
+
+        public static readonly int TeleportFrames = 10;      // How many FixedUpdate frames should the teleport last
+
 
         protected virtual void OnTriggerEnter2D(Collider2D collider) {
             if (collider.gameObject.CompareTag(PaywallTagManager.PlayerTag)) {
@@ -25,9 +26,7 @@ namespace Paywall {
                 _distance = Exit.position.x - _character.transform.position.x;
                 if (_distance > 0) {
                     // Speed is divided by SpeedMultiplier, because MovingRigidbodies will multiply by the SpeedMultiplier
-                    _speed = _distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / _numTeleportFrames - LevelManagerIRE_PW.Instance.Speed;
-                    Debug.Log("Speed: " + _speed);
-                    Debug.Log("Distance: " + _distance);
+                    _speed = _distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / TeleportFrames;
                     LevelManagerIRE_PW.Instance.TemporarilyAddSpeedDist(_speed, _distance);
                     _character.Teleporting = true;
                 }

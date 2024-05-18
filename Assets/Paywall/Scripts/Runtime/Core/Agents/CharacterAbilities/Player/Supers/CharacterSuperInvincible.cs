@@ -38,7 +38,7 @@ namespace Paywall {
         protected virtual void PerformSuperInvincible() {
             SuperActive = true;
             Character.ToggleInvincibility(true);
-            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid, true);
             Character.Model.color = Color.blue;
         }
 
@@ -49,7 +49,7 @@ namespace Paywall {
             if (!SuperActive) { return; }
             base.EndSuper();
             Character.ToggleInvincibility(false);
-            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(InvincibleSpeedFactor, _speedGuid, false);
             Character.Model.color = _initialColor;
         }
 

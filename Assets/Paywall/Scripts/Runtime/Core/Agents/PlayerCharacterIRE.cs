@@ -136,14 +136,19 @@ namespace Paywall {
 			return gameObject.MMGetComponentNoAlloc<Renderer>().bounds;
 		}
 
-		int count;
 		/// <summary>
 		/// Called on fixed update, tries to return the object to its initial position
 		/// </summary>
 		protected virtual void ResetPosition() {
 			// We use LevelManager's Teleport state in order to synchronize our movement with it
 			if (ShouldResetPosition && !LevelManagerIRE_PW.Instance.Teleporting) {
-				if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
+				if (Teleporting) {
+					Teleporting = false;
+					CharacterRigidBody.position = new Vector2(InitialPosition.x, CharacterRigidBody.position.y);
+                    CharacterRigidBody.velocity = new(0, CharacterRigidBody.velocity.y);
+					return;
+                }
+                if (transform.position.x != InitialPosition.x && (ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)) {
 					float deltaX = InitialPosition.x - transform.position.x;
 					if (Mathf.Abs(deltaX) > 0.1f) {
 						CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
@@ -156,7 +161,6 @@ namespace Paywall {
 			}
 			// When we teleport, the character's x position gets pushed forward, so we need to reset it
 			else if (LevelManagerIRE_PW.Instance.Teleporting) {
-				count++;
 				float d = CharacterRigidBody.velocity.x * Time.fixedDeltaTime;
 				if (transform.position.x - Mathf.Abs(d) > InitialPosition.x
 					) {
@@ -164,8 +168,8 @@ namespace Paywall {
                 }
 				// If moving d distance would overshoot, we use regular reset position speed to slowly get the rest of the way
                 else {
-					Debug.Log("Char: " + count);
-                    CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
+					CharacterRigidBody.position = new Vector2(InitialPosition.x, CharacterRigidBody.position.y);
+                    //CharacterRigidBody.velocity = new Vector2((InitialPosition.x - transform.position.x) * ResetPositionSpeed, CharacterRigidBody.velocity.y);
                     Teleporting = false;
                 }
             }

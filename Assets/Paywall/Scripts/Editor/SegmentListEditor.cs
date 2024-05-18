@@ -25,6 +25,20 @@ namespace Paywall.Editors {
                     SegmentsList.Items.Sort((a, b) => string.Compare(a.Segment.SegmentName, b.Segment.SegmentName));
                 }
             }
+            if (GUILayout.Button("Apply Initial Weight")) {
+                if (SegmentsList.Items != null && SegmentsList.Items.Count > 0) {
+                    foreach (WeightedLevelSegment segment in SegmentsList.Items) {
+                        segment.InitialWeight = SegmentsList.GlobalInitialWeight;
+                    }
+                }
+            }
+            if (GUILayout.Button("Apply Starting Difficulty")) {
+                if (SegmentsList.Items != null && SegmentsList.Items.Count > 0) {
+                    foreach (WeightedLevelSegment segment in SegmentsList.Items) {
+                        segment.StartingDifficulty = SegmentsList.GlobalStartingDifficulty;
+                    }
+                }
+            }
 
             if (EditorGUI.EndChangeCheck()) {
                 serializedObject.ApplyModifiedProperties();

@@ -26,6 +26,7 @@ namespace Paywall {
         protected bool _railRiding;
         protected float _bottomColliderBuffer = 0f;
         protected float _dropTime;
+        protected Vector2 _closest;
 
         protected override void Initialization() {
             base.Initialization();
@@ -36,16 +37,36 @@ namespace Paywall {
         /// Can we start rail riding?
         /// </summary>
         /// <returns></returns>
-        protected virtual bool EvaluateRailRideConditions() {
+        protected virtual bool EvaluateRailRideConditions(Rail rail) {
+            if (Character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal) {
+                return false;
+            }
+
+            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding) {
+                if (rail != _rail) {
+                    Vector2 bottomCenter = new(Character.CharacterBoxCollider.bounds.center.x, Character.CharacterBoxCollider.bounds.min.y);
+
+                    float d1 = Vector2.Distance(Physics2D.ClosestPoint(bottomCenter, _rail.EdgeCollider), bottomCenter);
+                    float d2 = Vector2.Distance(Physics2D.ClosestPoint(bottomCenter, rail.EdgeCollider), bottomCenter);
+                    if (d2 <= d1) {
+                        return true;
+                    }
+                    //if (_rail.transform.position.x < rail.transform.position.x) {
+                    //    return true;
+                    //}
+                }
+                return false;
+            }
+
             if (Character.CharacterRigidBody.velocity.y <= 0
-                    && Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding
-                    && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal) {
+                    && Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
                 // If we just dropped and are blocking RailRiding
                 if (CanDropDown && Time.time - _dropTime < BlockDuration) {
                     return false;
                 }
                 // If the bottom of the character is too far below the rail, do not railride
-                Vector2 closest = Physics2D.ClosestPoint(Character.CharacterBoxCollider.bounds.min, _rail.EdgeCollider);
+                Vector2 bottomCenter = new(Character.CharacterBoxCollider.bounds.center.x, Character.CharacterBoxCollider.bounds.min.y);
+                Vector2 closest = Physics2D.ClosestPoint(bottomCenter, rail.EdgeCollider);
                 if (closest.y > Character.CharacterBoxCollider.bounds.min.y - _bottomColliderBuffer) {
                     return false;
                 }
@@ -103,7 +124,10 @@ namespace Paywall {
         protected virtual void RailRide() {
             if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal
                 && !Character.Grounded) {
-                Vector2 closest = Physics2D.ClosestPoint(Character.CharacterBoxCollider.bounds.min, _rail.EdgeCollider);
+                Vector2 bottomRight = new(Character.CharacterBoxCollider.bounds.max.x, Character.CharacterBoxCollider.bounds.min.y + Character.CharacterBoxCollider.edgeRadius);
+                Vector2 closest = Physics2D.ClosestPoint(bottomRight, _rail.EdgeCollider);
+                _closest = closest;
+                UnityEditor.SceneView.RepaintAll();
                 Character.CharacterRigidBody.velocity = new Vector2(Character.CharacterRigidBody.velocity.x, 0);
                 Character.CharacterRigidBody.position = 
                     new Vector2(Character.CharacterRigidBody.position.x, closest.y + Character.CharacterBoxCollider.bounds.extents.y - Character.CharacterBoxCollider.offset.y + Character.CharacterBoxCollider.edgeRadius);
@@ -121,15 +145,17 @@ namespace Paywall {
         protected virtual void StartRailRide(Collider2D collider) {
             if (collider.gameObject.CompareTag(PaywallTagManager.RailTag) && AbilityAuthorized && !Character.Grounded) {
 
-                _rail = collider.gameObject.GetComponent<Rail>();
+                Rail rail = collider.gameObject.GetComponent<Rail>();
 
-                if (!EvaluateRailRideConditions()) {
+                if (!EvaluateRailRideConditions(rail)) {
                     return;
                 }
 
+                _rail = rail;
                 Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.RailRiding);
                 Character.CharacterRigidBody.gravityScale = 0;
-                LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(RailSpeedBonus, _guid);
+                Character.CharacterRigidBody.velocity = new(Character.CharacterRigidBody.velocity.x, 0);
+                LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(RailSpeedBonus, _guid, true);
                 _railRiding = true;
                 RailRide();
             }
@@ -143,13 +169,14 @@ namespace Paywall {
                 return;
             }
             if (Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping) {
+                Character.CharacterRigidBody.velocity = new(Character.CharacterRigidBody.velocity.x, 0);
                 Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
             }
             if (Character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Dodging) {
                 Character.CharacterRigidBody.gravityScale = _initialGravityScale;
             }
             _railRiding = false;
-            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(RailSpeedBonus, _guid);
+            LevelManagerIRE_PW.Instance.TemporarilyAddSpeedSwitch(RailSpeedBonus, _guid, false);
         }
 
         protected virtual void OnTriggerEnter2D(Collider2D collider) {
@@ -161,7 +188,8 @@ namespace Paywall {
         }
 
         protected virtual void OnTriggerExit2D(Collider2D collider) {
-            if (collider.gameObject.CompareTag(PaywallTagManager.RailTag)) {
+            if (collider.gameObject.CompareTag(PaywallTagManager.RailTag)
+                    && collider.gameObject == _rail.gameObject) {
                 StopRailRide();
             }
         }
@@ -169,6 +197,13 @@ namespace Paywall {
         public override void UpdateAnimator() {
             base.UpdateAnimator();
             MMAnimatorExtensions.UpdateAnimatorBoolIfExists(_animator, "RailRiding", Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding);
+        }
+
+        protected void OnDrawGizmos() {
+            if (_railRiding) {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(_closest, 0.05f);
+            }
         }
     }
 }

@@ -27,8 +27,8 @@ namespace Paywall {
     [System.Serializable]
     public class WeightedLevelSegment {
         [field: SerializeField] public LevelSegmentController Segment { get; set; }
-        [field: SerializeField] public int InitialWeight { get; protected set; } = 10;
-        [field: SerializeField] public int StartingDifficulty { get; protected set; }
+        [field: SerializeField] public int InitialWeight { get; set; } = 10;
+        [field: SerializeField] public int StartingDifficulty { get; set; }
         [field: NonSerialized]
         public int CurrentWeight { get; protected set; }
         public void SetWeight(int weight) {

@@ -143,12 +143,12 @@ MonoBehaviour:
   <UseGlobalSpawnWeight>k__BackingField: 0
   <LeftIn>k__BackingField: {fileID: 8532476315084962811}
   <RightOut>k__BackingField: {fileID: 5842946402105816177}
-  <BoundsBox>k__BackingField: {fileID: 6351037827358555966}
+  <BoundsLine>k__BackingField: {fileID: 6351037827358555966}
   <LeftWall>k__BackingField: {fileID: 0}
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
   <SetHeight>k__BackingField: 0
-  <MaxHeight>k__BackingField: -1
+  <StaticHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!68 &6351037827358555966
 EdgeCollider2D:
@@ -495,17 +495,17 @@ PrefabInstance:
     - target: {fileID: 7495108020991860486, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7495108020991860486, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7495108020991860486, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7495108020991860486, guid: 4cc21906bf5e0464bb80df24c0f28277,
         type: 3}

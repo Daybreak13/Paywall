@@ -79,7 +79,7 @@ namespace Paywall {
         /// <returns></returns>
         protected virtual IEnumerator DodgeCo() {
             // Slow time if applicable, increase level speed, animate dodge, change character state
-            GameManagerIRE_PW.Instance.SetTimeScale(GameManagerIRE_PW.Instance.TimeScale * DodgeTimeScaleMultiplier);
+            //GameManagerIRE_PW.Instance.SetTimeScale(GameManagerIRE_PW.Instance.TimeScale * DodgeTimeScaleMultiplier);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeed(DodgeLevelSpeedBoost, DodgeDuration);
             _initialColor = Character.Model.color;
             _initialVelocity = Character.CharacterRigidBody.velocity;
@@ -94,7 +94,7 @@ namespace Paywall {
 
             yield return new WaitForSeconds(DodgeDuration);
 
-            GameManagerIRE_PW.Instance.ResetTimeScale();
+            //GameManagerIRE_PW.Instance.ResetTimeScale();
             Character.ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
             transform.SafeSetTransformPosition(transform.position, PaywallLayerManager.EnemyLayerMask, PaywallExtensions.SetTransformModes.PlusX);
             Character.gameObject.layer = _initialLayer;
