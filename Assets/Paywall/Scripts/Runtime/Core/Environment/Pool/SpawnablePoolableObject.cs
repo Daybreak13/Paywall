@@ -32,6 +32,9 @@ namespace Paywall {
             _parentSpawnPoint = sp;
         }
 
+        /// <summary>
+        /// Remove this object from its SpawnPoints list, if it has one
+        /// </summary>
         public virtual void RemoveFromSpawnPoint() {
             if (_parentSpawnPoint != null) {
                 _parentSpawnPoint.RemoveFromList(this);
@@ -56,10 +59,19 @@ namespace Paywall {
             }
         }
 
+        /// <summary>
+        /// Remove this object from spawn point and reset its transform parent
+        /// </summary>
         protected override void OnDisable() {
             base.OnDisable();
             RemoveFromSpawnPoint();
-            Invoke(nameof(ResetParent), 0f);
+            if (!gameObject.activeInHierarchy) {
+                gameObject.SetActive(false);
+            }
+            if (ParentPooler != null && ProceduralLevelGenerator.HasInstance && ProceduralLevelGenerator.Instance.gameObject.activeSelf) {
+                ProceduralLevelGenerator.Instance.ResetObjectParent(transform, ParentPooler);
+            }
+            //Invoke(nameof(ResetParent), 0f);
         }
     }
 }

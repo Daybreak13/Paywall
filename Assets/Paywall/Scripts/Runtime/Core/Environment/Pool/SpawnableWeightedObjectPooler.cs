@@ -12,7 +12,7 @@ namespace Paywall {
     public class SpawnableWeightedPool {
         [field: SerializeField] public SpawnableObjectPooler Pooler;
         [field: SerializeField] public int InitialWeight = 10;
-        [field: SerializeField] public int MaxWeight = 10;
+        [field: SerializeField] public int MaxWeight { get; protected set; } = 10;
         [field: SerializeField] public int StartingDifficulty;
         [field: MMReadOnly]
         [field: SerializeField] public int CurrentWeight { get; protected set; }
@@ -37,8 +37,8 @@ namespace Paywall {
         public List<SpawnableWeightedObjectPooler> Owner { get; set; }
         private void OnDestroy() { Owner?.Remove(this); }
 
-        protected Dictionary<string, SpawnableWeightedPool> _poolerDict = new();
-        protected Dictionary<int, List<SpawnableWeightedPool>> _unusedPoolers = new();
+        protected Dictionary<string, SpawnableWeightedPool> _poolerDict = new();    // Currently used poolers
+        protected Dictionary<int, List<SpawnableWeightedPool>> _unusedPoolers = new();      // Currently unused poolers (not spawning at current difficulty)
         protected WeightedList<string> _randomizer;
 
         protected virtual void Start() {
@@ -90,7 +90,7 @@ namespace Paywall {
         /// </summary>
         /// <param name="difficulty"></param>
         protected virtual void SetDifficulty(int difficulty) {
-            foreach (SpawnableWeightedPool pool in WeightedPools) {
+            foreach (SpawnableWeightedPool pool in _poolerDict.Values) {
                 if (pool.CurrentWeight >= pool.MaxWeight) {
                     continue;
                 }
@@ -101,6 +101,7 @@ namespace Paywall {
             // Add any poolers that start spawning at this difficulty
             if (_unusedPoolers.ContainsKey(difficulty)) {
                 foreach (SpawnableWeightedPool pool in _unusedPoolers[difficulty]) {
+                    _poolerDict.Add(pool.Pooler.SpawnableToPool.name, pool);
                     _randomizer.Add(pool.Pooler.SpawnableToPool.name, pool.InitialWeight);
                 }
             }

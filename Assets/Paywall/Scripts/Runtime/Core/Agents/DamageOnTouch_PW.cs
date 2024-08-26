@@ -8,6 +8,9 @@ using MoreMountains.Feedbacks;
 
 namespace Paywall {
 
+	/// <summary>
+	/// Causes damage on touch to any Health object in target layer
+	/// </summary>
     public class DamageOnTouch_PW : MonoBehaviour_PW {
 		/// the possible ways to add knockback : noKnockback, which won't do nothing, set force, or add force
 		public enum KnockbackStyles { NoKnockback, SetForce, AddForce }

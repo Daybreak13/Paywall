@@ -23,7 +23,7 @@ namespace Paywall {
         protected virtual void OnTriggerEnter2D(Collider2D collider) {
             if (collider.gameObject.CompareTag(PaywallTagManager.PlayerTag)) {
                 _character = collider.GetComponent<PlayerCharacterIRE>();
-                _distance = Exit.position.x - _character.transform.position.x;
+                _distance = Exit.position.x - LevelManagerIRE_PW.Instance.StartingPosition.transform.position.x;
                 if (_distance > 0) {
                     // Speed is divided by SpeedMultiplier, because MovingRigidbodies will multiply by the SpeedMultiplier
                     _speed = _distance / Time.fixedDeltaTime / LevelManagerIRE_PW.Instance.SpeedMultiplier / TeleportFrames;
@@ -34,7 +34,9 @@ namespace Paywall {
                 _character = null;
             }
 
-            else if (collider.gameObject.layer != PaywallLayerManager.ObstaclesLayerMask && !collider.gameObject.CompareTag(PaywallTagManager.MagnetTag)) {
+            else if (1 << collider.gameObject.layer != PaywallLayerManager.ObstaclesLayerMask 
+                && collider.gameObject.layer != PaywallLayerManager.PickablesLayer 
+                && !collider.gameObject.CompareTag(PaywallTagManager.MagnetTag)) {
                 collider.transform.SafeSetTransformPosition(new Vector3(Exit.position.x, Exit.position.y, collider.transform.position.z), PaywallLayerManager.ObstaclesLayerMask);
             }
         }

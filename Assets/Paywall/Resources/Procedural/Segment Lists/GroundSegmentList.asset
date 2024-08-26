@@ -41,5 +41,9 @@ MonoBehaviour:
       type: 3}
     <InitialWeight>k__BackingField: 10
     <StartingDifficulty>k__BackingField: 0
+  - <Segment>k__BackingField: {fileID: 859746925610287144, guid: e3a78097c6196b44a88bc629f599f704,
+      type: 3}
+    <InitialWeight>k__BackingField: 10
+    <StartingDifficulty>k__BackingField: 0
   <GlobalInitialWeight>k__BackingField: 10
   <GlobalStartingDifficulty>k__BackingField: 0

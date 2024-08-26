@@ -105,6 +105,13 @@ namespace Paywall {
         /// the effect we instantiate when a life is lost
         [field: SerializeField] public GameObject LifeLostExplosion { get; protected set; }
 
+        [field: Space(10)]
+        [field: Header("Global Settings")]
+        /// The layers that can go through portals
+        [field: Tooltip("The layers that can go through portals")]
+        [field: SerializeField] public LayerMask PortalTargetLayerMask { get; protected set; }
+
+
         #endregion
 
         // Speed parameter seen by other components, after speed mult
@@ -281,7 +288,7 @@ namespace Paywall {
         /// Used by Portal
         /// </summary>
         protected virtual void HandleTempDist() {
-            if (!Teleporting) return;
+            if (!Teleporting) { return; }
             // Teleport always takes the same number of frames
             if (_teleportFramesLeft > 0) {
                 _teleportFramesLeft--;
@@ -308,21 +315,30 @@ namespace Paywall {
         /// What to do if the character's simulated movement is blocked (character begins to move in -x direction)
         /// </summary>
         protected virtual void HandleCharacterBlocked() {
+            // If the character is colliding right, and is left of starting position
             if (CurrentPlayableCharacters[0].transform.position.x < StartingPosition.transform.position.x && CurrentPlayableCharacters[0].CollidingRight) {
+                // If char is blocking, decelerate
                 if (_charBlocking) {
                     if (Speed > BlockedSpeed) {
-                        Speed -= BlockedDeceleration * Time.deltaTime;
+                        if (CurrentUnmodifiedSpeed < 60) {
+                            Speed -= BlockedDeceleration * Time.deltaTime;
+                        }
+                        else {
+                            Speed -= (BlockedDeceleration + CurrentUnmodifiedSpeed * 0.4f) * Time.deltaTime;
+                        }
                         if (Speed < BlockedSpeed) {
                             Speed = BlockedSpeed;
                         }
                     }
                 }
+                // If we just started blocking
                 else {
                     _charBlocking = true;
                     _preBlockSpeed = Speed;
                     _lastBlockTime = Time.time;
                 }
             }
+            // If we were just blocking but aren't anymore
             else if (_charBlocking && !CurrentPlayableCharacters[0].CollidingRight && (Time.time - _lastBlockTime > 0.1f)) {
                 _charBlocking = false;
                 Speed = _preBlockSpeed;
@@ -336,6 +352,8 @@ namespace Paywall {
             InstantiateCharacters();
             PrepareStart();
         }
+
+        #region Speed Switches
 
         /// <summary>
         /// Temporarily add to the current speed
@@ -477,6 +495,8 @@ namespace Paywall {
                 Speed = CurrentUnmodifiedSpeed;
             }
         }
+
+        #endregion
 
         public virtual void KillCharacter(PlayerCharacterIRE player) {
             // if we've specified an effect for when a life is lost, we instantiate it at the camera's position

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 #if UNITY_EDITOR
@@ -10,7 +8,7 @@ namespace Paywall.Tools {
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
     public class FieldConditionAttribute : PropertyAttribute {
-		public string ConditionBoolean = "";
+		public string ConditionBoolean = string.Empty;
 		public bool Hidden = false;
 		public bool Negative = false;
 

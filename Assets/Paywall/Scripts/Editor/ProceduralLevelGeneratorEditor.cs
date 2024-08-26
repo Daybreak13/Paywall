@@ -24,9 +24,9 @@ namespace Paywall.Editors {
         protected const string _jumperSegmentListPropertyName = "JumperSegmentList";
         protected const string _firstLevelSegmentPropertyName = "FirstLevelSegment";
         protected const string _shopLevelSegmentPropertyName = "ShopLevelSegmentPooler";
+        protected const string _poolerPrefabPropertyName = "PoolerPrefab";
         protected const string _previousSegmentPropertyName = "PreviousSegment";
         protected const string _currentSegmentPropertyName = "CurrentSegment";
-        protected const string _poolerPrefabPropertyName = "PoolerPrefab";
 
         protected const string _baseStageSegmentPropertyName = "BaseStageLength";
         protected const string _currentStageSegmentPropertyName = "CurrentStage";
@@ -69,9 +69,9 @@ namespace Paywall.Editors {
         protected SerializedProperty _jumperSegmentListProperty;
         protected SerializedProperty _firstLevelSegmentProperty;
         protected SerializedProperty _shopLevelSegmentProperty;
+        protected SerializedProperty _poolerPrefabProperty;
         protected SerializedProperty _previousSegmentProperty;
         protected SerializedProperty _currentSegmentProperty;
-        protected SerializedProperty _poolerPrefabProperty;
 
         protected SerializedProperty _baseStageLengthSegmentProperty;
         protected SerializedProperty _currentStageSegmentProperty;
@@ -122,9 +122,9 @@ namespace Paywall.Editors {
             _jumperSegmentListProperty = serializedObject.FindPropertyByAutoPropertyName(_jumperSegmentListPropertyName);
             _firstLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_firstLevelSegmentPropertyName);
             _shopLevelSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_shopLevelSegmentPropertyName);
+            _poolerPrefabProperty = serializedObject.FindPropertyByAutoPropertyName(_poolerPrefabPropertyName);
             _previousSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_previousSegmentPropertyName);
             _currentSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_currentSegmentPropertyName);
-            _poolerPrefabProperty = serializedObject.FindPropertyByAutoPropertyName(_poolerPrefabPropertyName);
 
             _baseStageLengthSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_baseStageSegmentPropertyName);
             _currentStageSegmentProperty = serializedObject.FindPropertyByAutoPropertyName(_currentStageSegmentPropertyName);
@@ -172,9 +172,9 @@ namespace Paywall.Editors {
 
                 EditorGUILayout.PropertyField(_firstLevelSegmentProperty);
                 EditorGUILayout.PropertyField(_shopLevelSegmentProperty);
+                EditorGUILayout.PropertyField(_poolerPrefabProperty);
                 EditorGUILayout.PropertyField(_previousSegmentProperty);
                 EditorGUILayout.PropertyField(_currentSegmentProperty);
-                EditorGUILayout.PropertyField(_poolerPrefabProperty);
             }
 
             EditorGUILayout.Space(10);
@@ -197,6 +197,12 @@ namespace Paywall.Editors {
             if (_showSpawnPoolers) {
                 EditorGUILayout.PropertyField(_spawnPoolersProperty);
                 EditorGUILayout.PropertyField(_weightIncrementProperty);
+                EditorGUILayout.Space(10);
+                if (GUILayout.Button("Sort")) {
+                    if (proceduralLevelGenerator != null && proceduralLevelGenerator.SpawnPoolers.Count > 0) {
+                        proceduralLevelGenerator.SpawnPoolers.Sort((a, b) => string.Compare(a.Pooler.name, b.Pooler.name));
+                    }
+                }
             }
 
             EditorGUILayout.Space(10);

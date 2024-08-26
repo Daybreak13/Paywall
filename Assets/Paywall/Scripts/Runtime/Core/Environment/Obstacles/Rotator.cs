@@ -1,3 +1,4 @@
+using Paywall.Tools;
 using UnityEngine;
 
 namespace Paywall {
@@ -6,11 +7,15 @@ namespace Paywall {
     /// Add this component to a transform to rotate it every frame
     /// </summary>
     public class Rotator : MonoBehaviour {
+        /// Auto calculate rotation speed based on level speed
+        [field: Tooltip("Auto calculate rotation speed based on level speed")]
+        [field: SerializeField] public bool UseLevelSpeed { get; protected set; } = true;
         /// Speed at which the Z value changes
         [field: Tooltip("Speed at which the Z value changes")]
+        [field: FieldCondition("UseLevelSpeed", true, true)]
         [field: SerializeField] public float RotationSpeed { get; protected set; }
         /// Direction of rotation
-        [field: Tooltip("Speed at which the Z value changes")]
+        [field: Tooltip("Direction of rotation")]
         [field: SerializeField] public bool Clockwise { get; protected set; } = true;
         /// Block movement until passing a point set by LevelManager?
         [field: Tooltip("Block movement until passing a point set by LevelManager?")]
@@ -52,7 +57,8 @@ namespace Paywall {
             if (!ShouldRotate()) {
                 return;
             }
-            transform.Rotate(Direction * LevelManagerIRE_PW.Instance.CurrentUnmodifiedSpeed * Time.deltaTime * Vector3.forward);
+            float rotateSpeed = UseLevelSpeed ? LevelManagerIRE_PW.Instance.CurrentUnmodifiedSpeed : RotationSpeed;
+            transform.Rotate(Direction * rotateSpeed * Time.deltaTime * Vector3.forward);
         }
 
         /// <summary>

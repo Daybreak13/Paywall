@@ -38,7 +38,7 @@ namespace Paywall {
         }
 
         /// <summary>
-        /// Randomly selects a layout to use, then sets it to active
+        /// Randomly selects a layout of gameobjects to use, then sets it to active
         /// </summary>
         protected virtual void InitializeLayout() {
             int key = _layoutRandomizer.NextWithReplacement();

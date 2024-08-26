@@ -80,6 +80,7 @@ MonoBehaviour:
   <MinLength>k__BackingField: 2
   <MaxLength>k__BackingField: 4
   <ManualSpawn>k__BackingField: 0
+  <SpawnDirection>k__BackingField: 1
 --- !u!1 &5233181535991135446
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +142,7 @@ MonoBehaviour:
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
   <SetHeight>k__BackingField: 0
-  <MaxHeight>k__BackingField: 0
+  <StaticHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!50 &2123058069103200215
 Rigidbody2D:
@@ -218,7 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <DestroyDistanceBehindBounds>k__BackingField: 4
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4300990212206320517
 MonoBehaviour:

@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <DestroyDistanceBehindBounds>k__BackingField: 4
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4300990212206320517
 MonoBehaviour:
@@ -239,11 +239,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
+  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 5f346712f90d3d24195fa1af1336b6ce,
     type: 2}
   <MinLength>k__BackingField: 3
-  <MaxLength>k__BackingField: 4
+  <MaxLength>k__BackingField: 5
   <ManualSpawn>k__BackingField: 1
+  <SpawnDirection>k__BackingField: 1
 --- !u!1 &6842856211426541111
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,8 +405,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
+  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 5f346712f90d3d24195fa1af1336b6ce,
     type: 2}
   <MinLength>k__BackingField: 3
-  <MaxLength>k__BackingField: 4
+  <MaxLength>k__BackingField: 5
   <ManualSpawn>k__BackingField: 1
+  <SpawnDirection>k__BackingField: 1

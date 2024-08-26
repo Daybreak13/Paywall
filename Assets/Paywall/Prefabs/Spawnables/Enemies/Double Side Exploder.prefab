@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 38eb303a0b4a2d747a9f468535248509, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.30571634, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -175,9 +175,8 @@ MonoBehaviour:
   <Direction>k__BackingField: {x: -1, y: 0, z: 0}
   <UseEnemySpeed>k__BackingField: 1
   <BlockMovementUntil>k__BackingField: 1
-  <DirectionCanBeChangedBySpawner>k__BackingField: 1
-  <MovementSpace>k__BackingField: 0
-  <UseRigidbody>k__BackingField: 1
+  <KnockbackModifier>k__BackingField: 5
+  <CanJump>k__BackingField: 0
   <ShouldResetVelocity>k__BackingField: 1
   <ResetVelocityAcceleration>k__BackingField: 1
 --- !u!114 &-4725364043685930818

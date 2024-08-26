@@ -177,25 +177,6 @@ namespace Paywall {
 
 		#endregion
 
-		/// <summary>
-		/// Sets character state if it is teleporting
-		/// </summary>
-		/// <param name="on"></param>
-		public virtual void SetTeleportState(bool on) {
-			if (on) {
-				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Teleporting);
-                gameObject.layer = PaywallLayerManager.TeleportingLayer;
-				Model.enabled = false;
-				_savedVelocity = CharacterRigidBody.velocity;
-			}
-			else {
-				ConditionState.ChangeState(CharacterStates_PW.ConditionStates.Normal);
-                gameObject.layer = PaywallLayerManager.PlayerLayer;	
-                Model.enabled = true;
-				CharacterRigidBody.velocity = _savedVelocity;
-			}
-		}
-
         /// <summary>
         /// Checks the EX draining flag
         /// </summary>

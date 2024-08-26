@@ -23,6 +23,9 @@ namespace Paywall {
             }
         }
 
+        /// <summary>
+        /// Set the right piece's position depending on the next height delta
+        /// </summary>
         protected virtual void OnEnable() {
             RightPiece.transform.position = new(RightPiece.position.x,
                 LeftPiece.position.y + ParentController.StoredHeightDelta * ProceduralLevelGenerator.Instance.HeightInterval);

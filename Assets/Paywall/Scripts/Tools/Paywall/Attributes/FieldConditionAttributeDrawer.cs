@@ -29,9 +29,7 @@ namespace Paywall.Tools {
 			string propertyPath = property.propertyPath;
 			string conditionPath = propertyPath.Replace(property.name, conditionAttribute.ConditionBoolean);
 			SerializedProperty sourcePropertyValue = property.serializedObject.FindProperty(conditionPath);
-			if (sourcePropertyValue == null) {
-				sourcePropertyValue = property.serializedObject.FindProperty(string.Format("<{0}>k__BackingField", conditionPath));
-			}
+			sourcePropertyValue ??= property.serializedObject.FindProperty(string.Format("<{0}>k__BackingField", conditionPath));
 
 			if (sourcePropertyValue != null) {
 				enabled = sourcePropertyValue.boolValue;

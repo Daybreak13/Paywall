@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Paywall {
 
     /// <summary>
-    /// Controls layered breakable chains
+    /// Controls layered breakable chains (multiple chains w/ ascending y positions)
     /// </summary>
     public class LayeredBreakables : MonoBehaviour {
         [field: SerializeField] public List<GameObject> EndCaps { get; protected set; } = new();

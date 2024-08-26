@@ -126,7 +126,7 @@ MonoBehaviour:
   <RightWall>k__BackingField: {fileID: 0}
   <HeightLockSetting>k__BackingField: 0
   <SetHeight>k__BackingField: 0
-  <MaxHeight>k__BackingField: 0
+  <StaticHeight>k__BackingField: 0
   <PreviousHeightDelta>k__BackingField: 0
 --- !u!61 &7550903049800712361
 BoxCollider2D:
@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <DestroyDistanceBehindBounds>k__BackingField: 4
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4001176027348682172
 MonoBehaviour:

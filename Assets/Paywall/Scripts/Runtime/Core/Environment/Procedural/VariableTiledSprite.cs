@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Paywall {
 
+    /// <summary>
+    /// Add this to a tiled sprite to have its length randomly set OnEnable
+    /// </summary>
     public class VariableTiledSprite : MonoBehaviour {
         /// Tiled sprite renderer
         [field: Tooltip("Tiled sprite renderer")]
@@ -16,18 +19,20 @@ namespace Paywall {
         /// Maximum possible length
         [field: Tooltip("Maximum possible length")]
         [field: SerializeField] public int MaxLength { get; protected set; } = 3;
-        /// Left gameobject in this segment
+        /// Left gameobject in this segment, if applicable
         [field: Tooltip("Left gameobject in this segment")]
         [field: SerializeField] public Collider2D LeftEnd { get; protected set; }
-        /// Right gameobject in this segment
+        /// Right gameobject in this segment, if applicable
         [field: Tooltip("Right gameobject in this segment")]
         [field: SerializeField] public Collider2D RightEnd { get; protected set; }
 
         protected System.Random _rand;
 
-        protected virtual void OnEnable() {
-            _rand ??= RandomManager.NewRandom();
-            int len = _rand.Next(MinLength, MaxLength + 1);
+        /// <summary>
+        /// Set the size of this tile sprite, as well as adjusting the position of the gameobjects connected to its left and right
+        /// </summary>
+        /// <param name="len"></param>
+        public virtual void SetSize(int len) {
             SpriteComponent.size = new Vector2(len, 1);
             if (LeftEnd != null) {
                 LeftEnd.transform.position = new Vector2(SpriteComponent.bounds.min.x - LeftEnd.bounds.extents.x, LeftEnd.transform.position.y);
@@ -40,6 +45,12 @@ namespace Paywall {
                 Vector2 rightBound = new(RightEnd.bounds.max.x, RightEnd.transform.position.y);
                 ParentController.SetBounds(ParentController.transform.InverseTransformPoint(leftBound), ParentController.transform.InverseTransformPoint(rightBound));
             }
+        }
+
+        protected virtual void OnEnable() {
+            _rand ??= RandomManager.NewRandom();
+            int len = _rand.Next(MinLength, MaxLength + 1);
+            SetSize(len);
         }
     }
 }

@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Paywall {
 
+    public enum Direction { Left, Right, Down, Up }
+
     /// <summary>
     /// Spawns random breakables in a pattern
     /// </summary>
@@ -21,10 +23,14 @@ namespace Paywall {
         [field: SerializeField] public int MaxLength { get; protected set; } = 3;
         /// Spawn via script call instead of OnEnable
         [field: Tooltip("Spawn via script call instead of OnEnable")]
-        [field: SerializeField] public bool ManualSpawn { get; protected set; } = true;
+        [field: SerializeField] public bool ManualSpawn { get; protected set; }
+        /// What direction to spawn breakables from this transform?
+        [field: Tooltip("What direction to spawn breakables from this transform?")]
+        [field: SerializeField] public Direction SpawnDirection { get; protected set; } = Direction.Right;
 
         protected List<GameObject> _spawnables = new();
         protected static System.Random _random;
+        protected float _spawnIncrement = 1f;
 
         /// <summary>
         /// Set min and max lengths
@@ -64,8 +70,25 @@ namespace Paywall {
             _random ??= RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
             int length = _random.Next(a, b + 1);
             float offset =  0.5f;     // -length / 2f + 0.5f
-            Vector2 prevPosition = new(transform.position.x + offset, transform.position.y);
+
+            Vector2 prevPosition = new(transform.position.x, transform.position.y);
             Vector2 currentPos = Vector2.zero;
+
+            switch (SpawnDirection) {
+                case Direction.Left:
+                    prevPosition.x -= offset;
+                    break;
+                case Direction.Right:
+                    prevPosition.x += offset;
+                    break;
+                case Direction.Down:
+                    prevPosition.y -= offset;
+                    break;
+                case Direction.Up:
+                    prevPosition.y += offset;
+                    break;
+            }
+
             for (int i = 0; i < length; i++) {
                 GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
                 spawnable.SetActive(true);
@@ -73,7 +96,20 @@ namespace Paywall {
                 _spawnables.Add(spawnable);
                 spawnable.transform.position = prevPosition;
                 currentPos = prevPosition;
-                prevPosition.x += 1f;
+                switch (SpawnDirection) {
+                    case Direction.Left:
+                        prevPosition.x -= _spawnIncrement;
+                        break;
+                    case Direction.Right:
+                        prevPosition.x += _spawnIncrement;
+                        break;
+                    case Direction.Down:
+                        prevPosition.y -= _spawnIncrement;
+                        break;
+                    case Direction.Up:
+                        prevPosition.y += _spawnIncrement;
+                        break;
+                }
             }
 
             currentPos.x += 0.5f;
@@ -82,6 +118,34 @@ namespace Paywall {
 
         protected virtual void OnEnable() {
             if (!ManualSpawn) Spawn();
+        }
+
+        protected virtual void OnDrawGizmosSelected() {
+            Gizmos.color = Color.blue;
+            Vector2 startPosition = new(transform.position.x, transform.position.y);
+            Vector2 endPosition = startPosition;
+            float offset = 0.5f;
+            switch (SpawnDirection) {
+                case Direction.Left:
+                    startPosition.x -= offset;
+                    endPosition.x -= MaxLength * _spawnIncrement;
+                    break;
+                case Direction.Right:
+                    startPosition.x += offset;
+                    endPosition.x += MaxLength * _spawnIncrement;
+                    break;
+                case Direction.Down:
+                    startPosition.y -= offset;
+                    endPosition.y -= MaxLength * _spawnIncrement;
+                    break;
+                case Direction.Up:
+                    startPosition.y += offset;
+                    endPosition.y += MaxLength * _spawnIncrement;
+                    break;
+            }
+
+            Gizmos.DrawWireSphere(startPosition, 0.2f);
+            Gizmos.DrawWireSphere(endPosition, 0.2f);
         }
     }
 }

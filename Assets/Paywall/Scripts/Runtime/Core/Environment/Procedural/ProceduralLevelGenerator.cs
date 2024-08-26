@@ -59,6 +59,7 @@ namespace Paywall {
 
     /// <summary>
     /// Generates level segments randomly
+    /// Generates height delta, distance, depending on selected segment types
     /// </summary>
     public class ProceduralLevelGenerator : Singleton_PW<ProceduralLevelGenerator>, MMEventListener<MMGameEvent> {
 
@@ -90,7 +91,9 @@ namespace Paywall {
         [field: Tooltip("Level segment pooler prefab")]
         [field: SerializeField] public LevelSegmentPooler PoolerPrefab { get; protected set; }
 
+        [field: MMReadOnly]
         [field: SerializeField] public LevelSegmentController PreviousSegment { get; protected set; }
+        [field: MMReadOnly]
         [field: SerializeField] public LevelSegmentController CurrentSegment { get; protected set; }
 
         [field: Header("Stages")]
@@ -195,6 +198,9 @@ namespace Paywall {
         /// Do not spawn shop segment
         [field: Tooltip("Do not spawn shop segment")]
         [field: SerializeField] public bool DoNotSpawnShop { get; protected set; }
+        /// The name of the transition segment to always use in Debug Mode
+        [field: Tooltip("The name of the transition segment to always use in Debug Mode")]
+        [field: SerializeField] public string ForcedTransitionSegment { get; protected set; }
         /// Ordered list of level segments
         [field: Tooltip("Ordered list of level segments")]
         [field: SerializeField] public List<string> LevelSegmentSequence { get; protected set; }
@@ -246,6 +252,20 @@ namespace Paywall {
         /// </summary>
         public virtual void Initialize() {
             Initialization();
+        }
+
+        /// <summary>
+        /// Called by SpawnablePoolableObject to reset its parent transform during OnDisable
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="parent"></param>
+        public virtual void ResetObjectParent(Transform child, Transform parent) {
+            StartCoroutine(ResetObjectParentCo(child, parent));
+        }
+
+        protected virtual IEnumerator ResetObjectParentCo(Transform child, Transform parent) {
+            yield return new WaitForEndOfFrame();
+            child.SetParent(parent);
         }
 
         protected virtual void Initialization() {
@@ -435,6 +455,7 @@ namespace Paywall {
 
         /// <summary>
         /// Handles what happens when stage number is incremented
+        /// Increments difficulty by 1
         /// </summary>
         public virtual void IncrementStage() {
             CurrentStage++;
@@ -507,12 +528,21 @@ namespace Paywall {
             switch (typeToUse) {
                 case SegmentTypes.Ground:
                     key = _groundSegmentRandomizer.Next();
+                    while (_levelSegments[key].GetPooledGameObject().GetComponent<LevelSegmentController>().StaticHeight > NumberOfHeights) {
+                        key = _groundSegmentRandomizer.Next();
+                    }
                     break;
                 case SegmentTypes.Transition:
                     key = _transitionSegmentRandomizer.Next();
+                    while (_levelSegments[key].GetPooledGameObject().GetComponent<LevelSegmentController>().StaticHeight > NumberOfHeights) {
+                        key = _transitionSegmentRandomizer.Next();
+                    }
                     break;
                 case SegmentTypes.Jumper:
                     key = _jumperSegmentRandomizer.Next();
+                    while (_levelSegments[key].GetPooledGameObject().GetComponent<LevelSegmentController>().StaticHeight > NumberOfHeights) {
+                        key = _jumperSegmentRandomizer.Next();
+                    }
                     break;
             }
 
@@ -533,7 +563,7 @@ namespace Paywall {
                 return;
             }
 
-            // If previous segment was not a transition, current and previous segments aren't jumpers
+            // If previous segment was not a transition, current and previous segments aren't both jumpers
             // Spawn a transition segment
             if (PreviousSegment.SegmentType != SegmentTypes.Transition
                     && (PreviousSegment.SegmentType != SegmentTypes.Jumper && CurrentSegment.SegmentType != SegmentTypes.Jumper)) {
@@ -544,6 +574,21 @@ namespace Paywall {
                     NextSegment = CurrentSegment;      // Set _nextSegment to CurrentSegment, since we will spawn a transition instead
                     int heightDelta = GetHeightDelta();
                     string key = null;
+
+                    if (DebugMode && !string.IsNullOrEmpty(ForcedTransitionSegment)) {
+                        TransitionSegmentController controller = (TransitionSegmentController) _levelSegments[ForcedTransitionSegment].GetPooledGameObject().GetComponent<LevelSegmentController>();
+                        if ((heightDelta == -1 && controller.MinusTransition)
+                                || (heightDelta == 0 && controller.NeutralTransition)
+                                || (heightDelta == 1 && controller.PlusTransition)
+                                || (heightDelta == 2 && controller.PlusTwoTransition)) {
+                            CurrentSegment = controller;
+                            controller.SetHeightDelta(heightDelta);
+                        }
+                        else {
+                            return;
+                        }
+                    }
+
                     switch (heightDelta) {
                         case -1:
                             if (_minusTransitionRandomizer.Count == 0) {
@@ -594,6 +639,7 @@ namespace Paywall {
             float gapLength = GetGapLength();
             int heightDelta;
 
+            // Segment set active before positioning it, so that OnEnable might change its bounds first
             CurrentSegment.gameObject.SetActive(true);
 
             // Height delta is locked in if the previous segment was transition

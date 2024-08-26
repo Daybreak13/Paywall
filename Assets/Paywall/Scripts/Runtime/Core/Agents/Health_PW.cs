@@ -8,7 +8,7 @@ using MoreMountains.Tools;
 namespace Paywall {
 
     /// <summary>
-    /// Health component adjusted for IRE
+    /// MM Health component adjusted for this project
     /// </summary>
     public class Health_PW : Health {
         [field: MMInspectorGroup("Paywall", true, 20)]

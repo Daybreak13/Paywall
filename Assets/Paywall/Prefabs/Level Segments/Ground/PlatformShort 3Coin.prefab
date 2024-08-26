@@ -76,8 +76,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14fcb27ead6f6e5408777c18fe610756, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <UseLocalNoneChance>k__BackingField: 0
-  <LocalNoneChance>k__BackingField: 5
+  <UseLocalNoneChance>k__BackingField: 1
+  <LocalNoneChance>k__BackingField: 0
   <Spawners>k__BackingField:
   - <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 3ee1a18fb0df93b49a272420e4ff9fe1,
       type: 2}
@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <DestroyDistanceBehindBounds>k__BackingField: 4
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4001176027348682172
 MonoBehaviour:

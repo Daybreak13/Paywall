@@ -297,6 +297,7 @@ Transform:
   - {fileID: 4810247425166308763}
   - {fileID: 3150864328726702861}
   - {fileID: 1845889232407689616}
+  - {fileID: 1766325323802120239}
   - {fileID: 2896447215236022203}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -407,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f410a14428e337d4891f5a98e0b25b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DestroyDistanceBehindBounds>k__BackingField: 2
+  <DestroyDistanceBehindBounds>k__BackingField: 4
   <OutOfBoundType>k__BackingField: 0
 --- !u!114 &4001176027348682172
 MonoBehaviour:
@@ -482,6 +483,56 @@ Transform:
   m_Father: {fileID: 8759614016798888083}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3803942682786890880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1766325323802120239}
+  - component: {fileID: 3021692707670215063}
+  m_Layer: 0
+  m_Name: DirtChain
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1766325323802120239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3803942682786890880}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4, y: -1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8759614016798888083}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3021692707670215063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3803942682786890880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b52f8b3aa7892a34a88f4b65bbf93ed7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <SpawnablePoolerType>k__BackingField: {fileID: 11400000, guid: 64079b1c97209a343b597fc6bfaf04d6,
+    type: 2}
+  <MinLength>k__BackingField: 8
+  <MaxLength>k__BackingField: 8
+  <ManualSpawn>k__BackingField: 0
+  <SpawnDirection>k__BackingField: 1
 --- !u!1 &4559230831806959875
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,7 +673,7 @@ Transform:
   - {fileID: 3925097302061737655}
   - {fileID: 666618684174531141}
   m_Father: {fileID: 8759614016798888083}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6803167871420512173
 GameObject:

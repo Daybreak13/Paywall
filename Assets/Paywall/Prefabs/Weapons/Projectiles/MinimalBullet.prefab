@@ -262,6 +262,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   LifeTime: 5
+  UseRigidbody: 1
   FaceDirection: 1
   Speed: 200
   Acceleration: 0
@@ -275,6 +276,8 @@ MonoBehaviour:
   SpawnSecurityCheckLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  HasRange: 1
+  Range: 9
 --- !u!1 &7758844376465442526
 GameObject:
   m_ObjectHideFlags: 0

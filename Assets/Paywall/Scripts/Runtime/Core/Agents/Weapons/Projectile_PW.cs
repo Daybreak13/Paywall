@@ -1,14 +1,19 @@
 using MoreMountains.CorgiEngine;
 using MoreMountains.Tools;
 using Paywall;
+using Paywall.Tools;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Projectile_PW : MMPoolableObject
-{
+/// <summary>
+/// Weapon projectile component
+/// </summary>
+public class Projectile_PW : MMPoolableObject {
     [Header("Movement")]
 
+    /// Do we move using rigidbody?
+    [Tooltip("Do we move using rigidbody?")]
+    public bool UseRigidbody;
     /// if true, the projectile will rotate at initialization towards its rotation
     [Tooltip("if true, the projectile will rotate at initialization towards its rotation")]
     public bool FaceDirection = true;
@@ -47,15 +52,25 @@ public class Projectile_PW : MMPoolableObject
     [Tooltip("the layermask to use when performing the security check")]
     public LayerMask SpawnSecurityCheckLayerMask;
 
+    [field: Header("Death")]
+
+    /// Destroy this projectile after a certain distance has been traveled along the x axis?
+    [field: Tooltip("Destroy this projectile after a certain distance has been traveled along the x axis?")]
+    [field: SerializeField] public bool HasRange;
+    /// What is the range of this projectile, if applicable
+    [field: Tooltip("What is the range of this projectile, if applicable")]
+    [field: FieldCondition("HasRange", true)]
+    [field: SerializeField] public float Range;
+
     /// Returns the associated damage on touch zone
-    public DamageOnTouch TargetDamageOnTouch { get { return _damageOnTouch; } }
+    public DamageOnTouch_PW TargetDamageOnTouch { get { return _damageOnTouch; } }
 
     protected WeaponStandalone _weapon;
     protected GameObject _owner;
-    protected Vector3 _movement;
+    protected Vector2 _movement;
     protected float _initialSpeed;
     protected SpriteRenderer _spriteRenderer;
-    protected DamageOnTouch _damageOnTouch;
+    protected DamageOnTouch_PW _damageOnTouch;
     protected WaitForSeconds _initialInvulnerabilityDurationWFS;
 
     protected const float _raycastSkinSecurity = 0.01f;
@@ -66,8 +81,10 @@ public class Projectile_PW : MMPoolableObject
     protected bool _initialFlipX;
     protected Vector3 _initialLocalScale;
     protected RaycastHit2D _hit2D;
-    protected Health _health;
+    protected Health_PW _health;
     protected bool _spawnerIsFacingRight;
+    protected float _distanceTraveled;
+    protected Rigidbody2D _rigidbody2D;
 
     /// <summary>
     /// On awake, we store the initial speed of the object 
@@ -75,10 +92,11 @@ public class Projectile_PW : MMPoolableObject
     protected virtual void Awake() {
         _facingRightInitially = ProjectileIsFacingRight;
         _initialSpeed = Speed;
-        _collider = GetComponent<BoxCollider2D>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _damageOnTouch = GetComponent<DamageOnTouch>();
-        _health = GetComponent<Health>();
+        _collider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
+        _spriteRenderer = gameObject.MMGetComponentNoAlloc<SpriteRenderer>();
+        _damageOnTouch = gameObject.MMGetComponentNoAlloc<DamageOnTouch_PW>();
+        _health = gameObject.MMGetComponentNoAlloc<Health_PW>();
+        _rigidbody2D = gameObject.MMGetComponentNoAlloc<Rigidbody2D>();
         _initialInvulnerabilityDurationWFS = new WaitForSeconds(InitialInvulnerabilityDuration);
         if (_spriteRenderer != null) { _initialFlipX = _spriteRenderer.flipX; }
         _initialLocalScale = transform.localScale;
@@ -104,6 +122,10 @@ public class Projectile_PW : MMPoolableObject
     /// </summary>
     protected virtual void Initialization() {
         Speed = _initialSpeed;
+        if (_rigidbody2D != null) {
+            _rigidbody2D.velocity = Vector2.zero;
+        }
+        _distanceTraveled = 0;
         ProjectileIsFacingRight = _facingRightInitially;
         if (_spriteRenderer != null) { _spriteRenderer.flipX = _initialFlipX; }
         transform.localScale = _initialLocalScale;
@@ -129,7 +151,7 @@ public class Projectile_PW : MMPoolableObject
     }
 
     /// <summary>
-    /// On FixedUpdate(), we move the object based on the level's speed and the object's speed, and apply acceleration
+    /// On FixedUpdate(), we move the object based on the object's speed, and apply acceleration
     /// </summary>
     protected virtual void FixedUpdate() {
         Movement();
@@ -139,10 +161,22 @@ public class Projectile_PW : MMPoolableObject
     /// Handles the projectile's movement, every frame
     /// </summary>
     public virtual void Movement() {
-        _movement = Direction * (Speed / 10) * Time.deltaTime;
-        transform.Translate(_movement, Space.World);
+        if (UseRigidbody) {
+            _movement = (Speed / 10) * Direction;
+            _rigidbody2D.velocity = _movement;
+            _distanceTraveled += _rigidbody2D.velocity.x * Time.fixedDeltaTime;
+        }
+        else {
+            _movement = (Speed / 10) * Time.fixedDeltaTime * Direction;
+            _distanceTraveled += _movement.x * Time.fixedDeltaTime;
+            transform.Translate(_movement, Space.World);
+        }
+        if (HasRange && _distanceTraveled >= Range) {
+            gameObject.SetActive(false);
+            return;
+        }
         // We apply the acceleration to increase the speed
-        Speed += Acceleration * Time.deltaTime;
+        Speed += Acceleration * Time.fixedDeltaTime;
     }
 
     /// <summary>

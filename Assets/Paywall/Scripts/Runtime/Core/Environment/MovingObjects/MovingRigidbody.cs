@@ -6,12 +6,15 @@ using System;
 
 namespace Paywall {
 
+    /// <summary>
+    /// Add to Rigidbody2D to move it every FixedUpdate
+    /// </summary>
     public class MovingRigidbody : MonoBehaviour {
         [field: Header("Settings")]
 
         /// Speed modifier / denominator applied to LevelSpeed
         [Tooltip("Speed modifier / denominator applied to LevelSpeed")]
-        [field: SerializeField] public float Speed { get; protected set; } = 1f;
+        [field: SerializeField] public float SpeedModifier { get; protected set; } = 1f;
         /// Movement direction of this enemy
         [Tooltip("Movement direction of this enemy")]
         [field: SerializeField] public Vector3 Direction { get; protected set; } = Vector3.left;
@@ -87,7 +90,7 @@ namespace Paywall {
         /// </summary>
         protected virtual void Awake() {
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _initialSpeed = _currentSpeed = Speed;
+            _initialSpeed = _currentSpeed = SpeedModifier;
             _initialGravityScale = _rigidbody2D.gravityScale;
             if (BlockMovementUntil) {
                 _movementBlockedUntil = true;
@@ -102,7 +105,7 @@ namespace Paywall {
                 _moveBarrier = LevelManagerIRE_PW.Instance.MoveBarrier;
                 // If the object is a level segment, use the global speed
                 if (gameObject.CompareTag("LevelSegment")) {
-                    Speed = LevelManagerIRE_PW.Instance.SegmentSpeed;
+                    SpeedModifier = LevelManagerIRE_PW.Instance.SegmentSpeed;
                 }
                 _speedMult = LevelManagerIRE_PW.Instance.SpeedMultiplier;
             }
@@ -147,7 +150,7 @@ namespace Paywall {
 
             _rigidbody2D.velocity = newVelocity;
 
-            float targetSpeed = _levelSpeed.x - Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier;
+            float targetSpeed = _levelSpeed.x - SpeedModifier * LevelManagerIRE_PW.Instance.SpeedMultiplier;
             // If the velocity exceeds or equals original velocity, stop acceleration
             if (_rigidbody2D.velocity.x <= targetSpeed) {
                 _knockbackApplied = false;
@@ -169,10 +172,10 @@ namespace Paywall {
             // If we block until passing the move barrier, set speed to 0
             if (BlockMovementUntil && _movementBlockedUntil) {
                 if ((_moveBarrier != null) && (transform.position.x > _moveBarrier.position.x)) {
-                    Speed = 0;
+                    SpeedModifier = 0;
                 }
                 else {
-                    Speed = _initialSpeed;
+                    SpeedModifier = _initialSpeed;
                     _movementBlockedUntil = false;
                 }
             }
@@ -188,15 +191,15 @@ namespace Paywall {
             Vector2 movement;
             // If the game is paused and we're an enemy, move at our speed without segment speed
             if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
-                movement = Speed * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+                movement = SpeedModifier * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             // If the game is not paused and we're an enemy, our speed is the segment speed + our speed
             else if (UseEnemySpeed) {
-                movement = (Speed + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+                movement = (SpeedModifier + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             // If we're not an enemy, just add the speeds normally
             else {
-                movement = (Speed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
+                movement = (SpeedModifier + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             return movement;
         }
