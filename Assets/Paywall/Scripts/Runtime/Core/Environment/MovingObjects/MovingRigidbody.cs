@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Paywall.Tools;
 using System;
+using Zenject;
 
 namespace Paywall {
 
@@ -60,6 +61,18 @@ namespace Paywall {
 
         // Divide speed by this to get final velocity
         protected float _speedMult = 10f;
+
+        // Dependency injections
+        protected ISpeedManager _speedManager;
+
+        /// <summary>
+        /// Dependency injection constructor
+        /// </summary>
+        /// <param name="levelSpeedManager"></param>
+        [Inject]
+        public void Construct(ISpeedManager speedManager) {
+            _speedManager = speedManager;
+        }
 
         /// <summary>
         /// Applies knockback force to this object

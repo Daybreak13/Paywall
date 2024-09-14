@@ -15,7 +15,7 @@ namespace Paywall {
     public enum DeathTypes { Health, OutOfBounds }
 
     /// <summary>
-    /// Handles distance traveled, level speed, playable character, loading levels
+    /// Handles distance traveled, level speed, playable character (spawn, etc.), loading levels
     /// </summary>
     public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW>, MMEventListener<MMGameEvent> {
         public enum Controls { SingleButton, LeftRight, Swipe }
