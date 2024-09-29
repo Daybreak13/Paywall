@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum UpgradeTypes { Player, Game }
 
@@ -13,7 +12,8 @@ namespace Paywall {
     /// To be extended by other classes
     /// </summary>
     [Serializable]
-    public class ScriptableUpgrade : ScriptableObject {
+    public class ScriptableUpgrade : ScriptableObject
+    {
         [field: Header("Basic Info")]
 
         /// The upgrade's ID
@@ -21,10 +21,10 @@ namespace Paywall {
         [field: SerializeField] public string UpgradeID { get; protected set; }
         /// The upgrade's name
         [field: Tooltip("The upgrade's name")]
-        [field:SerializeField] public string UpgradeName { get; protected set; }
+        [field: SerializeField] public string UpgradeName { get; protected set; }
         /// The upgrade's description
         [field: Tooltip("The upgrade's description")]
-        [field:TextArea]
+        [field: TextArea]
         [field: SerializeField] public string UpgradeDescription { get; protected set; }
         /// The upgrade's icon
         [field: Tooltip("The upgrade's icon")]
@@ -45,18 +45,21 @@ namespace Paywall {
         /// <summary>
         /// Unlocks the upgrade
         /// </summary>
-        public virtual void UnlockUpgrade() {
+        public virtual void UnlockUpgrade()
+        {
             Unlocked = true;
         }
 
         /// <summary>
         /// Locks the upgrade
         /// </summary>
-        public virtual void LockUpgrade() {
+        public virtual void LockUpgrade()
+        {
             Unlocked = false;
         }
 
-        public virtual Upgrade ConvertToClass() {
+        public virtual Upgrade ConvertToClass()
+        {
             Upgrade upgrade = new Upgrade(this);
             return upgrade;
         }
@@ -64,7 +67,8 @@ namespace Paywall {
         /// <summary>
         /// What action to perform on upgrading. To be overridden.
         /// </summary>
-        public virtual void UpgradeAction() {
+        public virtual void UpgradeAction()
+        {
 
         }
 

@@ -1,19 +1,19 @@
-using System.Collections;
+using Paywall.Tools;
 using System.Collections.Generic;
 using UnityEngine;
-using Paywall.Tools;
-using Paywall.Documents;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum CanvasTypes { Main, Dialogue, Inventory, Store, Email }
 
-    public class MainMenuManager : MonoBehaviour {
-        [field:Header("Canvases")]
+    public class MainMenuManager : MonoBehaviour
+    {
+        [field: Header("Canvases")]
 
         /// The main canvas
         [field: Tooltip("The main canvas")]
-        [field:SerializeField] public GameObject MainCanvas { get; protected set; } 
+        [field: SerializeField] public GameObject MainCanvas { get; protected set; }
         /// The dialogue canvas
         [field: Tooltip("The dialogue canvas")]
         [field: SerializeField] public GameObject DialogueCanvas { get; protected set; }
@@ -27,7 +27,7 @@ namespace Paywall {
         [field: Tooltip("The email canvas")]
         [field: SerializeField] public GameObject EmailCanvas { get; protected set; }
 
-        [field:Header("Settings")]
+        [field: Header("Settings")]
 
         /// If true, turn certain canvases back on at start, and the rest off. Useful for debugging
         [field: Tooltip("If true, turn certain canvases back on at start, and the rest off. Useful for debugging")]
@@ -40,7 +40,8 @@ namespace Paywall {
         /// <summary>
         /// On start, hide containers if applicable and initialize our list of menus.
         /// </summary>
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
 
             _menuList.AddIfNotNull(MainCanvas);
             _menuList.AddIfNotNull(InventoryCanvas);
@@ -48,53 +49,68 @@ namespace Paywall {
             _menuList.AddIfNotNull(StoreCanvas);
             _menuList.AddIfNotNull(EmailCanvas);
 
-            if (ToggleCanvasOnStart) {
-                foreach (GameObject menu in _menuList) {
-                    if (menu == MainCanvas) {
+            if (ToggleCanvasOnStart)
+            {
+                foreach (GameObject menu in _menuList)
+                {
+                    if (menu == MainCanvas)
+                    {
                         menu.SetActive(true);
-                    } else {
+                    }
+                    else
+                    {
                         menu.SetActive(false);
                     }
                 }
             }
 
-            if (UseCanvasGroup) {
-                foreach(GameObject menu in _menuList) {
+            if (UseCanvasGroup)
+            {
+                foreach (GameObject menu in _menuList)
+                {
                     CanvasGroup cg = menu.GetComponentInChildren<CanvasGroup>();
-                    if (menu == MainCanvas) {
+                    if (menu == MainCanvas)
+                    {
                         cg.alpha = 1;
                         cg.interactable = true;
                         cg.blocksRaycasts = true;
                     }
-                    else {
+                    else
+                    {
                         cg.alpha = 0;
                         cg.interactable = false;
                         cg.blocksRaycasts = false;
                     }
                 }
-                foreach (GameObject menu in _menuList) {
+                foreach (GameObject menu in _menuList)
+                {
                     menu.SetActive(true);
                 }
             }
         }
 
-        public virtual void ActivateMain() {
+        public virtual void ActivateMain()
+        {
             ActivateCanvas(MainCanvas);
         }
 
-        public virtual void ActivateDialogue() {
+        public virtual void ActivateDialogue()
+        {
             ActivateCanvas(DialogueCanvas);
         }
 
-        public virtual void ActivateInventory() {
+        public virtual void ActivateInventory()
+        {
             ActivateCanvas(InventoryCanvas);
         }
 
-        public virtual void ActivateStore() {
+        public virtual void ActivateStore()
+        {
             ActivateCanvas(StoreCanvas);
         }
 
-        public virtual void ActivateEmail() {
+        public virtual void ActivateEmail()
+        {
             ActivateCanvas(EmailCanvas);
         }
 
@@ -102,34 +118,44 @@ namespace Paywall {
         /// Activate the canvas corresponding to the given type
         /// </summary>
         /// <param name="canvasType"></param>
-        public virtual void ActivateCanvas(CanvasTypes canvasType) {
+        public virtual void ActivateCanvas(CanvasTypes canvasType)
+        {
             GameObject target = SelectCanvas(canvasType);
-            
-            if (target == null) {
+
+            if (target == null)
+            {
                 return;
             }
 
-            if (UseCanvasGroup) {
-                foreach (GameObject menu in _menuList) {
+            if (UseCanvasGroup)
+            {
+                foreach (GameObject menu in _menuList)
+                {
                     CanvasGroup cg = menu.GetComponentInChildren<CanvasGroup>();
-                    if (menu == target) {
+                    if (menu == target)
+                    {
                         cg.alpha = 1;
                         cg.interactable = true;
                         cg.blocksRaycasts = true;
                     }
-                    else {
+                    else
+                    {
                         cg.alpha = 0;
                         cg.interactable = false;
                         cg.blocksRaycasts = false;
                     }
                 }
             }
-            else {
-                foreach (GameObject menu in _menuList) {
-                    if (menu == target) {
+            else
+            {
+                foreach (GameObject menu in _menuList)
+                {
+                    if (menu == target)
+                    {
                         menu.SetActive(true);
                     }
-                    else {
+                    else
+                    {
                         menu.SetActive(false);
                     }
                 }
@@ -141,32 +167,42 @@ namespace Paywall {
         /// Activate the given canvas gameobject
         /// </summary>
         /// <param name="canvasType"></param>
-        protected virtual void ActivateCanvas(GameObject target) {
-            if (target == null) {
+        protected virtual void ActivateCanvas(GameObject target)
+        {
+            if (target == null)
+            {
                 return;
             }
 
-            if (UseCanvasGroup) {
-                foreach (GameObject menu in _menuList) {
+            if (UseCanvasGroup)
+            {
+                foreach (GameObject menu in _menuList)
+                {
                     CanvasGroup cg = menu.GetComponentInChildren<CanvasGroup>();
-                    if (menu == target) {
+                    if (menu == target)
+                    {
                         cg.alpha = 1;
                         cg.interactable = true;
                         cg.blocksRaycasts = true;
                     }
-                    else {
+                    else
+                    {
                         cg.alpha = 0;
                         cg.interactable = false;
                         cg.blocksRaycasts = false;
                     }
                 }
             }
-            else {
-                foreach (GameObject menu in _menuList) {
-                    if (menu == target) {
+            else
+            {
+                foreach (GameObject menu in _menuList)
+                {
+                    if (menu == target)
+                    {
                         menu.SetActive(true);
                     }
-                    else {
+                    else
+                    {
                         menu.SetActive(false);
                     }
                 }
@@ -179,9 +215,11 @@ namespace Paywall {
         /// </summary>
         /// <param name="canvasType"></param>
         /// <returns></returns>
-        protected virtual GameObject SelectCanvas(CanvasTypes canvasType) {
+        protected virtual GameObject SelectCanvas(CanvasTypes canvasType)
+        {
             GameObject target = null;
-            switch (canvasType) {
+            switch (canvasType)
+            {
                 case CanvasTypes.Main:
                     target = MainCanvas;
                     break;

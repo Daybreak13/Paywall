@@ -1,14 +1,15 @@
-using System.Collections;
+using MoreMountains.Tools;
 using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Stores references to UI canvases, toggles them on and off in editor
     /// </summary>
-    public class UICameraCanvasManager : MMSingleton<UICameraCanvasManager> {
+    public class UICameraCanvasManager : MMSingleton<UICameraCanvasManager>
+    {
         [Header("Canvases")]
 
         /// The main canvas
@@ -40,29 +41,37 @@ namespace Paywall {
         /// <summary>
         /// On start, hide containers if applicable and initialize our list of menus.
         /// </summary>
-        protected override void Awake() {
+        protected override void Awake()
+        {
             base.Awake();
 
-            if (MainCanvas != null) {
+            if (MainCanvas != null)
+            {
                 _menuList.Add(MainCanvas);
             }
-            if (SystemCanvas != null) {
+            if (SystemCanvas != null)
+            {
                 _menuList.Add(SystemCanvas);
             }
-            if (InventoryCanvas != null) {
+            if (InventoryCanvas != null)
+            {
                 _menuList.Add(InventoryCanvas);
             }
-            if (DialogueCanvas != null) {
+            if (DialogueCanvas != null)
+            {
                 _menuList.Add(DialogueCanvas);
             }
-            if (SupplyDepotMenuCanvas != null) {
+            if (SupplyDepotMenuCanvas != null)
+            {
                 _menuList.Add(SupplyDepotMenuCanvas);
             }
-            if (GameOverCanvas != null) {
+            if (GameOverCanvas != null)
+            {
                 _menuList.Add(GameOverCanvas);
             }
 
-            if (ToggleCanvasOnStart) {
+            if (ToggleCanvasOnStart)
+            {
                 /*
                 if (MainCanvas != null) MainCanvas.SetActive(true);
                 if (DialogueCanvas != null) DialogueCanvas.SetActive(false);
@@ -70,10 +79,14 @@ namespace Paywall {
                 if (GameOverCanvas != null) GameOverCanvas.SetActive(false);
                 if (SystemCanvas != null) SystemCanvas.SetActive(false);
                 */
-                foreach (GameObject menu in _menuList) {
-                    if (menu == MainCanvas) {
+                foreach (GameObject menu in _menuList)
+                {
+                    if (menu == MainCanvas)
+                    {
                         menu.SetActive(true);
-                    } else {
+                    }
+                    else
+                    {
                         menu.SetActive(false);
                     }
                 }

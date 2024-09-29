@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class SupplyDepotDisplay : MonoBehaviour {
+    public class SupplyDepotDisplay : MonoBehaviour
+    {
         [field: Header("Buttons")]
 
         /// 

@@ -1,18 +1,20 @@
+using MoreMountains.Tools;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
-using MoreMountains.Tools;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Manages the store menu
     /// The list of the store's upgrades must be set via inspector button
     /// OnClick and OnSelect events of the buttons are caught by this manager
     /// </summary>
-    public class StoreMenuManager : MonoBehaviour, MMEventListener<PaywallUpgradeEvent>, MMEventListener<PWUIEvent>, MMEventListener<PWInputEvent> {
+    public class StoreMenuManager : MonoBehaviour, MMEventListener<PaywallUpgradeEvent>, MMEventListener<PWUIEvent>, MMEventListener<PWInputEvent>
+    {
 
         /// The money counter
         [field: Tooltip("The money counter")]
@@ -48,14 +50,14 @@ namespace Paywall {
         [field: Tooltip("The top bar canvas group")]
         [field: SerializeField] public CanvasGroup TopBarCanvasGroup { get; protected set; }
 
-        [field:Header("Error Message")]
+        [field: Header("Error Message")]
 
         /// The error message container (if there is insufficient funds to purchase upgrade)
         [field: Tooltip("The error message container (if there is insufficient funds to purchase upgrade)")]
         [field: SerializeField] public GameObject ErrorMessage { get; protected set; }
         [field: SerializeField] public float ErrorMessageDuration { get; protected set; } = 2f;
 
-        [field:Header("Lists")]
+        [field: Header("Lists")]
 
         /// List of store menus
         [field: Tooltip("List of store menus")]
@@ -79,19 +81,23 @@ namespace Paywall {
             }
         }
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             PopulateDictionary();
             ToggleBuyButtons(false);
             _awake = true;
         }
 
-        protected virtual void Start() {
-            if (PaywallProgressManager.HasInstance) {
+        protected virtual void Start()
+        {
+            if (PaywallProgressManager.HasInstance)
+            {
                 _credits = PaywallProgressManager.Instance.Credits;
                 UpdateUpgradeButtons();
             }
 
-            if (ErrorMessage != null) {
+            if (ErrorMessage != null)
+            {
                 ErrorMessage.SetActive(false);
             }
         }
@@ -99,10 +105,14 @@ namespace Paywall {
         /// <summary>
         /// On start, update the store's upgrade buttons with their current unlock status based on the progress manager's save file
         /// </summary>
-        protected virtual void UpdateUpgradeButtons() {
-            foreach (KeyValuePair<string, Upgrade> entry in PaywallProgressManager.Instance.Upgrades) {
-                if (_upgradeButtons.TryGetValue(entry.Key, out UpgradeButton button)) {
-                    if (entry.Value.Unlocked) {
+        protected virtual void UpdateUpgradeButtons()
+        {
+            foreach (KeyValuePair<string, Upgrade> entry in PaywallProgressManager.Instance.Upgrades)
+            {
+                if (_upgradeButtons.TryGetValue(entry.Key, out UpgradeButton button))
+                {
+                    if (entry.Value.Unlocked)
+                    {
                         button.SetAsUnlocked();
                     }
                 }
@@ -112,17 +122,21 @@ namespace Paywall {
         /// <summary>
         /// Update credit display
         /// </summary>
-        protected virtual void Update() {
-            if (PaywallProgressManager.HasInstance && (MoneyCounter != null)) {
+        protected virtual void Update()
+        {
+            if (PaywallProgressManager.HasInstance && (MoneyCounter != null))
+            {
                 MoneyCounter.text = PaywallProgressManager.Instance.Credits.ToString();
-            }            
+            }
         }
 
         /// <summary>
         /// Populates upgrade button dictionary using the UpgradeButtons serialized list
         /// </summary>
-        protected virtual void PopulateDictionary() {
-            foreach (UpgradeButton button in UpgradeButtons) {
+        protected virtual void PopulateDictionary()
+        {
+            foreach (UpgradeButton button in UpgradeButtons)
+            {
                 _upgradeButtons.Add(button.Upgrade.UpgradeID, button);
             }
         }
@@ -130,20 +144,24 @@ namespace Paywall {
         /// <summary>
         /// Triggers error message coroutine
         /// </summary>
-        public virtual void TriggerErrorMessage() {
-            if (ErrorMessage != null) {
-                if (_errorCoroutine != null) {
+        public virtual void TriggerErrorMessage()
+        {
+            if (ErrorMessage != null)
+            {
+                if (_errorCoroutine != null)
+                {
                     StopCoroutine(_errorCoroutine);
                 }
                 _errorCoroutine = StartCoroutine(ErrorMessageFader());
             }
         }
-        
+
         /// <summary>
         /// Fades error message
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator ErrorMessageFader() {
+        protected virtual IEnumerator ErrorMessageFader()
+        {
             ErrorMessage.SetActive(true);
             yield return new WaitForSeconds(ErrorMessageDuration);
             ErrorMessage.SetActive(false);
@@ -155,12 +173,16 @@ namespace Paywall {
         /// Called by PaywallProgressManager OnSceneLoaded
         /// </summary>
         /// <param name="upgrades"></param>
-        public virtual void LoadUpgrades(Dictionary<string, Upgrade> upgrades) {
-            if (upgrades == null) {
+        public virtual void LoadUpgrades(Dictionary<string, Upgrade> upgrades)
+        {
+            if (upgrades == null)
+            {
                 return;
             }
-            foreach (KeyValuePair<string, Upgrade> entry in upgrades) {
-                if (_upgradeButtons.ContainsKey(entry.Value.UpgradeID)) {
+            foreach (KeyValuePair<string, Upgrade> entry in upgrades)
+            {
+                if (_upgradeButtons.ContainsKey(entry.Value.UpgradeID))
+                {
                     _upgradeButtons[entry.Value.UpgradeID].SetButtonStatus(entry.Value.Unlocked);
                 }
             }
@@ -172,12 +194,17 @@ namespace Paywall {
         /// Opens the menu at the specified index
         /// </summary>
         /// <param name="idx"></param>
-        protected virtual void OpenMenu(int idx) {
+        protected virtual void OpenMenu(int idx)
+        {
             int i = 0;
-            foreach (GameObject menu in Menus) {
-                if (i == idx) {
+            foreach (GameObject menu in Menus)
+            {
+                if (i == idx)
+                {
                     menu.SetActive(true);
-                } else {
+                }
+                else
+                {
                     menu.SetActive(false);
                 }
                 i++;
@@ -188,9 +215,12 @@ namespace Paywall {
         /// <summary>
         /// Opens the previous menu in the list
         /// </summary>
-        public virtual void PreviousMenu() {
-            if (Menus != null && Menus.Count > 1) {
-                if (--_index < 0) {
+        public virtual void PreviousMenu()
+        {
+            if (Menus != null && Menus.Count > 1)
+            {
+                if (--_index < 0)
+                {
                     _index = Menus.Count - 1;
                 }
                 OpenMenu(_index);
@@ -200,9 +230,12 @@ namespace Paywall {
         /// <summary>
         /// Opens the next menu in the list
         /// </summary>
-        public virtual void NextMenu() {
-            if (Menus != null && Menus.Count > 1) {
-                if (++_index >= Menus.Count) {
+        public virtual void NextMenu()
+        {
+            if (Menus != null && Menus.Count > 1)
+            {
+                if (++_index >= Menus.Count)
+                {
                     _index = 0;
                 }
                 OpenMenu(_index);
@@ -212,7 +245,8 @@ namespace Paywall {
         /// <summary>
         /// Updates the details display with the info from the given upgrade
         /// </summary>
-        public virtual void UpdateDetailsDisplay() {
+        public virtual void UpdateDetailsDisplay()
+        {
             ScriptableUpgrade upgrade = _currentButton.Upgrade;
             Title.text = upgrade.UpgradeName;
             Description.text = upgrade.UpgradeDescription;
@@ -222,8 +256,10 @@ namespace Paywall {
         /// Sets the active state of BuyButton and CancelButton
         /// </summary>
         /// <param name="active"></param>
-        public virtual void ToggleBuyButtons(bool active) {
-            if (UsingBuyButtons) {
+        public virtual void ToggleBuyButtons(bool active)
+        {
+            if (UsingBuyButtons)
+            {
                 BuyButtonsContainer.SetActive(active);
                 BuyButton.SetActive(active);
                 CancelButton.SetActive(active);
@@ -231,10 +267,12 @@ namespace Paywall {
 
                 UpgradeButtonsCanvasGroup.interactable = !active;
                 TopBarCanvasGroup.interactable = !active;
-                if (active) {
+                if (active)
+                {
                     EventSystem.current.SetSelectedGameObject(BuyButton);
-                } 
-                else if (_awake) {
+                }
+                else if (_awake)
+                {
                     EventSystem.current.SetSelectedGameObject(_currentButton.gameObject);
                 }
             }
@@ -244,14 +282,16 @@ namespace Paywall {
         /// Called by BuyButton's OnClick event
         /// Tries to unlock the currently selected upgrade
         /// </summary>
-        public virtual void ClickBuyButton() {
+        public virtual void ClickBuyButton()
+        {
             _currentButton.TryUnlockUpgrade();
         }
 
         /// <summary>
         /// Cancel the buy display for currently selected upgrade
         /// </summary>
-        public virtual void ClickCancelButton() {
+        public virtual void ClickCancelButton()
+        {
             ToggleBuyButtons(false);
         }
 
@@ -262,11 +302,14 @@ namespace Paywall {
         /// Set the button to unlocked, or throw error message
         /// </summary>
         /// <param name="upgradeEvent"></param>
-        public virtual void OnMMEvent(PaywallUpgradeEvent upgradeEvent) {
-            if (upgradeEvent.UpgradeMethod == UpgradeMethods.Unlock) {
+        public virtual void OnMMEvent(PaywallUpgradeEvent upgradeEvent)
+        {
+            if (upgradeEvent.UpgradeMethod == UpgradeMethods.Unlock)
+            {
                 //upgradeEvent.ButtonComponent.UnlockUpgrade();     // Handled by PaywallProgressManager
             }
-            if (upgradeEvent.UpgradeMethod == UpgradeMethods.Error) {
+            if (upgradeEvent.UpgradeMethod == UpgradeMethods.Error)
+            {
                 TriggerErrorMessage();
             }
         }
@@ -275,30 +318,42 @@ namespace Paywall {
         /// Catches button click and select events
         /// </summary>
         /// <param name="uIEvent"></param>
-        public virtual void OnMMEvent(PWUIEvent uIEvent) {
-            if (ShowOnSelect) {
-                if (uIEvent.EventType == UIEventTypes.Select) {
-                    if (uIEvent.Obj.TryGetComponent(out _currentButton)) {
+        public virtual void OnMMEvent(PWUIEvent uIEvent)
+        {
+            if (ShowOnSelect)
+            {
+                if (uIEvent.EventType == UIEventTypes.Select)
+                {
+                    if (uIEvent.Obj.TryGetComponent(out _currentButton))
+                    {
                         UpdateDetailsDisplay();
                     }
                 }
             }
             // If an UpgradeButton is clicked, either update the details display or try to unlock the upgrade
-            if (uIEvent.EventType == UIEventTypes.Click) {
-                if (UsingBuyButtons) {
+            if (uIEvent.EventType == UIEventTypes.Click)
+            {
+                if (UsingBuyButtons)
+                {
                     _currentButton = uIEvent.Obj.GetComponent<UpgradeButton>();
-                    if (!ShowOnSelect) {
+                    if (!ShowOnSelect)
+                    {
                         UpdateDetailsDisplay();
                     }
-                    if (_currentButton.Unlocked) {
+                    if (_currentButton.Unlocked)
+                    {
                         ToggleBuyButtons(false);
-                    } else {
+                    }
+                    else
+                    {
                         ToggleBuyButtons(true);
                         UpgradeButtonsCanvasGroup.interactable = false;
                         TopBarCanvasGroup.interactable = false;
                         EventSystem.current.SetSelectedGameObject(BuyButton);
                     }
-                } else {
+                }
+                else
+                {
                     uIEvent.Obj.GetComponent<UpgradeButton>().TryUnlockUpgrade();
                 }
             }
@@ -310,7 +365,8 @@ namespace Paywall {
         /// Used by editor
         /// </summary>
         /// <param name="upgrades"></param>
-        public virtual void SetUpgradesEditor(List<UpgradeButton> upgradeButtons) {
+        public virtual void SetUpgradesEditor(List<UpgradeButton> upgradeButtons)
+        {
             UpgradeButtons = upgradeButtons;
         }
 
@@ -320,21 +376,26 @@ namespace Paywall {
         /// Set the EventSystem selected gameobject
         /// </summary>
         /// <param name="inputEvent"></param>
-        public virtual void OnMMEvent(PWInputEvent inputEvent) {
-            if (inputEvent.EventType == PWInputEventTypes.Back) {
-                if (UsingBuyButtons && _buyButtonsActive) {
+        public virtual void OnMMEvent(PWInputEvent inputEvent)
+        {
+            if (inputEvent.EventType == PWInputEventTypes.Back)
+            {
+                if (UsingBuyButtons && _buyButtonsActive)
+                {
                     ToggleBuyButtons(false);
                 }
             }
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             this.MMEventStartListening<PaywallUpgradeEvent>();
             this.MMEventStartListening<PWUIEvent>();
             this.MMEventStartListening<PWInputEvent>();
         }
 
-        protected virtual void OnDisable() {
+        protected virtual void OnDisable()
+        {
             this.MMEventStopListening<PaywallUpgradeEvent>();
             this.MMEventStopListening<PWUIEvent>();
             this.MMEventStopListening<PWInputEvent>();

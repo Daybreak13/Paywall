@@ -1,12 +1,14 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Allows character to attract pickable items within a certain radius
     /// </summary>
-    public class CharacterItemMagnet : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent> {
+    public class CharacterItemMagnet : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>
+    {
         /// The collider that indicates magnet radius
         [field: Tooltip("The collider that indicates magnet radius")]
         [field: SerializeField] public CircleCollider2D MagnetCollider { get; protected set; }
@@ -23,44 +25,56 @@ namespace Paywall {
         [field: Tooltip("SO module that affects magnet ability")]
         [field: SerializeField] public ScriptableModule MagnetModule { get; protected set; }
 
-        protected override void Awake() {
+        protected override void Awake()
+        {
             base.Awake();
-            if (MagnetCollider == null) {
+            if (MagnetCollider == null)
+            {
                 MagnetCollider = GetComponent<CircleCollider2D>();
             }
-            if (!AbilityPermitted) {
+            if (!AbilityPermitted)
+            {
                 MagnetCollider.enabled = false;
             }
         }
 
-        public override void ProcessAbility() {
+        public override void ProcessAbility()
+        {
             base.ProcessAbility();
-            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging)
+            {
                 MagnetCollider.enabled = false;
             }
-            else {
+            else
+            {
                 MagnetCollider.enabled = true;
             }
         }
 
-        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent) {
-            if (moduleEvent.Module.Name.Equals(MagnetModule.Name)) {
-                if (moduleEvent.Module.IsActive) {
+        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent)
+        {
+            if (moduleEvent.Module.Name.Equals(MagnetModule.Name))
+            {
+                if (moduleEvent.Module.IsActive)
+                {
                     MagnetCollider.enabled = true;
                     MagnetCollider.radius = UpgradedRadius;
                 }
-                else {
+                else
+                {
                     MagnetCollider.radius = DefaultRadius;
                 }
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             this.MMEventStartListening<PaywallModuleEvent>();
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<PaywallModuleEvent>();
         }

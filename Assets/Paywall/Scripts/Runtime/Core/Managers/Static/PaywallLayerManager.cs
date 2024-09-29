@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+namespace Paywall
+{
 
-namespace Paywall {
-
-    public static class PaywallLayerManager {
+    public static class PaywallLayerManager
+    {
         public static readonly int PlayerLayer = 7;
         public static readonly int GroundLayer = 8;
         public static readonly int OneWayPlatformsLayer = 9;

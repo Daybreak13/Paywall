@@ -8,7 +8,8 @@ using UnityEngine;
 /// <summary>
 /// Weapon projectile component
 /// </summary>
-public class Projectile_PW : MMPoolableObject {
+public class Projectile_PW : MMPoolableObject
+{
     [Header("Movement")]
 
     /// Do we move using rigidbody?
@@ -89,7 +90,8 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On awake, we store the initial speed of the object 
     /// </summary>
-    protected virtual void Awake() {
+    protected virtual void Awake()
+    {
         _facingRightInitially = ProjectileIsFacingRight;
         _initialSpeed = Speed;
         _collider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
@@ -106,13 +108,15 @@ public class Projectile_PW : MMPoolableObject {
     /// Handles the projectile's initial invincibility
     /// </summary>
     /// <returns>The invulnerability.</returns>
-    protected virtual IEnumerator InitialInvulnerability() {
+    protected virtual IEnumerator InitialInvulnerability()
+    {
         if (_damageOnTouch == null) { yield break; }
         if (_weapon == null) { yield break; }
         _damageOnTouch.ClearIgnoreList();
         _damageOnTouch.IgnoreGameObject(_weapon.Owner.gameObject);
         yield return _initialInvulnerabilityDurationWFS;
-        if (DamageOwner) {
+        if (DamageOwner)
+        {
             _damageOnTouch.StopIgnoringObject(_weapon.Owner.gameObject);
         }
     }
@@ -120,9 +124,11 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// Initializes the projectile
     /// </summary>
-    protected virtual void Initialization() {
+    protected virtual void Initialization()
+    {
         Speed = _initialSpeed;
-        if (_rigidbody2D != null) {
+        if (_rigidbody2D != null)
+        {
             _rigidbody2D.velocity = Vector2.zero;
         }
         _distanceTraveled = 0;
@@ -135,17 +141,21 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// Performs a local check to see if the projectile is within a collider or not
     /// </summary>
-    protected virtual void CheckForCollider() {
-        if (!SpawnSecurityCheck) {
+    protected virtual void CheckForCollider()
+    {
+        if (!SpawnSecurityCheck)
+        {
             return;
         }
 
-        if (_collider == null) {
+        if (_collider == null)
+        {
             return;
         }
 
         _hit2D = Physics2D.BoxCast(this.transform.position, _collider.bounds.size, this.transform.eulerAngles.z, Vector3.forward, 1f, SpawnSecurityCheckLayerMask);
-        if (_hit2D) {
+        if (_hit2D)
+        {
             gameObject.SetActive(false);
         }
     }
@@ -153,25 +163,30 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On FixedUpdate(), we move the object based on the object's speed, and apply acceleration
     /// </summary>
-    protected virtual void FixedUpdate() {
+    protected virtual void FixedUpdate()
+    {
         Movement();
     }
 
     /// <summary>
     /// Handles the projectile's movement, every frame
     /// </summary>
-    public virtual void Movement() {
-        if (UseRigidbody) {
+    public virtual void Movement()
+    {
+        if (UseRigidbody)
+        {
             _movement = (Speed / 10) * Direction;
             _rigidbody2D.velocity = _movement;
             _distanceTraveled += _rigidbody2D.velocity.x * Time.fixedDeltaTime;
         }
-        else {
+        else
+        {
             _movement = (Speed / 10) * Time.fixedDeltaTime * Direction;
             _distanceTraveled += _movement.x * Time.fixedDeltaTime;
             transform.Translate(_movement, Space.World);
         }
-        if (HasRange && _distanceTraveled >= Range) {
+        if (HasRange && _distanceTraveled >= Range)
+        {
             gameObject.SetActive(false);
             return;
         }
@@ -185,15 +200,19 @@ public class Projectile_PW : MMPoolableObject {
     /// <param name="newDirection">New direction.</param>
     /// <param name="newRotation">New rotation.</param>
     /// <param name="spawnerIsFacingRight">If set to <c>true</c> spawner is facing right.</param>
-    public virtual void SetDirection(Vector3 newDirection, Quaternion newRotation, bool spawnerIsFacingRight = true) {
+    public virtual void SetDirection(Vector3 newDirection, Quaternion newRotation, bool spawnerIsFacingRight = true)
+    {
         _spawnerIsFacingRight = spawnerIsFacingRight;
-        if (DirectionCanBeChangedBySpawner) {
+        if (DirectionCanBeChangedBySpawner)
+        {
             Direction = newDirection;
         }
-        if (ProjectileIsFacingRight != spawnerIsFacingRight) {
+        if (ProjectileIsFacingRight != spawnerIsFacingRight)
+        {
             Flip();
         }
-        if (FaceDirection) {
+        if (FaceDirection)
+        {
             transform.rotation = newRotation;
         }
     }
@@ -201,11 +220,14 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// Flip the projectile
     /// </summary>
-    public virtual void Flip() {
-        if (_spriteRenderer != null) {
+    public virtual void Flip()
+    {
+        if (_spriteRenderer != null)
+        {
             _spriteRenderer.flipX = !_spriteRenderer.flipX;
         }
-        else {
+        else
+        {
             this.transform.localScale = Vector3.Scale(this.transform.localScale, FlipValue);
         }
     }
@@ -214,7 +236,8 @@ public class Projectile_PW : MMPoolableObject {
     /// Sets the projectile's parent weapon.
     /// </summary>
     /// <param name="newWeapon">New weapon.</param>
-    public virtual void SetWeapon(WeaponStandalone newWeapon) {
+    public virtual void SetWeapon(WeaponStandalone newWeapon)
+    {
         _weapon = newWeapon;
     }
 
@@ -222,12 +245,15 @@ public class Projectile_PW : MMPoolableObject {
     /// Sets the projectile's owner.
     /// </summary>
     /// <param name="newOwner">New owner.</param>
-    public virtual void SetOwner(GameObject newOwner) {
+    public virtual void SetOwner(GameObject newOwner)
+    {
         _owner = newOwner;
         DamageOnTouch damageOnTouch = this.gameObject.MMGetComponentNoAlloc<DamageOnTouch>();
-        if (damageOnTouch != null) {
+        if (damageOnTouch != null)
+        {
             damageOnTouch.Owner = newOwner;
-            if (!DamageOwner) {
+            if (!DamageOwner)
+            {
                 damageOnTouch.ClearIgnoreList();
                 damageOnTouch.IgnoreGameObject(newOwner);
             }
@@ -238,7 +264,8 @@ public class Projectile_PW : MMPoolableObject {
     /// Returns the current Owner of the projectile
     /// </summary>
     /// <returns></returns>
-    public virtual GameObject GetOwner() {
+    public virtual GameObject GetOwner()
+    {
         return _owner;
     }
 
@@ -246,8 +273,10 @@ public class Projectile_PW : MMPoolableObject {
     /// Sets the damage caused by the projectile's DamageOnTouch to the specified value
     /// </summary>
     /// <param name="newDamage"></param>
-    public virtual void SetDamage(int newDamage) {
-        if (_damageOnTouch != null) {
+    public virtual void SetDamage(int newDamage)
+    {
+        if (_damageOnTouch != null)
+        {
             _damageOnTouch.MinDamageCaused = newDamage;
         }
     }
@@ -257,8 +286,10 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On hit, we trigger a hit on our owner weapon
     /// </summary>
-    protected virtual void OnHit() {
-        if (_weapon != null) {
+    protected virtual void OnHit()
+    {
+        if (_weapon != null)
+        {
             //_weapon.WeaponHit();
         }
     }
@@ -266,8 +297,10 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On hit damageable, we trigger a hit damageable on our owner weapon
     /// </summary>
-    protected virtual void OnHitDamageable() {
-        if (_weapon != null) {
+    protected virtual void OnHitDamageable()
+    {
+        if (_weapon != null)
+        {
             //_weapon.WeaponHitDamageable();
         }
     }
@@ -275,8 +308,10 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On hit non damageable, we trigger a hit non damageable on our owner weapon
     /// </summary>
-    protected virtual void OnHitNonDamageable() {
-        if (_weapon != null) {
+    protected virtual void OnHitNonDamageable()
+    {
+        if (_weapon != null)
+        {
             //_weapon.WeaponHitNonDamageable();
         }
     }
@@ -284,8 +319,10 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On kill, we trigger a kill on our owner weapon
     /// </summary>
-    protected virtual void OnKill() {
-        if (_weapon != null) {
+    protected virtual void OnKill()
+    {
+        if (_weapon != null)
+        {
             //_weapon.WeaponKill();
         }
     }
@@ -295,14 +332,17 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On enable, we reset the object's speed
     /// </summary>
-    protected override void OnEnable() {
+    protected override void OnEnable()
+    {
         base.OnEnable();
         Initialization();
-        if (InitialInvulnerabilityDuration > 0) {
+        if (InitialInvulnerabilityDuration > 0)
+        {
             StartCoroutine(InitialInvulnerability());
         }
 
-        if (_damageOnTouch != null) {
+        if (_damageOnTouch != null)
+        {
             _damageOnTouch.OnKill += OnKill;
             _damageOnTouch.OnHit += OnHit;
             _damageOnTouch.OnHitDamageable += OnHitDamageable;
@@ -313,13 +353,15 @@ public class Projectile_PW : MMPoolableObject {
     /// <summary>
     /// On disable, we unsubscribe from our delegates
     /// </summary>
-    protected override void OnDisable() {
+    protected override void OnDisable()
+    {
         base.OnDisable();
-        if (_damageOnTouch != null) {
+        if (_damageOnTouch != null)
+        {
             _damageOnTouch.OnKill -= OnKill;
             _damageOnTouch.OnHit -= OnHit;
             _damageOnTouch.OnHitDamageable -= OnHitDamageable;
             _damageOnTouch.OnHitNonDamageable -= OnHitNonDamageable;
         }
     }
-}	
+}

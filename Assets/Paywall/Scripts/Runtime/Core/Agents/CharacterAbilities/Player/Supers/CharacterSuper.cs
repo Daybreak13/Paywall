@@ -1,15 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
+using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Paywall.Tools;
-using MoreMountains.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum SuperTypes { None, Invincible, Reload, Ghost }
 
-    public class CharacterSuper : CharacterAbilityIRE, MMEventListener<MMGameEvent> {
+    public class CharacterSuper : CharacterAbilityIRE, MMEventListener<MMGameEvent>
+    {
 
         #region Property Fields
 
@@ -44,7 +43,8 @@ namespace Paywall {
 
         protected Color _initialColor;
 
-        protected override void Initialization() {
+        protected override void Initialization()
+        {
             base.Initialization();
             _initialColor = Character.Model.color;
             CurrentDrainRate = InitialDrainRate;
@@ -54,8 +54,10 @@ namespace Paywall {
         /// Check if we are allowed to activate super this frame
         /// </summary>
         /// <returns></returns>
-        protected virtual bool EvaluateSuperConditions() {
-            if ((Character as PlayerCharacterIRE).CurrentEX < MinEXForActivation) {
+        protected virtual bool EvaluateSuperConditions()
+        {
+            if ((Character as PlayableCharacter).CurrentEX < MinEXForActivation)
+            {
                 return false;
             }
             return true;
@@ -65,11 +67,14 @@ namespace Paywall {
         /// Handles input callback when the super button is pressed
         /// </summary>
         /// <param name="ctx"></param>
-        protected virtual void InputSuper(InputAction.CallbackContext ctx) {
-            if (!SuperActive) {
+        protected virtual void InputSuper(InputAction.CallbackContext ctx)
+        {
+            if (!SuperActive)
+            {
                 PerformSuper();
             }
-            else {
+            else
+            {
                 EndSuper();
             }
         }
@@ -78,8 +83,10 @@ namespace Paywall {
         /// Handle active supers every frame
         /// Do nothing if super is inactive or game is not in progress
         /// </summary>
-        public override void ProcessAbility() {
-            if (!SuperActive || (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
+        public override void ProcessAbility()
+        {
+            if (!SuperActive || (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress))
+            {
                 return;
             }
 
@@ -90,12 +97,14 @@ namespace Paywall {
         /// Handles EX drain from the super
         /// End when EX hits 0
         /// </summary>
-        protected virtual void HandleEX() {
+        protected virtual void HandleEX()
+        {
             // Increase drain rate every frame
             CurrentDrainRate += DrainRateAcceleration * Time.deltaTime;
 
-            (Character as PlayerCharacterIRE).AddEX(-CurrentDrainRate * Time.deltaTime);
-            if ((Character as PlayerCharacterIRE).CurrentEX <= 0) {
+            (Character as PlayableCharacter).AddEX(-CurrentDrainRate * Time.deltaTime);
+            if ((Character as PlayableCharacter).CurrentEX <= 0)
+            {
                 EndSuper();
             }
         }
@@ -103,32 +112,39 @@ namespace Paywall {
         /// <summary>
         /// Checks if we are allowed to activate super, then select the proper super function to execute
         /// </summary>
-        protected virtual void PerformSuper() {
-            if (!AbilityAuthorized || !EvaluateSuperConditions()) {
+        protected virtual void PerformSuper()
+        {
+            if (!AbilityAuthorized || !EvaluateSuperConditions())
+            {
                 return;
             }
-            (Character as PlayerCharacterIRE).SetEXDraining(true);
+            (Character as PlayableCharacter).SetEXDraining(true);
             CurrentDrainRate = InitialDrainRate;
         }
 
-        protected virtual void EndSuper() {
+        protected virtual void EndSuper()
+        {
             SuperActive = false;
-            (Character as PlayerCharacterIRE).SetEXDraining(false);
+            (Character as PlayableCharacter).SetEXDraining(false);
         }
 
-        public void OnMMEvent(MMGameEvent eventType) {
-            if (eventType.EventName.Equals("LifeLost")) {
+        public void OnMMEvent(MMGameEvent eventType)
+        {
+            if (eventType.EventName.Equals("LifeLost"))
+            {
                 EndSuper();
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             InputSystemManager_PW.InputActions.PlayerControls.Super.performed += InputSuper;
             this.MMEventStartListening<MMGameEvent>();
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             InputSystemManager_PW.InputActions.PlayerControls.Super.performed -= InputSuper;
             this.MMEventStopListening<MMGameEvent>();

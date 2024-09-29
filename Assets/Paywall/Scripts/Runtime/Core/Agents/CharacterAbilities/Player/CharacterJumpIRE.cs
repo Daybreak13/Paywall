@@ -1,17 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using Paywall.Tools;
 using MoreMountains.Tools;
-using MoreMountains.InfiniteRunnerEngine;
-using static Paywall.LaunchPad;
+using Paywall.Tools;
+using System.Collections;
+using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum JumpTypes { Normal, Low }
 
-    public class CharacterJumpIRE : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent> {
+    public class CharacterJumpIRE : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent>
+    {
         [field: Header("Jumper")]
 
         /// the vertical force applied to the character when jumping
@@ -123,12 +121,15 @@ namespace Paywall {
         /// <summary>
         /// Calculate jump force and set jumps allowed
         /// </summary>
-        protected override void Initialization() {
+        protected override void Initialization()
+        {
             base.Initialization();
-            if (UseJumpHeight) {
+            if (UseJumpHeight)
+            {
                 _jumpForce = CalculateJumpForce(JumpHeight);
             }
-            else {
+            else
+            {
                 _jumpForce = JumpForce;
             }
             FinalNumJumpsAllowed = NumberOfJumpsAllowed;
@@ -136,14 +137,18 @@ namespace Paywall {
 
         #region Every Frame
 
-        public override void ProcessAbility() {
+        public override void ProcessAbility()
+        {
             // we reset our jump variables if needed
-            if (Character.Grounded || Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding) {
+            if (Character.Grounded || Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.RailRiding)
+            {
                 if ((Time.time - _lastJumpTime > MinimalDelayBetweenJumps)
-                    && (Time.time - _lastJumpTime > UngroundedDurationAfterJump)) {
+                    && (Time.time - _lastJumpTime > UngroundedDurationAfterJump))
+                {
 
                     // Debug
-                    if (_jumping && GetJumpTime) {
+                    if (_jumping && GetJumpTime)
+                    {
                         Debug.Log("Jump time: " + (Time.time - _lastJumpTime));
                         Debug.Log("Calculated normal jump time: " + CalculateJumpTime(JumpTypes.Normal));
                         Debug.Log("Calculated low jump time: " + CalculateJumpTime(JumpTypes.Low));
@@ -156,7 +161,8 @@ namespace Paywall {
                 _doubleJumping = false;
             }
             // If airborne without having jumped, decrement jump count if we are still at max jumps
-            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
+            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed))
+            {
                 NumberOfJumpsLeft--;
             }
         }
@@ -167,43 +173,54 @@ namespace Paywall {
         /// <summary>
         /// Slows jump if we released the button
         /// </summary>
-        protected virtual void FixedUpdate() {
-            if (Character.Grounded) {
+        protected virtual void FixedUpdate()
+        {
+            if (Character.Grounded)
+            {
                 _jumpFrames = 0;
                 _jumpCancelled = false;
 
                 // Debug
-                if (_rigidbody2D.velocity.y == 0) {
+                if (_rigidbody2D.velocity.y == 0)
+                {
                     _origin = _rigidbody2D.position.y;
                     falling = false;
                 }
 
             }
-            if (_jumping) {
+            if (_jumping)
+            {
                 _jumpFrames++;
             }
 
             // Slow the jump if we released the jump button
-            if (_jumpCancelled && !_doubleJumping) {
-                if (_jumpFrames > LowJumpBufferFrames) {
+            if (_jumpCancelled && !_doubleJumping)
+            {
+                if (_jumpFrames > LowJumpBufferFrames)
+                {
                     // As soon as buffer frames end, begin slow
-                    if (_rigidbody2D.velocity.y > 0) {
+                    if (_rigidbody2D.velocity.y > 0)
+                    {
                         Vector3 newGravity = Vector3.up * (_rigidbody2D.velocity.y - JumpReleaseSpeed * Time.fixedDeltaTime);
-                        if (newGravity.y <= 0) {
+                        if (newGravity.y <= 0)
+                        {
                             newGravity.y = 0;
                             //Debug.Log(_rigidbody2D.position.y - _origin);
                         }
                         _rigidbody2D.velocity = new Vector3(_rigidbody2D.velocity.x, newGravity.y, 0f);
                     }
-                    else {
+                    else
+                    {
                         _jumpCancelled = false;
                     }
                 }
             }
 
             // Debug
-            if (!falling) {
-                if (_rigidbody2D.velocity.y < 0) {
+            if (!falling)
+            {
+                if (_rigidbody2D.velocity.y < 0)
+                {
                     //Debug.Log("Time: " + (Time.time - _lastJumpTime) + " ... " + "Height: " + (_rigidbody2D.position.y - _origin));
                     falling = true;
                 }
@@ -213,21 +230,28 @@ namespace Paywall {
         /// <summary>
         /// Handle jump button pressed and released
         /// </summary>
-        protected override void HandleInput() {
-            if (!AbilityAuthorized) {
+        protected override void HandleInput()
+        {
+            if (!AbilityAuthorized)
+            {
                 return;
             }
 
             if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasPressedThisFrame()
-                && !InputSystemManager_PW.InputActions.PlayerControls.Down.IsPressed()) {
+                && !InputSystemManager_PW.InputActions.PlayerControls.Down.IsPressed())
+            {
                 StartJump();
             }
 
-            if (JumpProportionalToPress) {
+            if (JumpProportionalToPress)
+            {
                 // we cancel the jump if the jump button was released before the low jump buffer ended
-                if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasReleasedThisFrame()) {
-                    if (Time.time - _lastJumpTime <= JumpReleaseBuffer) {
-                        if (_jumping && !_doubleJumping) {
+                if (InputSystemManager_PW.InputActions.PlayerControls.Jump.WasReleasedThisFrame())
+                {
+                    if (Time.time - _lastJumpTime <= JumpReleaseBuffer)
+                    {
+                        if (_jumping && !_doubleJumping)
+                        {
                             _jumpCancelled = true;
                         }
                     }
@@ -242,25 +266,31 @@ namespace Paywall {
         /// Checks if we are allowed to jump, return false if not
         /// </summary>
         /// <returns></returns>
-        protected virtual bool EvaluateJumpConditions() {
-            if (GameManagerIRE_PW.HasInstance) {
-                if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+        protected virtual bool EvaluateJumpConditions()
+        {
+            if (GameManagerIRE_PW.HasInstance)
+            {
+                if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress)
+                {
                     return false;
                 }
             }
 
             // if the character is not grounded and is only allowed to jump when grounded, we do not jump
-            if (JumpsAllowedWhenGroundedOnly && !Character.Grounded) {
+            if (JumpsAllowedWhenGroundedOnly && !Character.Grounded)
+            {
                 return false;
             }
 
             // if the character doesn't have any jump left, we do not jump
-            if (NumberOfJumpsLeft <= 0) {
+            if (NumberOfJumpsLeft <= 0)
+            {
                 return false;
             }
 
             // if we're still in cooldown from the last jump AND this is not the first jump, we do not jump
-            if ((Time.time - _lastJumpTime < CooldownBetweenJumps) && (NumberOfJumpsLeft != FinalNumJumpsAllowed)) {
+            if ((Time.time - _lastJumpTime < CooldownBetweenJumps) && (NumberOfJumpsLeft != FinalNumJumpsAllowed))
+            {
                 return false;
             }
 
@@ -271,11 +301,13 @@ namespace Paywall {
         /// Buffer a jump, then jump if conditions allow
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator BufferJump() {
+        protected virtual IEnumerator BufferJump()
+        {
             _bufferingJump = true;
             yield return new WaitForSeconds(JumpBuffer);
             _bufferingJump = false;
-            if (EvaluateJumpConditions()) {
+            if (EvaluateJumpConditions())
+            {
                 StartJump();
             }
         }
@@ -283,25 +315,32 @@ namespace Paywall {
         /// <summary>
         /// Evaluates jump conditions and initiates jump if allowed
         /// </summary>
-        public virtual void StartJump() {
-            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed)) {
+        public virtual void StartJump()
+        {
+            if (Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Falling && (NumberOfJumpsLeft == FinalNumJumpsAllowed))
+            {
                 NumberOfJumpsLeft--;
             }
 
-            if (!EvaluateJumpConditions()) {
-                if (_bufferCoroutine != null) {
+            if (!EvaluateJumpConditions())
+            {
+                if (_bufferCoroutine != null)
+                {
                     StopCoroutine(_bufferCoroutine);
                 }
-                if (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress) {
+                if (GameManagerIRE_PW.Instance.Status == GameManagerIRE_PW.GameStatus.GameInProgress)
+                {
                     _bufferCoroutine = StartCoroutine(BufferJump());
                 }
                 return;
             }
 
-            if (UseJumpHeight) {
+            if (UseJumpHeight)
+            {
                 _jumpForce = CalculateJumpForce(JumpHeight);
             }
-            else {
+            else
+            {
                 _jumpForce = JumpForce;
             }
             _jumpCancelled = false;
@@ -311,10 +350,12 @@ namespace Paywall {
         /// <summary>
         /// Performs a jump or double jump and updates animator and state
         /// </summary>
-        protected virtual void PerformJump() {
+        protected virtual void PerformJump()
+        {
             Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Jumping);
             _jumpCancelled = false;
-            if (_bufferCoroutine != null) {
+            if (_bufferCoroutine != null)
+            {
                 StopCoroutine(_bufferCoroutine);
             }
 
@@ -323,7 +364,8 @@ namespace Paywall {
             NumberOfJumpsLeft--;
 
             // if the character isn't grounded, we reset its velocity and gravity
-            if (!Character.Grounded) {
+            if (!Character.Grounded)
+            {
                 _rigidbody2D.velocity = Vector3.zero;
                 _rigidbody2D.gravityScale = _initialGravityScale;
             }
@@ -332,25 +374,31 @@ namespace Paywall {
 
             // we make our character jump
             // if the character is already airborne, use the double jump
-            if (!Character.Grounded) {
-                if (UseDoubleJumpHeight) {
+            if (!Character.Grounded)
+            {
+                if (UseDoubleJumpHeight)
+                {
                     ApplyJumpForce(CalculateJumpForce(DoubleJumpHeight));
                 }
-                else {
+                else
+                {
                     ApplyJumpForce(DoubleJumpForce);
                 }
             }
-            else {
+            else
+            {
                 ApplyJumpForce(_jumpForce);
             }
-            if (!Character.Grounded) {
+            if (!Character.Grounded)
+            {
                 _doubleJumping = true;
             }
             MMEventManager.TriggerEvent(new MMGameEvent("Jump"));
 
             _lastJumpTime = Time.time;
             _jumping = true;
-            if (_animator != null) {
+            if (_animator != null)
+            {
                 MMAnimatorExtensions.UpdateAnimatorTriggerIfExists(_animator, "JustJumped");
             }
         }
@@ -359,7 +407,8 @@ namespace Paywall {
         /// Applies upward impulse force to character
         /// </summary>
         /// <param name="force"></param>
-        protected virtual void ApplyJumpForce(float force) {
+        protected virtual void ApplyJumpForce(float force)
+        {
             _rigidbody2D.AddForce(Vector3.up * force, ForceMode2D.Impulse);
         }
 
@@ -369,25 +418,31 @@ namespace Paywall {
         /// </summary>
         /// <param name="force"></param>
         /// <param name="useForce"></param>
-        public virtual void ApplyExternalJumpForce(LaunchTypes launchType, float force, bool resetJumps = true) {
+        public virtual void ApplyExternalJumpForce(LaunchTypes launchType, float force, bool resetJumps = true)
+        {
             _rigidbody2D.velocity = Vector3.zero;
             _rigidbody2D.gravityScale = _initialGravityScale;
             _lastJumpTime = Time.time;
             Character.MovementState.ChangeState(CharacterStates_PW.MovementStates.Jumping);
-            if (resetJumps) {
+            if (resetJumps)
+            {
                 NumberOfJumpsLeft = FinalNumJumpsAllowed - 1;
             }
-            else {
+            else
+            {
                 NumberOfJumpsLeft--;
             }
 
-            if (OverrideLaunchHeight) {
+            if (OverrideLaunchHeight)
+            {
                 float jumpForce = CalculateJumpForce(LaunchHeight);
                 _rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
             }
-            else {
+            else
+            {
                 float jumpForce;
-                switch (launchType) {
+                switch (launchType)
+                {
                     case LaunchTypes.Height:
                         jumpForce = CalculateJumpForce(force);
                         _rigidbody2D.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
@@ -407,7 +462,8 @@ namespace Paywall {
         /// Set number of remaining jumps
         /// </summary>
         /// <param name="jumpsLeft"></param>
-        public virtual void SetJumpsLeft(int jumpsLeft) {
+        public virtual void SetJumpsLeft(int jumpsLeft)
+        {
             NumberOfJumpsLeft = jumpsLeft;
         }
 
@@ -415,7 +471,8 @@ namespace Paywall {
         /// Set number of jumps allowed
         /// </summary>
         /// <param name="jumps"></param>
-        public virtual void SetNumberJumpsAllowed(int jumps) {
+        public virtual void SetNumberJumpsAllowed(int jumps)
+        {
             NumberOfJumpsAllowed = jumps;
         }
 
@@ -423,10 +480,12 @@ namespace Paywall {
         /// Calculates the duration of a normal full jump
         /// </summary>
         /// <returns></returns>
-        public virtual float CalculateJumpTime(JumpTypes jumpType) {
+        public virtual float CalculateJumpTime(JumpTypes jumpType)
+        {
             float jumpTime = 0;
             float Vinitial, Tpeak, Vfinal, Tfall;
-            switch (jumpType) {
+            switch (jumpType)
+            {
                 case JumpTypes.Normal:
                     Vinitial = CalculateJumpForce(JumpHeight) / _rigidbody2D.mass;
                     Tpeak = (-Vinitial) / (Physics2D.gravity.y * _initialGravityScale);
@@ -435,7 +494,7 @@ namespace Paywall {
                     jumpTime = Tpeak + Tfall;
                     break;
                 case JumpTypes.Low:
-                    
+
                     break;
             }
 
@@ -447,20 +506,24 @@ namespace Paywall {
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        protected virtual float CalculateJumpForce(float height) {
+        protected virtual float CalculateJumpForce(float height)
+        {
             return Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
         }
 
         /// <summary>
         /// Reset ability. Resets number of jumps left
         /// </summary>
-        public override void ResetAbility() {
+        public override void ResetAbility()
+        {
             NumberOfJumpsLeft = FinalNumJumpsAllowed;
         }
 
-        public override void UpdateAnimator() {
+        public override void UpdateAnimator()
+        {
             base.UpdateAnimator();
-            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal) {
+            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Normal)
+            {
                 MMAnimatorExtensions.UpdateAnimatorBoolIfExists(_animator, "Jumping", Character.MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping);
             }
         }
@@ -469,24 +532,31 @@ namespace Paywall {
         /// Catches changes to the extra jump module and adjusts this component accordingly
         /// </summary>
         /// <param name="moduleEvent"></param>
-        public void OnMMEvent(PaywallModuleEvent moduleEvent) {
-            if (moduleEvent.Module.Name.Equals(ExtraJumpModule.Name)) {
-                if (PaywallProgressManager.Instance.ModulesDict[moduleEvent.Module.Name].IsActive) {
+        public void OnMMEvent(PaywallModuleEvent moduleEvent)
+        {
+            if (moduleEvent.Module.Name.Equals(ExtraJumpModule.Name))
+            {
+                if (PaywallProgressManager.Instance.ModulesDict[moduleEvent.Module.Name].IsActive)
+                {
                     FinalNumJumpsAllowed++;
                 }
-                else {
+                else
+                {
                     FinalNumJumpsAllowed--;
                 }
             }
         }
 
-        public void OnMMEvent(MMGameEvent gameEvent) {
-            if (gameEvent.EventName.Equals("Rescue")) {
+        public void OnMMEvent(MMGameEvent gameEvent)
+        {
+            if (gameEvent.EventName.Equals("Rescue"))
+            {
                 NumberOfJumpsLeft = FinalNumJumpsAllowed - 1;
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             this.MMEventStartListening<PaywallModuleEvent>();
             this.MMEventStartListening<MMGameEvent>();
@@ -494,7 +564,8 @@ namespace Paywall {
             //InputSystemManager_PW.InputActions.PlayerControls.Jump.canceled += JumpCanceled;
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<PaywallModuleEvent>();
             this.MMEventStopListening<MMGameEvent>();

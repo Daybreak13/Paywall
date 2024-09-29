@@ -1,15 +1,15 @@
 using Paywall.Tools;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Dash forward, canceling vertical momentum, and phasing through enemies, bricks, damaging effects
     /// </summary>
-    public class CharacterDodge : CharacterEXMove {
+    public class CharacterDodge : CharacterEXMove
+    {
         /// Dodge invincibility duration
         [field: Tooltip("Dodge invincibility duration")]
         [field: SerializeField] public float DodgeDuration { get; protected set; } = 0.2f;
@@ -35,17 +35,21 @@ namespace Paywall {
         protected int _initialLayer;
         protected Vector2 _returnPositionSpeed;
 
-        protected virtual bool EvaluateDodgeConditions() {
+        protected virtual bool EvaluateDodgeConditions()
+        {
             // If we aren't in cooldown, return true
-            if ((Time.time - _timeLastDodgeEnded) >= DodgeCooldown) {
+            if ((Time.time - _timeLastDodgeEnded) >= DodgeCooldown)
+            {
                 return true;
             }
             return false;
         }
 
-        public override void ProcessAbility() {
+        public override void ProcessAbility()
+        {
             base.ProcessAbility();
-            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+            if (Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging)
+            {
                 _currentDodgeTime += Time.deltaTime;
             }
         }
@@ -53,22 +57,27 @@ namespace Paywall {
         /// <summary>
         /// Perform dodge
         /// </summary>
-        protected override void PerformAbility() {
+        protected override void PerformAbility()
+        {
             base.PerformAbility();
-            if (!AbilityAuthorized || !EvaluateDodgeConditions()) {
+            if (!AbilityAuthorized || !EvaluateDodgeConditions())
+            {
                 return;
             }
 
             // Spend the EX or do nothing if there is insufficient EX
-            if (!(Character as PlayerCharacterIRE).SpendEXBars(EXCost)) {
+            if (!(Character as PlayableCharacter).SpendEXBars(EXCost))
+            {
                 return;
             }
             _dodgeCoroutine = StartCoroutine(DodgeCo());
         }
 
         // If dodging freezes the character's Y position, set Y velocity to zero every frame
-        protected virtual void FixedUpdate() {
-            if (FreezeY && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging) {
+        protected virtual void FixedUpdate()
+        {
+            if (FreezeY && Character.ConditionState.CurrentState == CharacterStates_PW.ConditionStates.Dodging)
+            {
                 Character.CharacterRigidBody.velocity = new Vector2(Character.CharacterRigidBody.velocity.x, 0);
             }
         }
@@ -77,7 +86,8 @@ namespace Paywall {
         /// Perform dodge coroutine
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator DodgeCo() {
+        protected virtual IEnumerator DodgeCo()
+        {
             // Slow time if applicable, increase level speed, animate dodge, change character state
             //GameManagerIRE_PW.Instance.SetTimeScale(GameManagerIRE_PW.Instance.TimeScale * DodgeTimeScaleMultiplier);
             LevelManagerIRE_PW.Instance.TemporarilyAddSpeed(DodgeLevelSpeedBoost, DodgeDuration);

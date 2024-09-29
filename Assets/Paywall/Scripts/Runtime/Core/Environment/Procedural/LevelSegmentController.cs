@@ -1,13 +1,10 @@
-using System.Collections;
+using MoreMountains.Tools;
+using Paywall.Tools;
 using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.InfiniteRunnerEngine;
-using MoreMountains.Tools;
-using Weighted_Randomizer;
-using System.Linq;
-using Paywall.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
     /// <summary>
     /// Various types of level segments
     /// Ground: Solid ground
@@ -24,7 +21,8 @@ namespace Paywall {
     /// Represents a spawn point for spawnables in this level segment
     /// </summary>
     [System.Serializable]
-    public class SpawnPointClass {
+    public class SpawnPointClass
+    {
         public string PoolerName;
         public SpawnableWeightedObjectPooler WeightedPooler;
         public Transform Location;
@@ -33,7 +31,8 @@ namespace Paywall {
     /// <summary>
     /// Stores spawn points, bounds, link points, and other level segment data
     /// </summary>
-    public class LevelSegmentController : MonoBehaviour {
+    public class LevelSegmentController : MonoBehaviour
+    {
 
         /// The segment's name
         //[field: Tooltip("The segment's name")]
@@ -95,8 +94,10 @@ namespace Paywall {
         [field: MMReadOnly]
         [field: SerializeField] public int PreviousHeightDelta { get; protected set; }
 
-        protected virtual void Awake() {
-            if (BoundsLine == null) {
+        protected virtual void Awake()
+        {
+            if (BoundsLine == null)
+            {
                 BoundsLine = GetComponent<EdgeCollider2D>();
             }
         }
@@ -105,11 +106,13 @@ namespace Paywall {
         /// Segment type is set by ProceduralLevelGenerator based on the SegmentList that this segment belongs to, to avoid user errors
         /// </summary>
         /// <param name="type"></param>
-        public virtual void SetSegmentType(SegmentTypes type) {
+        public virtual void SetSegmentType(SegmentTypes type)
+        {
             SegmentType = type;
         }
 
-        public virtual void GetBounds() {
+        public virtual void GetBounds()
+        {
             BoundsLine = GetComponent<EdgeCollider2D>();
         }
 
@@ -118,7 +121,8 @@ namespace Paywall {
         /// </summary>
         /// <param name="leftIn"></param>
         /// <param name="rightOut"></param>
-        public virtual void SetBounds(Vector2 leftIn, Vector2 rightOut) {
+        public virtual void SetBounds(Vector2 leftIn, Vector2 rightOut)
+        {
             LeftIn.localPosition = leftIn;
             RightOut.localPosition = rightOut;
             BoundsLine.SetPoints(new() { new Vector2(leftIn.x, BoundsLine.points[0].y), new Vector2(rightOut.x, BoundsLine.points[1].y) });
@@ -128,11 +132,13 @@ namespace Paywall {
         /// Used by editor
         /// </summary>
         /// <param name="spawnPoints"></param>
-        public virtual void SetSpawnPoints(List<SpawnPoint> spawnPoints) {
+        public virtual void SetSpawnPoints(List<SpawnPoint> spawnPoints)
+        {
             SpawnPoints = spawnPoints;
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             LeftWall.SetActiveIfNotNull(true);
             RightWall.SetActiveIfNotNull(true);
         }
@@ -140,7 +146,8 @@ namespace Paywall {
         /// <summary>
         /// Draw leftin rightout bounds gizmos
         /// </summary>
-        protected virtual void OnDrawGizmosSelected() {
+        protected virtual void OnDrawGizmosSelected()
+        {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(LeftBound, 0.2f);
             Gizmos.DrawWireSphere(RightBound, 0.2f);

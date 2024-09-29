@@ -1,22 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Represents a spawn pattern
     /// Draws gizmos indicating location of pattern transforms
     /// </summary>
-    public class SpawnPattern : MonoBehaviour {
+    public class SpawnPattern : MonoBehaviour
+    {
 
-        protected virtual void OnDrawGizmos() {
-            if ((Selection.activeGameObject == null) || ((Selection.activeGameObject != transform.gameObject) && (!Selection.activeGameObject.transform.IsChildOf(transform)))) {
+        protected virtual void OnDrawGizmos()
+        {
+            if ((Selection.activeGameObject == null) || ((Selection.activeGameObject != transform.gameObject) && (!Selection.activeGameObject.transform.IsChildOf(transform))))
+            {
                 return;
             }
             Gizmos.color = Color.red;
-            foreach (Transform child in transform) {
+            foreach (Transform child in transform)
+            {
                 Gizmos.DrawWireSphere(child.position, 0.2f);
             }
         }

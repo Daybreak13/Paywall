@@ -1,16 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
-using UnityEngine.UI;
+using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Serializable class used by PaywallProgressManager to save upgrade progress
     /// </summary>
     [Serializable]
-    public class Upgrade {
+    public class Upgrade
+    {
         [field: Header("Basic Info")]
 
         /// The upgrade's ID
@@ -36,23 +35,28 @@ namespace Paywall {
         [Tooltip("What type of upgrade is it")]
         [field: SerializeField] public UpgradeTypes UpgradeType { get; protected set; }
 
-        public Upgrade() {
+        public Upgrade()
+        {
 
         }
 
-        public Upgrade(ScriptableUpgrade scriptableUpgrade) {
+        public Upgrade(ScriptableUpgrade scriptableUpgrade)
+        {
             ConvertToClass(scriptableUpgrade);
         }
 
-        public virtual void UnlockUpgrade() {
+        public virtual void UnlockUpgrade()
+        {
             Unlocked = true;
         }
 
-        public virtual void LockUpgrade() {
+        public virtual void LockUpgrade()
+        {
             Unlocked = false;
         }
 
-        public virtual Upgrade ConvertToClass(ScriptableUpgrade s) {
+        public virtual Upgrade ConvertToClass(ScriptableUpgrade s)
+        {
             UpgradeID = s.UpgradeID;
             UpgradeName = s.UpgradeName;
             UpgradeDescription = s.UpgradeDescription;
@@ -66,11 +70,14 @@ namespace Paywall {
         /// <summary>
         /// What action to perform on upgrading. To be overridden.
         /// </summary>
-        public virtual void UpgradeAction(object obj = null, UpgradeMethods upgradeMethod = UpgradeMethods.Unlock) {
-            if (upgradeMethod == UpgradeMethods.Unlock) {
+        public virtual void UpgradeAction(object obj = null, UpgradeMethods upgradeMethod = UpgradeMethods.Unlock)
+        {
+            if (upgradeMethod == UpgradeMethods.Unlock)
+            {
                 UnlockUpgrade();
             }
-            else {
+            else
+            {
                 LockUpgrade();
             }
         }

@@ -1,17 +1,19 @@
+using KaimiraGames;
+using Paywall.Tools;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Paywall.Tools;
-using KaimiraGames;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// A single spawn pooler with weight and associated spawn patterns
     /// Spawns only one specific spawn type, but with multiple possible patterns
     /// </summary>
     [System.Serializable]
-    public class SingleSpawner {
+    public class SingleSpawner
+    {
         /// The name of the pooler from ProceduralLevelGenerator to get a spawnable from
         [field: Tooltip("The name of the pooler from ProceduralLevelGenerator to get a spawnable from")]
         [field: SerializeField] public ScriptableSpawnType SpawnablePoolerType { get; protected set; }
@@ -31,7 +33,8 @@ namespace Paywall {
     /// Weighted spawn pattern
     /// </summary>
     [System.Serializable]
-    public class SerializedSpawnPattern {
+    public class SerializedSpawnPattern
+    {
         [field: SerializeField] public SpawnPattern Pattern { get; set; }
         /// The weight of this pattern
         [field: Tooltip("The weight of this pattern")]
@@ -43,7 +46,8 @@ namespace Paywall {
     /// Only one pattern will be chosen to spawn.
     /// </summary>
     [System.Serializable]
-    public class SpawnPoint : MonoBehaviour {
+    public class SpawnPoint : MonoBehaviour
+    {
         /// If false, use ProceduralLevelGenerator.NoneChance instead
         [field: Tooltip("If false, use ProceduralLevelGenerator.NoneChance instead")]
         [field: SerializeField] public bool UseLocalNoneChance { get; protected set; } = false;
@@ -66,17 +70,21 @@ namespace Paywall {
         /// <summary>
         /// Fill out dictionaries and randomizers
         /// </summary>
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             _parentController = GetComponentInParent<LevelSegmentController>();
             _parentRigidbody = GetComponentInParent<Rigidbody2D>();
 
             _globalRandom ??= new System.Random(PaywallProgressManager.RandomSeed);
             _spawnerRandomizer = new(_globalRandom);
 
-            foreach (SingleSpawner ss in Spawners) {
-                if (ss.UsingPatterns) {
+            foreach (SingleSpawner ss in Spawners)
+            {
+                if (ss.UsingPatterns)
+                {
                     int i = 0;
-                    foreach (SerializedSpawnPattern pattern in ss.SpawnPatterns) {
+                    foreach (SerializedSpawnPattern pattern in ss.SpawnPatterns)
+                    {
                         ss.PatternRandomizer.Add(i, pattern.Weight);
                         i++;
                     }
@@ -90,15 +98,20 @@ namespace Paywall {
         /// Check if we should spawn something, or spawn nothing
         /// </summary>
         /// <returns></returns>
-        protected virtual bool ShouldSpawnNone() {
+        protected virtual bool ShouldSpawnNone()
+        {
             double chance = _globalRandom.NextDouble();
-            if (UseLocalNoneChance) {
-                if (LocalNoneChance > chance) {
+            if (UseLocalNoneChance)
+            {
+                if (LocalNoneChance > chance)
+                {
                     return true;
                 }
             }
-            else {
-                if (ProceduralLevelGenerator.Instance.NoneChance > chance) {
+            else
+            {
+                if (ProceduralLevelGenerator.Instance.NoneChance > chance)
+                {
                     return true;
                 }
             }
@@ -109,7 +122,8 @@ namespace Paywall {
         /// Wait 1 frame to spawn to avoid race conditions
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator WaitToSpawn() {
+        protected virtual IEnumerator WaitToSpawn()
+        {
             yield return new WaitForEndOfFrame();
             Spawn();
         }
@@ -117,13 +131,17 @@ namespace Paywall {
         /// <summary>
         /// Spawns and positions pooled spawnables
         /// </summary>
-        protected virtual void Spawn() {
-            if (GameManagerIRE_PW.HasInstance) {
-                if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+        protected virtual void Spawn()
+        {
+            if (GameManagerIRE_PW.HasInstance)
+            {
+                if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)
+                {
                     return;
                 }
             }
-            if (ShouldSpawnNone()) {
+            if (ShouldSpawnNone())
+            {
                 return;
             }
 
@@ -132,11 +150,14 @@ namespace Paywall {
             SingleSpawner ss = _singleSpawners[key];
 
             // If using spawn patterns, retrieve pooled objects and spawn them at each position in the pattern
-            if (ss.UsingPatterns) {
+            if (ss.UsingPatterns)
+            {
                 int i = ss.PatternRandomizer.Next();
-                foreach (Transform child in ss.SpawnPatterns[i].Pattern.transform) {
+                foreach (Transform child in ss.SpawnPatterns[i].Pattern.transform)
+                {
                     GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
-                    if (spawnable == null) {
+                    if (spawnable == null)
+                    {
                         continue;
                     }
 
@@ -144,10 +165,12 @@ namespace Paywall {
                     Vector3 destination = child.transform.position + spawnable.GetComponent<SpawnablePoolableObject>().SpawnOffset;
                     spawnable.transform.SafeSetTransformPosition(destination, PaywallLayerManager.GroundLayerMask);
 
-                    if (spawnable.TryGetComponent(out SpawnablePoolableObject spo)) {
+                    if (spawnable.TryGetComponent(out SpawnablePoolableObject spo))
+                    {
                         spo.SetParentSpawnPoint(this);
 
-                        if (spo.AnchorToSpawn) {
+                        if (spo.AnchorToSpawn)
+                        {
                             spawnable.transform.parent = child;
                         }
                     }
@@ -156,9 +179,11 @@ namespace Paywall {
                 }
             }
             // Else, get a pooled object and spawn at this location
-            else {
+            else
+            {
                 GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[_singleSpawners[key].SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
-                if (spawnable == null) {
+                if (spawnable == null)
+                {
                     return;
                 }
 
@@ -174,16 +199,20 @@ namespace Paywall {
         /// Called by a SpawnablePoolableObject when it is disabled to remove it from the SpawnPoint's list of spawnables
         /// </summary>
         /// <param name="spawnable"></param>
-        public virtual void RemoveFromList(SpawnablePoolableObject spawnable) {
+        public virtual void RemoveFromList(SpawnablePoolableObject spawnable)
+        {
             _spawnables.Remove(spawnable);
         }
 
-        protected virtual void OnDrawGizmos() {
-            if (Spawners == null || Spawners.Count == 0) {
+        protected virtual void OnDrawGizmos()
+        {
+            if (Spawners == null || Spawners.Count == 0)
+            {
                 return;
             }
             Gizmos.color = Color.red;
-            foreach (SingleSpawner spawner in Spawners) {
+            foreach (SingleSpawner spawner in Spawners)
+            {
 
             }
         }
@@ -191,11 +220,13 @@ namespace Paywall {
         /// <summary>
         /// On enable, randomly retrieve and spawn new objects in a random spawn pattern (if applicable)
         /// </summary>
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             StartCoroutine(WaitToSpawn());
         }
 
-        protected virtual void OnDestroy() {
+        protected virtual void OnDestroy()
+        {
             StopAllCoroutines();
         }
 

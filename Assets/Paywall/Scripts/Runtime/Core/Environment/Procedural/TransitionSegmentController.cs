@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Level segment controller for transition segments
     /// Each transition segment only works on certain height deltas
     /// </summary>
-    public class TransitionSegmentController : LevelSegmentController {
+    public class TransitionSegmentController : LevelSegmentController
+    {
         [field: Header("Transition")]
 
         /// 
@@ -30,12 +30,14 @@ namespace Paywall {
         /// Sets stored height delta
         /// </summary>
         /// <param name="heightDelta"></param>
-        public virtual void SetHeightDelta(float heightDelta) {
+        public virtual void SetHeightDelta(float heightDelta)
+        {
             StoredHeightDelta = heightDelta;
         }
 
-        protected virtual void SpawnHeightHandler() {
-            int heightIntervalDelta = (int) (StoredHeightDelta / ProceduralLevelGenerator.Instance.HeightInterval);
+        protected virtual void SpawnHeightHandler()
+        {
+            int heightIntervalDelta = (int)(StoredHeightDelta / ProceduralLevelGenerator.Instance.HeightInterval);
 
         }
     }

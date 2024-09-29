@@ -1,17 +1,17 @@
 using Paywall.Tools;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum Direction { Left, Right, Down, Up }
 
     /// <summary>
     /// Spawns random breakables in a pattern
     /// </summary>
-    public class BreakableChain : MonoBehaviour_PW {
+    public class BreakableChain : MonoBehaviour_PW
+    {
         /// What type of breakable to get from poolers
         [field: Tooltip("What type of breakable to get from poolers")]
         [field: SerializeField] public ScriptableSpawnType SpawnablePoolerType { get; protected set; }
@@ -38,7 +38,8 @@ namespace Paywall {
         /// </summary>
         /// <param name="min"></param>
         /// <param name="max"></param>
-        public virtual void SetLengths(int min, int max) {
+        public virtual void SetLengths(int min, int max)
+        {
             if (min > 0) MinLength = min;
             if (max > 0 && max >= MinLength) MaxLength = max;
         }
@@ -46,7 +47,8 @@ namespace Paywall {
         /// <summary>
         /// Call this to manually trigger Spawn()
         /// </summary>
-        public virtual Vector2 ForceSpawn() {
+        public virtual Vector2 ForceSpawn()
+        {
             if (ManualSpawn) return Spawn();
             return Vector2.zero;
         }
@@ -59,22 +61,26 @@ namespace Paywall {
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns>Vector2 position of the rightmost border</returns>
-        protected virtual Vector2 Spawn(int min = -1, int max = -1) {
+        protected virtual Vector2 Spawn(int min = -1, int max = -1)
+        {
             int a, b;
-            if (min < 0 && max < 0) {
+            if (min < 0 && max < 0)
+            {
                 a = MinLength; b = MaxLength;
             }
-            else {
+            else
+            {
                 a = min; b = max;
             }
             _random ??= RandomManager.NewRandom(PaywallProgressManager.RandomSeed);
             int length = _random.Next(a, b + 1);
-            float offset =  0.5f;     // -length / 2f + 0.5f
+            float offset = 0.5f;     // -length / 2f + 0.5f
 
             Vector2 prevPosition = new(transform.position.x, transform.position.y);
             Vector2 currentPos = Vector2.zero;
 
-            switch (SpawnDirection) {
+            switch (SpawnDirection)
+            {
                 case Direction.Left:
                     prevPosition.x -= offset;
                     break;
@@ -89,14 +95,16 @@ namespace Paywall {
                     break;
             }
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < length; i++)
+            {
                 GameObject spawnable = ProceduralLevelGenerator.Instance.SpawnPoolerDict[SpawnablePoolerType.ID].Pooler.GetPooledGameObject();
                 spawnable.SetActive(true);
                 spawnable.transform.SetParent(transform);
                 _spawnables.Add(spawnable);
                 spawnable.transform.position = prevPosition;
                 currentPos = prevPosition;
-                switch (SpawnDirection) {
+                switch (SpawnDirection)
+                {
                     case Direction.Left:
                         prevPosition.x -= _spawnIncrement;
                         break;
@@ -116,16 +124,19 @@ namespace Paywall {
             return currentPos;
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             if (!ManualSpawn) Spawn();
         }
 
-        protected virtual void OnDrawGizmosSelected() {
+        protected virtual void OnDrawGizmosSelected()
+        {
             Gizmos.color = Color.blue;
             Vector2 startPosition = new(transform.position.x, transform.position.y);
             Vector2 endPosition = startPosition;
             float offset = 0.5f;
-            switch (SpawnDirection) {
+            switch (SpawnDirection)
+            {
                 case Direction.Left:
                     startPosition.x -= offset;
                     endPosition.x -= MaxLength * _spawnIncrement;

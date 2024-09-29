@@ -1,17 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     [System.Serializable]
-    public class UpgradeSubGroup {
+    public class UpgradeSubGroup
+    {
         public string Label;
         public List<ScriptableUpgrade> Upgrades = new();
     }
 
     [System.Serializable]
-    public class UpgradeGroup {
+    public class UpgradeGroup
+    {
         public string Label;
         public List<UpgradeSubGroup> SubGroups = new();
     }
@@ -20,7 +22,8 @@ namespace Paywall {
     /// Archive of all possible upgrades in the game. Set this in PaywallProgressManager.
     /// </summary>
     [CreateAssetMenu(fileName = "UpgradeDictionary", menuName = "Paywall/Upgrades/Utilities/UpgradeDictionary")]
-    public class UpgradeDictionary : ScriptableObject {
+    public class UpgradeDictionary : ScriptableObject
+    {
         /// The upgrade dictionary
         [field: Tooltip("The email dictionary")]
         [field: SerializeField] public List<UpgradeSubGroup> GameStoreUpgrades { get; protected set; } = new();
@@ -34,27 +37,37 @@ namespace Paywall {
         [field: Tooltip("The email dictionary")]
         [field: SerializeField] public List<UpgradeGroup> Upgrades { get; protected set; } = new();
 
-        public virtual Dictionary<string, ScriptableUpgrade> GetDictionary() {
+        public virtual Dictionary<string, ScriptableUpgrade> GetDictionary()
+        {
             Dictionary<string, ScriptableUpgrade> upgrades = new();
-            foreach(UpgradeSubGroup group in GameStoreUpgrades) {
-                foreach (ScriptableUpgrade upgrade in group.Upgrades) {
+            foreach (UpgradeSubGroup group in GameStoreUpgrades)
+            {
+                foreach (ScriptableUpgrade upgrade in group.Upgrades)
+                {
                     upgrades.Add(upgrade.UpgradeID, upgrade);
                 }
             }
-            foreach (UpgradeSubGroup group in RunnerStoreUpgrades) {
-                foreach (ScriptableUpgrade upgrade in group.Upgrades) {
+            foreach (UpgradeSubGroup group in RunnerStoreUpgrades)
+            {
+                foreach (ScriptableUpgrade upgrade in group.Upgrades)
+                {
                     upgrades.Add(upgrade.UpgradeID, upgrade);
                 }
             }
-            foreach (UpgradeSubGroup group in OtherUpgrades) {
-                foreach (ScriptableUpgrade upgrade in group.Upgrades) {
+            foreach (UpgradeSubGroup group in OtherUpgrades)
+            {
+                foreach (ScriptableUpgrade upgrade in group.Upgrades)
+                {
                     upgrades.Add(upgrade.UpgradeID, upgrade);
                 }
             }
 
-            foreach (UpgradeGroup group in Upgrades) {
-                foreach (UpgradeSubGroup subGroup in group.SubGroups) {
-                    foreach (ScriptableUpgrade upgrade in subGroup.Upgrades) {
+            foreach (UpgradeGroup group in Upgrades)
+            {
+                foreach (UpgradeSubGroup subGroup in group.SubGroups)
+                {
+                    foreach (ScriptableUpgrade upgrade in subGroup.Upgrades)
+                    {
                         upgrades.Add(upgrade.UpgradeID, upgrade);
                     }
                 }

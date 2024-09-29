@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using MoreMountains.Tools;
 using Paywall.Tools;
+using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class CharacterIRE : MonoBehaviour_PW {
+    public class CharacterIRE : MonoBehaviour_PW
+    {
         /// Type of character this is
 		[field: Tooltip("Type of character this is")]
         [field: SerializeField] public CharacterTypes CharacterType { get; protected set; } = CharacterTypes.AI;
@@ -26,7 +26,7 @@ namespace Paywall {
 
         [field: Header("Animator")]
 
-        
+
 
         [field: Header("Position")]
 
@@ -117,14 +117,18 @@ namespace Paywall {
 
         CharacterAbilityIRE[] _characterAbilities;
 
-        protected virtual void Awake() {
-            if (!_initialized) {
+        protected virtual void Awake()
+        {
+            if (!_initialized)
+            {
                 Initialization();
             }
         }
 
-        protected virtual void Initialization() {
-            if (Model == null) {
+        protected virtual void Initialization()
+        {
+            if (Model == null)
+            {
                 Model = GetComponentInChildren<SpriteRenderer>();
             }
             _initialColor = _flickerColor = Model.material.color;
@@ -141,14 +145,17 @@ namespace Paywall {
         /// <summary>
         /// Caches list of CharacterAbilities attached to this character
         /// </summary>
-        protected virtual void CacheAbilities() {
+        protected virtual void CacheAbilities()
+        {
             _characterAbilities = GetComponentsInChildren<CharacterAbilityIRE>();
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.SetCharacter(this);
             }
         }
 
-        protected virtual void Update() {
+        protected virtual void Update()
+        {
             EarlyProcessAbilities();
             ProcessAbilities();
             LateProcessAbilities();
@@ -160,20 +167,26 @@ namespace Paywall {
 
         }
 
-        protected virtual void EarlyProcessAbilities() {
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+        protected virtual void EarlyProcessAbilities()
+        {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.EarlyProcessAbility();
             }
         }
 
-        protected virtual void ProcessAbilities() {
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+        protected virtual void ProcessAbilities()
+        {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.ProcessAbility();
             }
         }
 
-        protected virtual void LateProcessAbilities() {
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+        protected virtual void LateProcessAbilities()
+        {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.LateProcessAbility();
             }
         }
@@ -181,9 +194,11 @@ namespace Paywall {
         /// <summary>
         /// This is called at Update() and sets each of the animators parameters to their corresponding State values
         /// </summary>
-        protected virtual void UpdateAnimator() {
+        protected virtual void UpdateAnimator()
+        {
             if (CharacterAnimator == null) { return; }
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.UpdateAnimator();
             }
 
@@ -192,7 +207,8 @@ namespace Paywall {
             MMAnimatorExtensions.UpdateAnimatorFloatIfExists(CharacterAnimator, "VerticalSpeed", CharacterRigidBody.velocity.y);
         }
 
-        public virtual void ResetCharacter() {
+        public virtual void ResetCharacter()
+        {
             CharacterRigidBody.gravityScale = _initialGravity;
             CharacterRigidBody.velocity = Vector3.zero;
             ResetAbilities();
@@ -201,8 +217,10 @@ namespace Paywall {
         /// <summary>
         /// Reset all character abilities
         /// </summary>
-        protected virtual void ResetAbilities() {
-            foreach (CharacterAbilityIRE ability in _characterAbilities) {
+        protected virtual void ResetAbilities()
+        {
+            foreach (CharacterAbilityIRE ability in _characterAbilities)
+            {
                 ability.ResetAbility();
             }
         }
@@ -210,40 +228,49 @@ namespace Paywall {
         /// <summary>
         /// Update rigidbody
         /// </summary>
-        protected virtual void FixedUpdate() {
+        protected virtual void FixedUpdate()
+        {
             CheckCollisionRight();
 
             // we determine the distance between the ground and the character
             ComputeDistanceToTheGround();
-            if (Grounded) {
+            if (Grounded)
+            {
                 // If we are in jump startup rigidbody is beginning to move up, don't change movement state out of Jumping, otherwise change to Running
                 if (!(MovementState.CurrentState == CharacterStates_PW.MovementStates.Jumping
-                        && CharacterRigidBody.velocity.y > 0)) {
+                        && CharacterRigidBody.velocity.y > 0))
+                {
                     MovementState.ChangeState(CharacterStates_PW.MovementStates.Running);
                 }
             }
-            else {
+            else
+            {
                 // If we are airborne and moving down and not Jumping or RailRiding, change state to falling
                 if (MovementState.CurrentState != CharacterStates_PW.MovementStates.Jumping
                         && CharacterRigidBody.velocity.y < 0
-                        && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
+                        && MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding)
+                {
                     MovementState.ChangeState(CharacterStates_PW.MovementStates.Falling);
                 }
             }
         }
 
-        protected virtual bool CheckCollisionRight() {
+        protected virtual bool CheckCollisionRight()
+        {
             float edge = CharacterBoxCollider.edgeRadius;
             Vector2 topOrigin = new(CharacterBoxCollider.bounds.max.x + edge, CharacterBoxCollider.bounds.max.y);
             Vector2 bottomOrigin = new(CharacterBoxCollider.bounds.max.x + edge, CharacterBoxCollider.bounds.min.y);
             int RaysToCast = 5;
             RaycastHit2D raycastHit2D;
 
-            for (int i = 0; i < RaysToCast; i++) {
+            for (int i = 0; i < RaysToCast; i++)
+            {
                 Vector2 originPoint = Vector2.Lerp(topOrigin, bottomOrigin, i / (RaysToCast - 1));
                 raycastHit2D = Physics2D.Raycast(originPoint, Vector2.right, 1f, PaywallLayerManager.ObstaclesLayerMask);
-                if (raycastHit2D.collider != null) {
-                    if (raycastHit2D.distance < GroundDistanceTolerance + 0.2) {
+                if (raycastHit2D.collider != null)
+                {
+                    if (raycastHit2D.distance < GroundDistanceTolerance + 0.2)
+                    {
                         CollidingRight = true;
                         _rightObject = raycastHit2D.collider.gameObject;
                         return true;
@@ -258,7 +285,8 @@ namespace Paywall {
 
         #region PlayableCharacter overrides
 
-        protected virtual void ComputeDistanceToTheGround() {
+        protected virtual void ComputeDistanceToTheGround()
+        {
 
             DistanceToTheGround = -1;
 
@@ -267,35 +295,43 @@ namespace Paywall {
 
             // we cast a ray to the bottom to check if we're above ground and determine the distance
             RaycastHit2D raycastLeft = MMDebug.RayCast(_raycastLeftOrigin, Vector2.down, _distanceToTheGroundRaycastLength, PaywallLayerManager.ObstaclesLayerMask, Color.gray, true);
-            if (raycastLeft) {
+            if (raycastLeft)
+            {
                 DistanceToTheGround = raycastLeft.distance;
                 _ground = raycastLeft.collider.gameObject;
             }
             RaycastHit2D raycastRight = MMDebug.RayCast(_raycastRightOrigin, Vector2.down, _distanceToTheGroundRaycastLength, PaywallLayerManager.ObstaclesLayerMask, Color.gray, true);
-            if (raycastRight) {
-                if (raycastLeft) {
-                    if (raycastRight.distance < DistanceToTheGround) {
+            if (raycastRight)
+            {
+                if (raycastLeft)
+                {
+                    if (raycastRight.distance < DistanceToTheGround)
+                    {
                         DistanceToTheGround = raycastRight.distance;
                         _ground = raycastRight.collider.gameObject;
                     }
                 }
-                else {
+                else
+                {
                     DistanceToTheGround = raycastRight.distance;
                     _ground = raycastRight.collider.gameObject;
                 }
             }
 
-            if (!raycastLeft && !raycastRight) {
+            if (!raycastLeft && !raycastRight)
+            {
                 // if the raycast hasn't hit the ground, we set the distance to -1
                 DistanceToTheGround = -1;
                 _ground = null;
             }
-            if ((CharacterType == CharacterTypes.Player) && (_ground != null) && (_ground.CompareTag(_playerIgnoreTag))) {
+            if ((CharacterType == CharacterTypes.Player) && (_ground != null) && (_ground.CompareTag(_playerIgnoreTag)))
+            {
                 _ground = null;
                 Grounded = false;
                 return;
             }
-            if (CharacterRigidBody.velocity.y > 0) {
+            if (CharacterRigidBody.velocity.y > 0)
+            {
                 _ground = null;
                 Grounded = false;
                 return;
@@ -307,17 +343,21 @@ namespace Paywall {
         /// Determines if grouded conditions are met.
         /// </summary>
         /// <returns><c>true</c>, if if grouded conditions are met was determined, <c>false</c> otherwise.</returns>
-        protected virtual bool DetermineIfGroudedConditionsAreMet() {
+        protected virtual bool DetermineIfGroudedConditionsAreMet()
+        {
             // if the distance to the ground is equal to -1, this means the raycast never found the ground, thus there's no ground, thus the character isn't grounded anymore
-            if (DistanceToTheGround == -1) {
+            if (DistanceToTheGround == -1)
+            {
                 _ground = null;
                 return false;
             }
             // if the distance to the ground is within the tolerated bounds, the character is grounded, otherwise it's not.
-            if (DistanceToTheGround < GroundDistanceTolerance) {
+            if (DistanceToTheGround < GroundDistanceTolerance)
+            {
                 return true;
             }
-            else {
+            else
+            {
                 _ground = null;
                 return false;
             }
@@ -330,7 +370,8 @@ namespace Paywall {
         /// Use the CharacterJumpIRE component 
         /// </summary>
         /// <param name="force"></param>
-        public virtual void ApplyForce(Vector2 force) {
+        public virtual void ApplyForce(Vector2 force)
+        {
             CharacterRigidBody.AddForce(force * CharacterRigidBody.mass);
         }
 
@@ -338,11 +379,13 @@ namespace Paywall {
         /// External functions can call this to set the rigidbody gravity scale
         /// </summary>
         /// <param name="gravityScale"></param>
-        public virtual void SetGravityScale(float gravityScale) {
+        public virtual void SetGravityScale(float gravityScale)
+        {
             CharacterRigidBody.gravityScale = gravityScale;
         }
 
-        public virtual void ResetGravityScale() {
+        public virtual void ResetGravityScale()
+        {
             CharacterRigidBody.gravityScale = _initialGravity;
         }
 
@@ -350,7 +393,8 @@ namespace Paywall {
         /// Sets the invincibility duration
         /// </summary>
         /// <param name="duration"></param>
-        public virtual void SetInvincibilityDuration(float duration) {
+        public virtual void SetInvincibilityDuration(float duration)
+        {
             Invincible = true;
             _remainingInvincibility = duration;
         }
@@ -360,9 +404,11 @@ namespace Paywall {
         /// If we have temp duration invincibility, turn it off
         /// </summary>
         /// <param name="state"></param>
-        public virtual void ToggleInvincibility(bool state) {
+        public virtual void ToggleInvincibility(bool state)
+        {
             _remainingInvincibility = -1f;
-            if (_flickerCoroutine != null) {
+            if (_flickerCoroutine != null)
+            {
                 StopCoroutine(_flickerCoroutine);
             }
             Invincible = state;
@@ -371,12 +417,14 @@ namespace Paywall {
         /// <summary>
         /// Temporary invincibility activated after taking damage. Flicker sprite.
         /// </summary>
-        public virtual void ActivateDamageInvincibility() {
+        public virtual void ActivateDamageInvincibility()
+        {
             Invincible = true;
             _remainingInvincibility = TempInvincibilityDuration;
 
             if (!FlickerSpriteOnHit) { return; }
-            if (_flickerCoroutine != null) {
+            if (_flickerCoroutine != null)
+            {
                 StopCoroutine(_flickerCoroutine);
             }
             _flickerCoroutine = StartCoroutine(MMImage.Flicker(Model, _initialColor, _flickerColor, FlickerDuration, _remainingInvincibility));
@@ -386,10 +434,13 @@ namespace Paywall {
         /// Called every frame to handle invincibility frames
         /// If invincibility duration has expired, turn invincibility off
         /// </summary>
-        protected virtual void HandleInvincibility() {
-            if (_remainingInvincibility > 0) {
+        protected virtual void HandleInvincibility()
+        {
+            if (_remainingInvincibility > 0)
+            {
                 _remainingInvincibility -= Time.deltaTime;
-                if (_remainingInvincibility <= 0) {
+                if (_remainingInvincibility <= 0)
+                {
                     _remainingInvincibility = -1f;
                     Invincible = false;
                 }
@@ -398,7 +449,8 @@ namespace Paywall {
 
         #region Raycasts
 
-        protected virtual void CastRaysBelow() {
+        protected virtual void CastRaysBelow()
+        {
             SetRaysParameters();
             Vector3 raycastLeftOrigin = CharacterBoxCollider.bounds.min;
             Vector3 raycastRightOrigin = CharacterBoxCollider.bounds.min;
@@ -408,25 +460,31 @@ namespace Paywall {
 
             // we cast a ray to the bottom to check if we're above ground and determine the distance
             RaycastHit2D raycastLeft = MMDebug.RayCast(raycastLeftOrigin, Vector2.down, _distanceToTheGroundRaycastLength, 1 << LayerMask.NameToLayer("Ground"), Color.gray, true);
-            if (raycastLeft) {
+            if (raycastLeft)
+            {
                 distanceToObject = raycastLeft.distance;
                 hitObject = raycastLeft.collider.gameObject;
             }
             RaycastHit2D raycastRight = MMDebug.RayCast(raycastRightOrigin, Vector2.down, _distanceToTheGroundRaycastLength, 1 << LayerMask.NameToLayer("Ground"), Color.gray, true);
-            if (raycastRight) {
-                if (raycastLeft) {
-                    if (raycastRight.distance < DistanceToTheGround) {
+            if (raycastRight)
+            {
+                if (raycastLeft)
+                {
+                    if (raycastRight.distance < DistanceToTheGround)
+                    {
                         distanceToObject = raycastRight.distance;
                         hitObject = raycastRight.collider.gameObject;
                     }
                 }
-                else {
+                else
+                {
                     distanceToObject = raycastRight.distance;
                     hitObject = raycastRight.collider.gameObject;
                 }
             }
 
-            if (!raycastLeft && !raycastRight) {
+            if (!raycastLeft && !raycastRight)
+            {
                 // if the raycast hasn't hit anything, we set the distance to -1
                 distanceToObject = -1;
                 hitObject = null;
@@ -437,7 +495,8 @@ namespace Paywall {
         /// <summary>
         /// Creates a rectangle with the boxcollider's size for ease of use and draws debug lines along the different raycast origin axis
         /// </summary>
-        public virtual void SetRaysParameters() {
+        public virtual void SetRaysParameters()
+        {
             float top = CharacterBoxCollider.offset.y + (CharacterBoxCollider.size.y / 2f);
             float bottom = CharacterBoxCollider.offset.y - (CharacterBoxCollider.size.y / 2f);
             float left = CharacterBoxCollider.offset.x - (CharacterBoxCollider.size.x / 2f);
@@ -464,15 +523,18 @@ namespace Paywall {
 
         #endregion
 
-        protected virtual void OnDrawGizmosSelected() {
-            if (CharacterBoxCollider == null) {
+        protected virtual void OnDrawGizmosSelected()
+        {
+            if (CharacterBoxCollider == null)
+            {
                 CharacterBoxCollider = gameObject.MMGetComponentNoAlloc<BoxCollider2D>();
             }
             float edge = CharacterBoxCollider.edgeRadius;
 
             Vector2 leftOrigin = new(CharacterBoxCollider.bounds.max.x + 0f + edge, CharacterBoxCollider.bounds.max.y - 0f);
             Vector2 rightOrigin = new(CharacterBoxCollider.bounds.max.x - 0f + edge, CharacterBoxCollider.bounds.min.y - 0f);
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 5; i++)
+            {
                 Vector2 originPoint = Vector2.Lerp(leftOrigin, rightOrigin, i / (float)(5 - 1f));
                 Gizmos.color = Color.blue;
                 Gizmos.DrawRay(originPoint, new Vector3(0.5f, 0, 0));

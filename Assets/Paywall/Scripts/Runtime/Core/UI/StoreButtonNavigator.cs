@@ -1,18 +1,17 @@
-using System.Collections;
+using MoreMountains.Tools;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using MoreMountains.Tools;
-using Paywall.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Add this component to a store button to assist with UI navigation
     /// Only the top bar buttons should have this component
     /// </summary>
-    public class StoreButtonNavigator : MonoBehaviour, MMEventListener<MMGameEvent> {
+    public class StoreButtonNavigator : MonoBehaviour, MMEventListener<MMGameEvent>
+    {
         /// The list of buttons that will be selected when the down button is pressed
         [field: Tooltip("The list of buttons that will be selected when the down button is pressed")]
         [field: SerializeField] public bool SetSpecificButton { get; protected set; }
@@ -28,11 +27,13 @@ namespace Paywall {
         protected Button _thisButton;
         protected Button _activeButton;
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             _thisButton = GetComponent<Button>();
         }
 
-        protected virtual void Start() {
+        protected virtual void Start()
+        {
             GetActiveButton();
             SetSelectOnDown();
         }
@@ -40,17 +41,24 @@ namespace Paywall {
         /// <summary>
         /// Get the first active button of the upgrade buttons grid
         /// </summary>
-        protected virtual void GetActiveButton() {
-            if (SetSpecificButton) {
-                foreach (Button button in Buttons) {
-                    if (button.gameObject.activeInHierarchy) {
+        protected virtual void GetActiveButton()
+        {
+            if (SetSpecificButton)
+            {
+                foreach (Button button in Buttons)
+                {
+                    if (button.gameObject.activeInHierarchy)
+                    {
                         _activeButton = button;
                     }
                 }
-            } 
-            else {
-                foreach (GridLayoutGroup grid in Grids) {
-                    if (grid.gameObject.activeInHierarchy) {
+            }
+            else
+            {
+                foreach (GridLayoutGroup grid in Grids)
+                {
+                    if (grid.gameObject.activeInHierarchy)
+                    {
                         _activeButton = grid.transform.GetChild(0).GetComponent<Button>();
                     }
                 }
@@ -60,7 +68,8 @@ namespace Paywall {
         /// <summary>
         /// Set the button's navigation mode to explicit, and set the SelectOnDown object
         /// </summary>
-        public virtual void SetSelectOnDown() {
+        public virtual void SetSelectOnDown()
+        {
             Navigation nav = _thisButton.navigation;
             //nav.mode = Navigation.Mode.Explicit;
             nav.selectOnDown = _activeButton;
@@ -71,18 +80,22 @@ namespace Paywall {
         /// When the upgrade button grid is changed to a different one (upgrade page change), set the new navigation
         /// </summary>
         /// <param name="gameEvent"></param>
-        public virtual void OnMMEvent(MMGameEvent gameEvent) {
-            if (gameEvent.EventName.Equals("MenuChange")) {
+        public virtual void OnMMEvent(MMGameEvent gameEvent)
+        {
+            if (gameEvent.EventName.Equals("MenuChange"))
+            {
                 GetActiveButton();
                 SetSelectOnDown();
             }
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             this.MMEventStartListening<MMGameEvent>();
         }
 
-        protected virtual void OnDisable() {
+        protected virtual void OnDisable()
+        {
             this.MMEventStopListening<MMGameEvent>();
         }
     }

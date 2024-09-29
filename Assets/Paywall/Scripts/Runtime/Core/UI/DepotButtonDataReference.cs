@@ -1,16 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Paywall {
+namespace Paywall
+{
 
     public enum ButtonSelectType { Select, Click }
 
     /// <summary>
     /// Button data reference specifically for depot item buttons (modules and shop options)
     /// </summary>
-    public class DepotButtonDataReference : ButtonDataReference {
+    public class DepotButtonDataReference : ButtonDataReference
+    {
         /// The item SO corresponding to this button
         [field: Tooltip("The item SO corresponding to this button")]
         [field: SerializeField] public BaseScriptableDepotItem DepotItem { get; protected set; }
@@ -23,10 +23,12 @@ namespace Paywall {
         /// </summary>
         /// <param name="item"></param>
         /// <param name="outline"></param>
-        public virtual void SetupButton(BaseScriptableDepotItem item, bool outline) {
+        public virtual void SetupButton(BaseScriptableDepotItem item, bool outline)
+        {
             TextComponent.text = item.Name;
             DepotItem = item;
-            if (item.UISprite != null) {
+            if (item.UISprite != null)
+            {
                 InnerImageComponent.sprite = item.UISprite;
             }
             SetOutline(outline);
@@ -36,7 +38,8 @@ namespace Paywall {
         /// Sets the item corresponding to this button
         /// </summary>
         /// <param name="item"></param>
-        public virtual void SetItem(BaseScriptableDepotItem item) {
+        public virtual void SetItem(BaseScriptableDepotItem item)
+        {
             DepotItem = item;
         }
 
@@ -44,19 +47,22 @@ namespace Paywall {
         /// Sets the outline visibility
         /// </summary>
         /// <param name="on"></param>
-        public virtual void SetOutline(bool on) {
+        public virtual void SetOutline(bool on)
+        {
             OuterImageComponent.enabled = on;
         }
 
         /// <summary>
         /// Assign to OnClick event
         /// </summary>
-        public virtual void OnClick() {
+        public virtual void OnClick()
+        {
             if (DepotItem != null && SelectType == ButtonSelectType.Click)
                 SupplyDepotMenuManager.Instance.SetBuyOption(DepotItem, this);
         }
 
-        public override void OnSelect(BaseEventData eventData) {
+        public override void OnSelect(BaseEventData eventData)
+        {
             base.OnSelect(eventData);
             if (DepotItem != null && SelectType == ButtonSelectType.Select)
                 SupplyDepotMenuManager.Instance.SetBuyOption(DepotItem, this);

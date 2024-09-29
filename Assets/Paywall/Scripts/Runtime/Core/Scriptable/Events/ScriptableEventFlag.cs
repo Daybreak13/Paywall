@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     [System.Serializable]
-    public class EventFlag {
+    public class EventFlag
+    {
         [field: SerializeField] public string ID { get; protected set; }
         [field: SerializeField] public bool Triggered { get; protected set; }
-        public EventFlag(string id, bool triggered) {
+        public EventFlag(string id, bool triggered)
+        {
             ID = id;
             Triggered = triggered;
         }
-        public void SetEventTriggered(bool triggered) {
+        public void SetEventTriggered(bool triggered)
+        {
             Triggered |= triggered;
         }
     }
@@ -21,7 +23,8 @@ namespace Paywall {
     /// Scriptable event flag. Used to initialize list of EventFlag objects in PaywallProgressManager save
     /// </summary>
     [CreateAssetMenu(fileName = "EventFlag", menuName = "Paywall/Progress/EventFlag")]
-    public class ScriptableEventFlag : ScriptableObject {
+    public class ScriptableEventFlag : ScriptableObject
+    {
         /// Name of this event
         [field: Tooltip("Name of this event")]
         [field: SerializeField] public string EventID { get; protected set; }

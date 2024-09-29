@@ -1,17 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     [System.Serializable]
-    public class SegmentListData {
+    public class SegmentListData
+    {
         public GameObject PoolParent;
         public ScriptableSegmentList SegmentList;
     }
 
     [CreateAssetMenu(fileName = "SegmentList", menuName = "Paywall/Procedural/SegmentList")]
-    public class ScriptableSegmentList : ScriptableList<WeightedLevelSegment> {
+    public class ScriptableSegmentList : ScriptableList<WeightedLevelSegment>
+    {
         /// Global initial weight for weighted segments in the list
         [field: Tooltip("Global initial weight for weighted segments in the list")]
         [field: SerializeField] public int GlobalInitialWeight { get; protected set; } = 10;

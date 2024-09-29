@@ -1,13 +1,13 @@
+using MoreMountains.Tools;
+using Paywall.Tools;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.InfiniteRunnerEngine;
-using MoreMountains.Tools;
-using System;
 using UnityEngine.SceneManagement;
-using Paywall.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Death types a player can suffer
@@ -17,7 +17,8 @@ namespace Paywall {
     /// <summary>
     /// Handles distance traveled, level speed, playable character (spawn, etc.), loading levels
     /// </summary>
-    public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW>, MMEventListener<MMGameEvent> {
+    public class LevelManagerIRE_PW : Singleton_PW<LevelManagerIRE_PW>, MMEventListener<MMGameEvent>
+    {
         public enum Controls { SingleButton, LeftRight, Swipe }
 
         #region Property Fields
@@ -43,9 +44,9 @@ namespace Paywall {
 
         [field: SerializeField] public GameObject StartingPosition { get; protected set; }
         /// the list of playable characters - use this to tell what characters you want in your level, don't access that at runtime
-        [field: SerializeField] public List<PlayerCharacterIRE> PlayableCharacters { get; protected set; }
+        [field: SerializeField] public List<PlayableCharacter> PlayableCharacters { get; protected set; }
         /// the list of playable characters currently instantiated in the game - use this to know what characters ARE currently in your level at runtime
-        [field: SerializeField] public List<PlayerCharacterIRE> CurrentPlayableCharacters { get; protected set; }
+        [field: SerializeField] public List<PlayableCharacter> CurrentPlayableCharacters { get; protected set; }
         /// the x distance between each character
         [field: SerializeField] public float DistanceBetweenCharacters { get; protected set; } = 1f;
         /// the elapsed time since the start of the level
@@ -119,7 +120,7 @@ namespace Paywall {
         public float SpeedMultiplier { get; protected set; } = 0.1f;
 
         protected Dictionary<Guid, float> _tempSpeeds = new();
-        
+
         protected DateTime _started;
         protected float _savedPoints;
         protected float _recycleX;
@@ -152,12 +153,14 @@ namespace Paywall {
         /// <summary>
         /// Initialization
         /// </summary>
-        protected virtual void Start() {
+        protected virtual void Start()
+        {
             Speed = CurrentUnmodifiedSpeed = InitialSpeed;
             DistanceTraveled = 0;
 
             InstantiateCharacters();
-            if (ProceduralLevelGenerator.HasInstance) {
+            if (ProceduralLevelGenerator.HasInstance)
+            {
                 ProceduralLevelGenerator.Instance.Initialize();
             }
 
@@ -166,7 +169,8 @@ namespace Paywall {
             _started = DateTime.UtcNow;
             GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.BeforeGameStart);
 
-            if (GUIManagerIRE_PW.Instance != null) {
+            if (GUIManagerIRE_PW.Instance != null)
+            {
                 // set the level name in the GUI
                 GUIManagerIRE_PW.Instance.SetLevelName(SceneManager.GetActiveScene().name);
                 // fade in
@@ -179,13 +183,16 @@ namespace Paywall {
         /// <summary>
         /// Handles everything before the actual start of the game.
         /// </summary>
-        protected virtual void PrepareStart() {
+        protected virtual void PrepareStart()
+        {
             //if we're supposed to show a countdown we schedule it, otherwise we just start the level
-            if (StartCountdown > 0) {
+            if (StartCountdown > 0)
+            {
                 GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.BeforeGameStart);
                 StartCoroutine(PrepareStartCountdown());
             }
-            else {
+            else
+            {
                 LevelStart();
             }
         }
@@ -194,13 +201,16 @@ namespace Paywall {
         /// Handles the initial start countdown display
         /// </summary>
         /// <returns>The start countdown.</returns>
-        protected virtual IEnumerator PrepareStartCountdown() {
+        protected virtual IEnumerator PrepareStartCountdown()
+        {
             int countdown = StartCountdown;
             GUIManagerIRE_PW.Instance.SetCountdownActive(true);
 
             // while the countdown is active, we display the current value, and wait for a second and show the next
-            while (countdown > 0) {
-                if (GUIManagerIRE_PW.Instance.CountdownText != null) {
+            while (countdown > 0)
+            {
+                if (GUIManagerIRE_PW.Instance.CountdownText != null)
+                {
                     GUIManagerIRE_PW.Instance.SetCountdownText(countdown.ToString());
                 }
                 countdown--;
@@ -208,7 +218,8 @@ namespace Paywall {
             }
 
             // when the countdown reaches 0, and if we have a start message, we display it
-            if ((countdown == 0) && (StartText != "")) {
+            if ((countdown == 0) && (StartText != ""))
+            {
                 GUIManagerIRE_PW.Instance.SetCountdownText(StartText);
                 yield return new WaitForSeconds(1f);
             }
@@ -221,7 +232,8 @@ namespace Paywall {
         /// <summary>
         /// Handles the start of the level : starts the autoincrementation of the score, sets the proper status and triggers the corresponding event.
         /// </summary>
-        protected virtual void LevelStart() {
+        protected virtual void LevelStart()
+        {
             GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.GameInProgress);
             MMEventManager.TriggerEvent(new MMGameEvent("GameStart"));
         }
@@ -229,21 +241,25 @@ namespace Paywall {
         /// <summary>
         /// Instantiates all the playable characters and feeds them to the gameManager
         /// </summary>
-        protected virtual void InstantiateCharacters() {
-            CurrentPlayableCharacters = new List<PlayerCharacterIRE>();
+        protected virtual void InstantiateCharacters()
+        {
+            CurrentPlayableCharacters = new List<PlayableCharacter>();
 
-            if (PlayableCharacters == null) {
+            if (PlayableCharacters == null)
+            {
                 return;
             }
 
-            if (PlayableCharacters.Count == 0) {
+            if (PlayableCharacters.Count == 0)
+            {
                 return;
             }
 
             // for each character in the PlayableCharacters list
-            for (int i = 0; i < PlayableCharacters.Count; i++) {
+            for (int i = 0; i < PlayableCharacters.Count; i++)
+            {
                 // we instantiate the corresponding prefab
-                PlayerCharacterIRE instance = (PlayerCharacterIRE)Instantiate(PlayableCharacters[i]);
+                PlayableCharacter instance = (PlayableCharacter)Instantiate(PlayableCharacters[i]);
                 // we position it based on the StartingPosition point
                 instance.transform.position = new Vector3(StartingPosition.transform.position.x + i * DistanceBetweenCharacters, StartingPosition.transform.position.y, StartingPosition.transform.position.z);
                 // we set manually its initial position
@@ -258,8 +274,10 @@ namespace Paywall {
         /// Update points, increment distance traveled, accelerate level speed, handle speed factor
         /// Only execute if game is in progress
         /// </summary>
-        protected virtual void Update() {
-            if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+        protected virtual void Update()
+        {
+            if (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)
+            {
                 return;
             }
 
@@ -269,16 +287,19 @@ namespace Paywall {
             HandleCharacterBlocked();
 
             RunningTime += Time.deltaTime;
-            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive && Speed != 0) {
+            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive && Speed != 0)
+            {
                 CurrentUnmodifiedSpeed = Speed;
             }
         }
 
-        protected virtual void FixedUpdate() {
+        protected virtual void FixedUpdate()
+        {
             HandleTempDist();
 
             DistanceTraveled += (SegmentSpeed + Speed) * SpeedMultiplier * Time.fixedDeltaTime;
-            if (GUIManagerIRE_PW.HasInstance) {
+            if (GUIManagerIRE_PW.HasInstance)
+            {
                 GUIManagerIRE_PW.Instance.RefreshDistance();
             }
         }
@@ -287,25 +308,30 @@ namespace Paywall {
         /// Handle temporary speed mod based on distance
         /// Used by Portal
         /// </summary>
-        protected virtual void HandleTempDist() {
+        protected virtual void HandleTempDist()
+        {
             if (!Teleporting) { return; }
             // Teleport always takes the same number of frames
-            if (_teleportFramesLeft > 0) {
+            if (_teleportFramesLeft > 0)
+            {
                 _teleportFramesLeft--;
                 return;
             }
 
             // No longer teleporting
-            if (_charBlocking) {
+            if (_charBlocking)
+            {
                 _preBlockSpeed -= TeleportSpeed;
             }
-            else {
+            else
+            {
                 Speed -= TeleportSpeed;
             }
             _currentAddedSpeed -= TeleportSpeed;
             _tempActiveCount--;
 
-            if (_tempActiveCount == 0) {
+            if (_tempActiveCount == 0)
+            {
                 _tempSpeedAddedActive = false;
             }
             Teleporting = false;
@@ -314,32 +340,41 @@ namespace Paywall {
         /// <summary>
         /// What to do if the character's simulated movement is blocked (character begins to move in -x direction)
         /// </summary>
-        protected virtual void HandleCharacterBlocked() {
+        protected virtual void HandleCharacterBlocked()
+        {
             // If the character is colliding right, and is left of starting position
-            if (CurrentPlayableCharacters[0].transform.position.x < StartingPosition.transform.position.x && CurrentPlayableCharacters[0].CollidingRight) {
+            if (CurrentPlayableCharacters[0].transform.position.x < StartingPosition.transform.position.x && CurrentPlayableCharacters[0].CollidingRight)
+            {
                 // If char is blocking, decelerate
-                if (_charBlocking) {
-                    if (Speed > BlockedSpeed) {
-                        if (CurrentUnmodifiedSpeed < 60) {
+                if (_charBlocking)
+                {
+                    if (Speed > BlockedSpeed)
+                    {
+                        if (CurrentUnmodifiedSpeed < 60)
+                        {
                             Speed -= BlockedDeceleration * Time.deltaTime;
                         }
-                        else {
+                        else
+                        {
                             Speed -= (BlockedDeceleration + CurrentUnmodifiedSpeed * 0.4f) * Time.deltaTime;
                         }
-                        if (Speed < BlockedSpeed) {
+                        if (Speed < BlockedSpeed)
+                        {
                             Speed = BlockedSpeed;
                         }
                     }
                 }
                 // If we just started blocking
-                else {
+                else
+                {
                     _charBlocking = true;
                     _preBlockSpeed = Speed;
                     _lastBlockTime = Time.time;
                 }
             }
             // If we were just blocking but aren't anymore
-            else if (_charBlocking && !CurrentPlayableCharacters[0].CollidingRight && (Time.time - _lastBlockTime > 0.1f)) {
+            else if (_charBlocking && !CurrentPlayableCharacters[0].CollidingRight && (Time.time - _lastBlockTime > 0.1f))
+            {
                 _charBlocking = false;
                 Speed = _preBlockSpeed;
             }
@@ -348,7 +383,8 @@ namespace Paywall {
         /// <summary>
         /// Resets the level : repops dead characters, sets everything up for a new game
         /// </summary>
-        public virtual void ResetLevel() {
+        public virtual void ResetLevel()
+        {
             InstantiateCharacters();
             PrepareStart();
         }
@@ -362,17 +398,21 @@ namespace Paywall {
         /// <param name="factor"></param>
         /// <param name="duration"></param>
         /// <param name="retainEnemySpeed"></param>
-        public virtual void TemporarilyAddSpeed(float factor, float duration) {
-            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive) {
+        public virtual void TemporarilyAddSpeed(float factor, float duration)
+        {
+            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive)
+            {
                 CurrentUnmodifiedSpeed = Speed;
             }
 
             _tempSpeedAddedActive = true;
 
-            if (_charBlocking) {
+            if (_charBlocking)
+            {
                 _preBlockSpeed += factor;
             }
-            else {
+            else
+            {
                 Speed += factor;
             }
             _currentAddedSpeed += factor;
@@ -380,20 +420,24 @@ namespace Paywall {
             StartCoroutine(TemporarilyAddSpeedCo(factor, duration));
         }
 
-        protected IEnumerator TemporarilyAddSpeedCo(float factor, float duration) {
+        protected IEnumerator TemporarilyAddSpeedCo(float factor, float duration)
+        {
             _tempActiveCount++;
             yield return new WaitForSeconds(duration);
 
-            if (_charBlocking) {
+            if (_charBlocking)
+            {
                 _preBlockSpeed -= factor;
             }
-            else {
+            else
+            {
                 Speed -= factor;
             }
             _currentAddedSpeed -= factor;
 
             _tempActiveCount--;
-            if (_tempActiveCount == 0) {
+            if (_tempActiveCount == 0)
+            {
                 _tempSpeedAddedActive = false;
             }
         }
@@ -403,17 +447,21 @@ namespace Paywall {
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="distance"></param>
-        public virtual void TemporarilyAddSpeedDist(float factor, float distance) {
-            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive) {
+        public virtual void TemporarilyAddSpeedDist(float factor, float distance)
+        {
+            if (!_tempSpeedAddedActive && !TempSpeedSwitchActive)
+            {
                 CurrentUnmodifiedSpeed = Speed;
             }
 
             _tempSpeedAddedActive = true;
 
-            if (_charBlocking) {
+            if (_charBlocking)
+            {
                 _preBlockSpeed += factor;
             }
-            else {
+            else
+            {
                 Speed += factor;
             }
             _currentAddedSpeed += factor;
@@ -432,36 +480,46 @@ namespace Paywall {
         /// </summary>
         /// <param name="factor"></param>
         /// <param name="guid"></param>
-        public virtual void TemporarilyAddSpeedSwitch(float factor, Guid guid, bool on) {
-            if (on) {
-                if (_tempSpeeds.ContainsKey(guid)) {
+        public virtual void TemporarilyAddSpeedSwitch(float factor, Guid guid, bool on)
+        {
+            if (on)
+            {
+                if (_tempSpeeds.ContainsKey(guid))
+                {
                     return;
                 }
                 _tempSpeeds.Add(guid, factor);
 
-                if (!_tempSpeedAddedActive) {
+                if (!_tempSpeedAddedActive)
+                {
                     CurrentUnmodifiedSpeed = Speed;
                 }
                 _tempSpeedAddedActive = true;
                 _tempActiveCount++;
 
-                if (_charBlocking) {
+                if (_charBlocking)
+                {
                     _preBlockSpeed += factor;
                 }
-                else {
+                else
+                {
                     Speed += factor;
                 }
                 _currentAddedSpeed += factor;
             }
-            else {
-                if (!_tempSpeeds.ContainsKey(guid)) {
+            else
+            {
+                if (!_tempSpeeds.ContainsKey(guid))
+                {
                     return;
                 }
 
-                if (_charBlocking) {
+                if (_charBlocking)
+                {
                     _preBlockSpeed -= factor;
                 }
-                else {
+                else
+                {
                     Speed -= factor;
                 }
                 _currentAddedSpeed -= factor;
@@ -469,7 +527,8 @@ namespace Paywall {
                 _tempSpeeds.Remove(guid);
 
                 _tempActiveCount--;
-                if (_tempActiveCount == 0) {
+                if (_tempActiveCount == 0)
+                {
                     _tempSpeedAddedActive = false;
                 }
             }
@@ -480,9 +539,12 @@ namespace Paywall {
         /// Resets all temp speed modifiers
         /// </summary>
         /// <param name="on"></param>
-        public virtual void SetZeroSpeed(bool on, bool retainEnemySpeed) {
-            if (on) {
-                if (!_tempSpeedAddedActive) {
+        public virtual void SetZeroSpeed(bool on, bool retainEnemySpeed)
+        {
+            if (on)
+            {
+                if (!_tempSpeedAddedActive)
+                {
                     CurrentUnmodifiedSpeed = Speed;
                 }
                 _tempActiveCount = 0;
@@ -491,16 +553,19 @@ namespace Paywall {
                 Speed = 0;
                 _tempSpeedAddedActive = false;
             }
-            else {
+            else
+            {
                 Speed = CurrentUnmodifiedSpeed;
             }
         }
 
         #endregion
 
-        public virtual void KillCharacter(PlayerCharacterIRE player) {
+        public virtual void KillCharacter(PlayableCharacter player)
+        {
             // if we've specified an effect for when a life is lost, we instantiate it at the camera's position
-            if (LifeLostExplosion != null) {
+            if (LifeLostExplosion != null)
+            {
                 GameObject explosion = Instantiate(LifeLostExplosion);
                 explosion.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 0);
             }
@@ -512,12 +577,15 @@ namespace Paywall {
             GameManagerIRE_PW.Instance.LoseLives(1);
 
             /// If no more lives, trigger game over
-            if (GameManagerIRE_PW.Instance.CurrentLives <= 0) {
+            if (GameManagerIRE_PW.Instance.CurrentLives <= 0)
+            {
                 GUIManagerIRE_PW.Instance.SetGameOverScreen(true);
                 GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.GameOver);
                 MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
-            } else {
-                player.GetComponent<PlayerCharacterIRE>().ActivateDamageInvincibility();
+            }
+            else
+            {
+                player.GetComponent<PlayableCharacter>().ActivateDamageInvincibility();
             }
         }
 
@@ -525,9 +593,11 @@ namespace Paywall {
         /// Kills the character if it goes out of bounds
         /// </summary>
         /// <param name="player"></param>
-        public virtual void KillCharacterOutOfBounds(PlayerCharacterIRE player) {
+        public virtual void KillCharacterOutOfBounds(PlayableCharacter player)
+        {
             // if we've specified an effect for when a life is lost, we instantiate it at the camera's position
-            if (LifeLostExplosion != null) {
+            if (LifeLostExplosion != null)
+            {
                 GameObject explosion = Instantiate(LifeLostExplosion);
                 explosion.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 0);
             }
@@ -541,7 +611,8 @@ namespace Paywall {
             player.gameObject.SetActive(false);
             SetZeroSpeed(true, false);
 
-            if (GameManagerIRE_PW.Instance.CurrentLives <= 0) {
+            if (GameManagerIRE_PW.Instance.CurrentLives <= 0)
+            {
                 GUIManagerIRE_PW.Instance.SetGameOverScreen(true);
                 GameManagerIRE_PW.Instance.SetStatus(GameManagerIRE_PW.GameStatus.GameOver);
                 MMEventManager.TriggerEvent(new MMGameEvent("GameOver"));
@@ -551,12 +622,14 @@ namespace Paywall {
         /// <summary>
         /// Triggered when all lives are lost and you press the main action button
         /// </summary>
-        public virtual void GameOverAction() {
+        public virtual void GameOverAction()
+        {
             GameManagerIRE_PW.Instance.UnPause();
             GotoLevel(SceneManager.GetActiveScene().name);
         }
 
-        public virtual void LifeLostAction() {
+        public virtual void LifeLostAction()
+        {
             SetZeroSpeed(false, true);
             Instance.CurrentPlayableCharacters[0].transform.position = StartingPosition.transform.position;
             Instance.CurrentPlayableCharacters[0].ResetCharacter();
@@ -570,19 +643,24 @@ namespace Paywall {
         /// <returns><c>true</c>, if the object has to be recycled, <c>false</c> otherwise.</returns>
         /// <param name="objectBounds">Object bounds.</param>
         /// <param name="destroyDistance">The x distance after which the object will get destroyed.</param>
-        public virtual bool CheckRecycleCondition(Bounds objectBounds, float destroyDistance, OutOfBoundsTypes outOfBoundsType = OutOfBoundsTypes.Recycle) {
-            if (outOfBoundsType == OutOfBoundsTypes.Recycle) {
+        public virtual bool CheckRecycleCondition(Bounds objectBounds, float destroyDistance, OutOfBoundsTypes outOfBoundsType = OutOfBoundsTypes.Recycle)
+        {
+            if (outOfBoundsType == OutOfBoundsTypes.Recycle)
+            {
                 _tmpRecycleBounds = RecycleBounds;
             }
-            else {
+            else
+            {
                 _tmpRecycleBounds = DeathBounds;
             }
             _tmpRecycleBounds.extents += Vector3.one * destroyDistance;
 
-            if (objectBounds.Intersects(_tmpRecycleBounds)) {
+            if (objectBounds.Intersects(_tmpRecycleBounds))
+            {
                 return false;
             }
-            else {
+            else
+            {
                 return true;
             }
         }
@@ -592,11 +670,14 @@ namespace Paywall {
         /// </summary>
         /// <param name="objectBounds"></param>
         /// <returns></returns>
-        public virtual bool CheckDeathCondition(Bounds objectBounds) {
-            if (objectBounds.Intersects(DeathBounds)) {
+        public virtual bool CheckDeathCondition(Bounds objectBounds)
+        {
+            if (objectBounds.Intersects(DeathBounds))
+            {
                 return false;
             }
-            else {
+            else
+            {
                 return true;
             }
         }
@@ -607,9 +688,11 @@ namespace Paywall {
         /// <param name="levelName"></param>
         /// <param name="save"></param>
         /// <param name="convert"></param>
-        public virtual void GotoLevel(string levelName, bool save, bool convert) {
+        public virtual void GotoLevel(string levelName, bool save, bool convert)
+        {
             PaywallLevelEndEvent.Trigger(convert);
-            if (save) {
+            if (save)
+            {
                 MMGameEvent.Trigger("Save");
             }
             GotoLevel(levelName);
@@ -619,7 +702,8 @@ namespace Paywall {
         /// Gets the player to the specified level
         /// </summary>
         /// <param name="levelName">Level name.</param>
-        public virtual void GotoLevel(string levelName) {
+        public virtual void GotoLevel(string levelName)
+        {
             GUIManagerIRE_PW.Instance.FaderOn(true, OutroFadeDuration);
             StartCoroutine(GotoLevelCo(levelName));
         }
@@ -629,16 +713,20 @@ namespace Paywall {
         /// </summary>
         /// <returns>The level co.</returns>
         /// <param name="levelName">Level name.</param>
-        protected virtual IEnumerator GotoLevelCo(string levelName) {
-            if (Time.timeScale > 0.0f) {
+        protected virtual IEnumerator GotoLevelCo(string levelName)
+        {
+            if (Time.timeScale > 0.0f)
+            {
                 yield return new WaitForSeconds(OutroFadeDuration);
             }
             GameManagerIRE_PW.Instance.UnPause();
 
-            if (string.IsNullOrEmpty(levelName)) {
+            if (string.IsNullOrEmpty(levelName))
+            {
                 MMSceneLoadingManager.LoadScene("StartScreen");
             }
-            else {
+            else
+            {
                 MMSceneLoadingManager.LoadScene(levelName);
             }
         }
@@ -647,7 +735,8 @@ namespace Paywall {
         /// Increase current unmodified level speed by given amount
         /// </summary>
         /// <param name="amount"></param>
-        public virtual void IncreaseLevelSpeed(float amount) {
+        public virtual void IncreaseLevelSpeed(float amount)
+        {
             CurrentUnmodifiedSpeed += amount;
             Speed += amount;
         }
@@ -656,24 +745,30 @@ namespace Paywall {
         /// Increment speed and reset temp speed modifiers when leaving depot
         /// Only temp speed increase from supers is retained
         /// </summary>
-        protected virtual void LeaveDepot() {
+        protected virtual void LeaveDepot()
+        {
             StopAllCoroutines();
             _tempSpeedAddedActive = false;
             CurrentUnmodifiedSpeed += SpeedIncrement;
-            if (TempSpeedSwitchActive) {
+            if (TempSpeedSwitchActive)
+            {
                 Speed = CurrentUnmodifiedSpeed + SpeedIncrement + _tempSpeedSwitchFactor;
             }
-            else {
+            else
+            {
                 Speed += SpeedIncrement;
             }
         }
 
-        public virtual void OnMMEvent(MMGameEvent gameEvent) {
-            if (gameEvent.EventName.Equals(_enterSupplyDepotEventName)) {
+        public virtual void OnMMEvent(MMGameEvent gameEvent)
+        {
+            if (gameEvent.EventName.Equals(_enterSupplyDepotEventName))
+            {
                 //GameManagerIRE_PW.Instance.Pause();
             }
             // When leaving supply depot, reset temp speeds (except for those from super)
-            if (gameEvent.EventName.Equals("LeaveDepot")) {
+            if (gameEvent.EventName.Equals("LeaveDepot"))
+            {
                 LeaveDepot();
             }
         }
@@ -681,14 +776,16 @@ namespace Paywall {
         /// <summary>
         /// Override this if needed
         /// </summary>
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             this.MMEventStartListening<MMGameEvent>();
         }
 
         /// <summary>
         /// Override this if needed
         /// </summary>
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<MMGameEvent>();
         }

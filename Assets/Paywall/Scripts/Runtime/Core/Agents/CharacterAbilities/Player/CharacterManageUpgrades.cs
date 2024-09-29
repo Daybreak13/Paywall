@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using MoreMountains.CorgiEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class CharacterManageUpgrades : CharacterAbility {
-        
-        protected virtual void Awake() {
-            
+    public class CharacterManageUpgrades : CharacterAbility
+    {
+
+        protected virtual void Awake()
+        {
+
         }
 
     }

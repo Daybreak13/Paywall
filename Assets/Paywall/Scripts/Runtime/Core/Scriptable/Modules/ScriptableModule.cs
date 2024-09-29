@@ -1,16 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// SO for modules
     /// Contains active and enhanced data, and module name
     /// </summary>
     [CreateAssetMenu(fileName = "BaseModule", menuName = "Paywall/Modules/BaseModule")]
-    public class ScriptableModule : BaseScriptableDepotItem {
+    public class ScriptableModule : BaseScriptableDepotItem
+    {
         [field: Header("Module")]
 
         /// Is this module currently activated
@@ -24,12 +23,14 @@ namespace Paywall {
         [field: TextArea]
         [field: SerializeField] public string EnhancedDescription { get; protected set; }
 
-        public virtual void SetModuleActive(bool active) {
+        public virtual void SetModuleActive(bool active)
+        {
             IsActive = active;
             PaywallModuleEvent.Trigger(this);
         }
 
-        public virtual void SetModuleEnhanced(bool enhanced) {
+        public virtual void SetModuleEnhanced(bool enhanced)
+        {
             IsEnhanced = enhanced;
             PaywallModuleEvent.Trigger(this);
         }

@@ -1,19 +1,20 @@
+using MoreMountains.Tools;
+using Paywall.Tools;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using MoreMountains.Tools;
 using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using Paywall.Tools;
-using System;
+using UnityEngine.UI;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// Class containing one dialogue line and associated data
     [System.Serializable]
-    public class DialogueLine {
+    public class DialogueLine
+    {
         [TextArea]
         public string Line;
         public string CharacterName;
@@ -23,7 +24,8 @@ namespace Paywall {
     /// <summary>
     /// Plays lines of dialogue
     /// </summary>
-    public class DialogueManager : MonoBehaviour, MMEventListener<PaywallDialogueEvent> {
+    public class DialogueManager : MonoBehaviour, MMEventListener<PaywallDialogueEvent>
+    {
         [field: Header("Properties")]
         /// If true, set dialogue canvas to inactive at start
         [field: Tooltip("If true, set dialogue canvas to inactive at start")]
@@ -76,12 +78,15 @@ namespace Paywall {
         protected bool _playingDialogue;
         protected int _maxChars = 100;
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             InputActions = new();
         }
 
-        protected virtual void Start() {
-            if (DisableOnStart) {
+        protected virtual void Start()
+        {
+            if (DisableOnStart)
+            {
                 DialogueCanvasGroup.SetActiveIfNotNull(false);
             }
         }
@@ -89,28 +94,35 @@ namespace Paywall {
         /// <summary>
         /// Advances the dialogue. If the dialogue is not done typing, complete the dialogue. Otherwise, go to the next set of dialogue.
         /// </summary>
-        protected virtual void Advance(InputAction.CallbackContext ctx) {
+        protected virtual void Advance(InputAction.CallbackContext ctx)
+        {
 
 
             // If the current line is done playing, advance to the next line
-            if (_currLineComplete) {
+            if (_currLineComplete)
+            {
                 // If there are no more lines, end the dialogue
-                if (_currentLine >= TextLines.Count) {
+                if (_currentLine >= TextLines.Count)
+                {
                     CloseDialogue();
                 }
                 // Else, play next line
-                else {
+                else
+                {
                     // Wait to play next line
-                    if (!RequireInput && (AdvanceDelay > 0f)) {
+                    if (!RequireInput && (AdvanceDelay > 0f))
+                    {
                         StartCoroutine(WaitToAdvance());
                     }
-                    else {
+                    else
+                    {
                         _typingCoroutine = StartCoroutine(TypeCharacters());
                     }
                 }
             }
             // If advancing when current line is not complete, reveal the rest of the dialogue line immediately
-            else {
+            else
+            {
                 StopAllCoroutines();
                 DialogueText.maxVisibleCharacters = 99999;
                 _currentLine++;
@@ -123,12 +135,14 @@ namespace Paywall {
         /// Only if input is not required (auto advance)
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator WaitToAdvance() {
+        protected virtual IEnumerator WaitToAdvance()
+        {
             yield return new WaitForSeconds(AdvanceDelay);
             _typingCoroutine = StartCoroutine(TypeCharacters());
         }
 
-        protected virtual void Skip() {
+        protected virtual void Skip()
+        {
 
         }
 
@@ -136,14 +150,17 @@ namespace Paywall {
         /// Clears current dialogue and plays given list of dialogue lines in order
         /// </summary>
         /// <param name="lines"></param>
-        public virtual void OpenDialogue(List<DialogueLine> lines) {
-            if (_playingDialogue) {
+        public virtual void OpenDialogue(List<DialogueLine> lines)
+        {
+            if (_playingDialogue)
+            {
                 StopAllCoroutines();
             }
             _playingDialogue = true;
             _currentLine = 0;
             TextLines = lines;
-            if (RequireInput) {
+            if (RequireInput)
+            {
                 EventSystem.current.sendNavigationEvents = true;
                 InputActions.Enable();
                 InputActions.UI.Submit.started += Advance;
@@ -157,8 +174,10 @@ namespace Paywall {
         /// Add dialogue lines to the queue of lines to display
         /// </summary>
         /// <param name="lines"></param>
-        public virtual void AddDialogue(List<DialogueLine> lines) {
-            foreach (DialogueLine line in lines) {
+        public virtual void AddDialogue(List<DialogueLine> lines)
+        {
+            foreach (DialogueLine line in lines)
+            {
                 TextLines.Add(line);
             }
         }
@@ -167,12 +186,14 @@ namespace Paywall {
         /// Stops all current dialogue and disables the dialogue canvas
         /// Also called once dialogue is over
         /// </summary>
-        public virtual void CloseDialogue() {
+        public virtual void CloseDialogue()
+        {
             _playingDialogue = false;
             TextLines.Clear();
             StopAllCoroutines();
             DialogueCanvasGroup.SetActiveIfNotNull(false);
-            if (RequireInput) {
+            if (RequireInput)
+            {
                 InputActions.Disable();
                 InputActions.UI.Submit.started -= Advance;
                 InputActions.UI.Click.performed -= Advance;
@@ -184,12 +205,15 @@ namespace Paywall {
         /// Types out a given dialogue line
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator TypeCharacters() {
+        protected virtual IEnumerator TypeCharacters()
+        {
             _currLineComplete = false;
-            if (TextSpeed <= 0) {
+            if (TextSpeed <= 0)
+            {
                 TextSpeed = 30f;
             }
-            if ((TextLines[_currentLine].CharacterName != null) && (NameDisplay != null)) {
+            if ((TextLines[_currentLine].CharacterName != null) && (NameDisplay != null))
+            {
                 NameDisplay.text = TextLines[_currentLine].CharacterName;
             }
             DialogueText.text = TextLines[_currentLine].Line;
@@ -197,7 +221,8 @@ namespace Paywall {
             int totalVisibleCharacters = DialogueText.text.Length;
             int counter = 0;
             // Uses tmp.maxVisibleCharacters to reveal the text (typing effect) one char at a time
-            while (counter <= totalVisibleCharacters) {
+            while (counter <= totalVisibleCharacters)
+            {
                 DialogueText.maxVisibleCharacters = counter;
                 counter += 1;
                 yield return new WaitForSecondsRealtime(1f / TextSpeed);
@@ -210,20 +235,25 @@ namespace Paywall {
         /// Reorganizes the list of dialogue lines to be played. Splits lines that are too long into separate lines.
         /// </summary>
         /// <param name="lines"></param>
-        protected virtual void SplitLines(List<DialogueLine> lines) {
+        protected virtual void SplitLines(List<DialogueLine> lines)
+        {
             List<DialogueLine> newLines = new();
-            foreach (DialogueLine line in lines) {
-                if (line.Line.Length > _maxChars) {
+            foreach (DialogueLine line in lines)
+            {
+                if (line.Line.Length > _maxChars)
+                {
                     string remainingLine = line.Line;
                     string newLine;
 
                     // Split the line until it doesn't exceed max chars
-                    while (remainingLine.Length > _maxChars) {
+                    while (remainingLine.Length > _maxChars)
+                    {
                         int idx = 0;
                         int spaceIndex = 0;
 
                         // Find the index of the nearest SPC character
-                        while (idx < _maxChars) {
+                        while (idx < _maxChars)
+                        {
                             spaceIndex = line.Line.IndexOf(' ', idx);
                             idx = spaceIndex + 1;
                         }
@@ -238,24 +268,30 @@ namespace Paywall {
                     }
 
                 }
-                else {
+                else
+                {
                     newLines.Add(line);
                 }
             }
             TextLines = newLines;
         }
 
-        public virtual void OnMMEvent(PaywallDialogueEvent dialogueEvent) {
-            if (dialogueEvent.DialogueEventType == DialogueEventTypes.Open) {
+        public virtual void OnMMEvent(PaywallDialogueEvent dialogueEvent)
+        {
+            if (dialogueEvent.DialogueEventType == DialogueEventTypes.Open)
+            {
                 OpenDialogue(dialogueEvent.DialogueLines);
-            } 
-            if (dialogueEvent.DialogueEventType == DialogueEventTypes.ForceClose) {
+            }
+            if (dialogueEvent.DialogueEventType == DialogueEventTypes.ForceClose)
+            {
                 CloseDialogue();
             }
         }
 
-        protected virtual void OnEnable() {
-            if (RequireInput) {
+        protected virtual void OnEnable()
+        {
+            if (RequireInput)
+            {
                 InputActions.Enable();
                 InputActions.UI.Submit.started += Advance;
                 InputActions.UI.Click.performed += Advance;
@@ -263,8 +299,10 @@ namespace Paywall {
             this.MMEventStartListening<PaywallDialogueEvent>();
         }
 
-        protected virtual void OnDisable() {
-            if (RequireInput) {
+        protected virtual void OnDisable()
+        {
+            if (RequireInput)
+            {
                 InputActions.Disable();
                 InputActions.UI.Submit.started -= Advance;
                 InputActions.UI.Click.performed -= Advance;

@@ -1,14 +1,15 @@
+using MoreMountains.CorgiEngine;
+using MoreMountains.Tools;
+using Paywall.Tools;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using MoreMountains.CorgiEngine;
-using Paywall.Tools;
-using MoreMountains.Tools;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class CharacterHandleWeaponStandalone : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent>, MMEventListener<PaywallModuleEvent> {
+    public class CharacterHandleWeaponStandalone : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent>, MMEventListener<PaywallModuleEvent>
+    {
         [field: Header("Weapon Components")]
 
         /// The projectile weapon prefab
@@ -61,43 +62,57 @@ namespace Paywall {
         protected int _ammoLastFrame;
         protected int _magSizeLastFrame;
 
-        protected override void Initialization() {
+        protected override void Initialization()
+        {
             base.Initialization();
             Setup();
             CurrentWeapon.SetOwner(Character, this);
-            if (CurrentWeapon.MagazineBased) {
+            if (CurrentWeapon.MagazineBased)
+            {
                 _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
                 _magSizeLastFrame = CurrentWeapon.MagazineSize;
-                if (GUIManagerIRE_PW.HasInstance) {
+                if (GUIManagerIRE_PW.HasInstance)
+                {
                     GUIManagerIRE_PW.Instance.UpdateAmmoBar(CurrentWeapon.CurrentAmmoLoaded, 0, CurrentWeapon.MagazineSize);
                 }
             }
         }
 
-        protected virtual void Setup() {
-            if (AttachWeapon) {
-                if (WeaponAttachment == null) {
+        protected virtual void Setup()
+        {
+            if (AttachWeapon)
+            {
+                if (WeaponAttachment == null)
+                {
                     WeaponAttachment = transform;
                 }
             }
-            if (InstantiateNewWeapon) {
+            if (InstantiateNewWeapon)
+            {
 
-            } else {
+            }
+            else
+            {
                 CurrentWeapon = WeaponComponent;
             }
         }
 
-        protected override void HandleInput() {
+        protected override void HandleInput()
+        {
             base.HandleInput();
-            if (InputActions.PlayerControls.Attack.WasPerformedThisFrame()) {
+            if (InputActions.PlayerControls.Attack.WasPerformedThisFrame())
+            {
                 _sameFrame = true;
                 AttackStart();
             }
-            if (InputActions.PlayerControls.Attack.WasReleasedThisFrame()) {
-                if (_sameFrame) {
+            if (InputActions.PlayerControls.Attack.WasReleasedThisFrame())
+            {
+                if (_sameFrame)
+                {
                     StartCoroutine(WaitNextFrameToStopAttack());
                 }
-                else {
+                else
+                {
                     StopAttack();
                 }
             }
@@ -107,28 +122,34 @@ namespace Paywall {
         /// <summary>
         /// Every frame, check for inputs and stop or use the weapon depending
         /// </summary>
-        public override void ProcessAbility() {
+        public override void ProcessAbility()
+        {
             base.ProcessAbility();
             UpdateAmmoDisplay();
             HandleBuffer();
         }
 
-        protected virtual void LateUpdate() {
+        protected virtual void LateUpdate()
+        {
             HandleAirStall();
         }
 
         /// <summary>
 		/// Triggers an attack if the weapon is idle and an input has been buffered
 		/// </summary>
-		protected virtual void HandleBuffer() {
-            if (CurrentWeapon == null) {
+		protected virtual void HandleBuffer()
+        {
+            if (CurrentWeapon == null)
+            {
                 return;
             }
 
             // if we are currently buffering an input and if the weapon is now idle
-            if (_buffering && (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponIdle)) {
+            if (_buffering && (CurrentWeapon.WeaponState.CurrentState == Weapon.WeaponStates.WeaponIdle))
+            {
                 // and if our buffer is still valid, we trigger an attack
-                if (Time.time < _bufferEndsAt) {
+                if (Time.time < _bufferEndsAt)
+                {
                     AttackStart();
                 }
                 _buffering = false;
@@ -142,7 +163,8 @@ namespace Paywall {
         /// Use if using callbacks
         /// </summary>
         /// <param name="context"></param>
-        protected virtual void AttackPerformed(InputAction.CallbackContext context) {
+        protected virtual void AttackPerformed(InputAction.CallbackContext context)
+        {
             AttackStart();
         }
 
@@ -151,7 +173,8 @@ namespace Paywall {
         /// Use if using callbacks
         /// </summary>
         /// <param name="context"></param>
-        protected virtual void AttackStopped(InputAction.CallbackContext context) {
+        protected virtual void AttackStopped(InputAction.CallbackContext context)
+        {
 
         }
 
@@ -161,7 +184,8 @@ namespace Paywall {
         /// Wait one frame to stop attack
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator WaitNextFrameToStopAttack() {
+        protected virtual IEnumerator WaitNextFrameToStopAttack()
+        {
             yield return new WaitForEndOfFrame();
             StopAttack();
         }
@@ -169,18 +193,23 @@ namespace Paywall {
         /// <summary>
         /// Stops the weapon firing
         /// </summary>
-        protected virtual void StopAttack() {
+        protected virtual void StopAttack()
+        {
             WeaponComponent.StopWeapon();
         }
 
-        protected virtual void AttackStart() {
-            if (!AbilityAuthorized || WeaponComponent == null) {
+        protected virtual void AttackStart()
+        {
+            if (!AbilityAuthorized || WeaponComponent == null)
+            {
                 return;
             }
             //  if we've decided to buffer input, and if the weapon is in use right now
-            if (BufferInput && (CurrentWeapon.WeaponState.CurrentState != Weapon.WeaponStates.WeaponIdle)) {
+            if (BufferInput && (CurrentWeapon.WeaponState.CurrentState != Weapon.WeaponStates.WeaponIdle))
+            {
                 // if we're not already buffering, or if each new input extends the buffer, we turn our buffering state to true
-                if (!_buffering || NewInputExtendsBuffer) {
+                if (!_buffering || NewInputExtendsBuffer)
+                {
                     _buffering = true;
                     _bufferEndsAt = Time.time + MaximumBufferDuration;
                 }
@@ -193,8 +222,10 @@ namespace Paywall {
         /// Set magazine size of current weapon
         /// </summary>
         /// <param name="size"></param>
-        public virtual void SetCurrentWeaponMagSize(int size) {
-            if (!CurrentWeapon.MagazineBased) {
+        public virtual void SetCurrentWeaponMagSize(int size)
+        {
+            if (!CurrentWeapon.MagazineBased)
+            {
                 return;
             }
             CurrentWeapon.SetMagazineSize(size);
@@ -204,10 +235,13 @@ namespace Paywall {
         /// <summary>
         /// Updates the GUI ammo display during Update() cycle
         /// </summary>
-        protected virtual void UpdateAmmoDisplay() {
-            if ((GUIManagerIRE_PW.HasInstance) && (Character != null)) {
+        protected virtual void UpdateAmmoDisplay()
+        {
+            if ((GUIManagerIRE_PW.HasInstance) && (Character != null))
+            {
                 // If nothing has changed, do nothing
-                if ((_ammoLastFrame == CurrentWeapon.CurrentAmmoLoaded) && (_magSizeLastFrame == CurrentWeapon.MagazineSize)) {
+                if ((_ammoLastFrame == CurrentWeapon.CurrentAmmoLoaded) && (_magSizeLastFrame == CurrentWeapon.MagazineSize))
+                {
                     return;
                 }
                 _ammoLastFrame = CurrentWeapon.CurrentAmmoLoaded;
@@ -219,8 +253,10 @@ namespace Paywall {
         /// <summary>
         /// Determines if we need to stop air stalling (y velocity changed)
         /// </summary>
-        protected virtual void HandleAirStall() {
-            if ((_rigidbody2D.velocity.y > 0) && (_airStallCoroutine != null)) {
+        protected virtual void HandleAirStall()
+        {
+            if ((_rigidbody2D.velocity.y > 0) && (_airStallCoroutine != null))
+            {
                 StopCoroutine(_airStallCoroutine);
                 _rigidbody2D.gravityScale = _initialGravityScale;
             }
@@ -230,9 +266,12 @@ namespace Paywall {
         /// Stalls the player in the air
         /// </summary>
         /// <param name="stallTime"></param>
-        public virtual void AirStall(float stallTime) {
-            if (_rigidbody2D.velocity.y <= 0) {
-                if (_airStallCoroutine != null) {
+        public virtual void AirStall(float stallTime)
+        {
+            if (_rigidbody2D.velocity.y <= 0)
+            {
+                if (_airStallCoroutine != null)
+                {
                     StopCoroutine(_airStallCoroutine);
                 }
                 _airStallCoroutine = StartCoroutine(AirStallCo(stallTime));
@@ -244,17 +283,20 @@ namespace Paywall {
         /// </summary>
         /// <param name="stallTime"></param>
         /// <returns></returns>
-        protected virtual IEnumerator AirStallCo(float stallTime) {
+        protected virtual IEnumerator AirStallCo(float stallTime)
+        {
             _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0f);
             _rigidbody2D.gravityScale = 0;
             yield return new WaitForSeconds(stallTime);
-            if (Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding) {
+            if (Character.MovementState.CurrentState != CharacterStates_PW.MovementStates.RailRiding)
+            {
                 _rigidbody2D.gravityScale = _initialGravityScale;
             }
             _airStallCoroutine = null;
         }
 
-        public override void ResetAbility() {
+        public override void ResetAbility()
+        {
             CurrentWeapon.SetCurrentAmmo(CurrentWeapon.MagazineSize);
         }
 
@@ -262,27 +304,34 @@ namespace Paywall {
         /// When an ammo fragment is picked up, increase fragment count
         /// </summary>
         /// <param name="itemPickEvent"></param>
-        public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
-            if ((itemPickEvent.PickedPowerUpType == PowerUpTypes.Ammo) && Character.CompareTag("Player")) {
+        public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent)
+        {
+            if ((itemPickEvent.PickedPowerUpType == PowerUpTypes.Ammo) && Character.CompareTag("Player"))
+            {
 
             }
         }
 
-        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent) {
+        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent)
+        {
             if (SpeedLoader == null) return;
-            if (moduleEvent.Module.Name.Equals(SpeedLoader.Name)) {
-                if (moduleEvent.Module.IsActive) {
+            if (moduleEvent.Module.Name.Equals(SpeedLoader.Name))
+            {
+                if (moduleEvent.Module.IsActive)
+                {
                     CurrentWeapon.SetReloadTime(CurrentWeapon.ReloadTime + SpeedLoader.ReloadTimeReduction);
                     CurrentWeapon.SetReloadDelay(CurrentWeapon.ReloadDelay + SpeedLoader.ReloadDelayReduction);
                 }
-                else {
+                else
+                {
                     CurrentWeapon.SetReloadTime(CurrentWeapon.ReloadTime - SpeedLoader.ReloadTimeReduction);
                     CurrentWeapon.SetReloadDelay(CurrentWeapon.ReloadDelay - SpeedLoader.ReloadDelayReduction);
                 }
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             this.MMEventStartListening<RunnerItemPickEvent>();
             this.MMEventStartListening<PaywallModuleEvent>();
@@ -290,7 +339,8 @@ namespace Paywall {
             //InputSystemManager_PW.InputActions.PlayerControls.Attack.canceled += AttackStopped;
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<RunnerItemPickEvent>();
             this.MMEventStopListening<PaywallModuleEvent>();

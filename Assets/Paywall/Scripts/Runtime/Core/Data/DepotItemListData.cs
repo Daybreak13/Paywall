@@ -1,12 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     [Serializable]
-    public class DepotItemListData {
+    public class DepotItemListData
+    {
         /// Name to display on the button for this option
         [field: Tooltip("Name to display on the button for this option")]
         [field: SerializeField] public string ID { get; set; }
@@ -17,7 +17,8 @@ namespace Paywall {
         [field: NonSerialized]
         public DepotItemList ItemList { get; set; }
 
-        public DepotItemListData(string id, bool active, DepotItemList itemList) {
+        public DepotItemListData(string id, bool active, DepotItemList itemList)
+        {
             ID = id;
             Active = active;
             ItemList = itemList;

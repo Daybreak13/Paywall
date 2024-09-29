@@ -1,16 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Paywall.Interfaces;
 using Paywall.Tools;
-using System;
+using UnityEngine;
 using Zenject;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Add to Rigidbody2D to move it every FixedUpdate
     /// </summary>
-    public class MovingRigidbody : MonoBehaviour {
+    public class MovingRigidbody : MonoBehaviour
+    {
         [field: Header("Settings")]
 
         /// Speed modifier / denominator applied to LevelSpeed
@@ -63,22 +63,26 @@ namespace Paywall {
         protected float _speedMult = 10f;
 
         // Dependency injections
-        protected ISpeedManager _speedManager;
+        protected ILevelSpeedManager _speedManager;
+        protected ILevelBoundsManager _boundsManager;
 
         /// <summary>
         /// Dependency injection constructor
         /// </summary>
         /// <param name="levelSpeedManager"></param>
         [Inject]
-        public void Construct(ISpeedManager speedManager) {
+        public void Construct(ILevelSpeedManager speedManager, ILevelBoundsManager boundsManager)
+        {
             _speedManager = speedManager;
+            _boundsManager = boundsManager;
         }
 
         /// <summary>
         /// Applies knockback force to this object
         /// </summary>
         /// <param name="force"></param>
-        public virtual void ApplyKnockback(Vector2 force) {
+        public virtual void ApplyKnockback(Vector2 force)
+        {
             // Determine knockback velocity. The higher the rigidbody's knockback mod, the less knockback it takes
             _knockbackForce = force * Mathf.Pow(0.9f, KnockbackModifier - 1f);
             _levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
@@ -93,7 +97,8 @@ namespace Paywall {
         /// Add force to rigidbody to perform a jump of a given height
         /// </summary>
         /// <param name="height"></param>
-        public virtual void PerformJump(float height) {
+        public virtual void PerformJump(float height)
+        {
             float force = Mathf.Sqrt(height * -2 * (Physics2D.gravity.y * _initialGravityScale)) * _rigidbody2D.mass;
             _rigidbody2D.AddForce(Vector2.up * force, ForceMode2D.Impulse);
         }
@@ -101,11 +106,13 @@ namespace Paywall {
         /// <summary>
         /// Get rigidbody and speed, block movement
         /// </summary>
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _initialSpeed = _currentSpeed = SpeedModifier;
             _initialGravityScale = _rigidbody2D.gravityScale;
-            if (BlockMovementUntil) {
+            if (BlockMovementUntil)
+            {
                 _movementBlockedUntil = true;
             }
         }
@@ -113,11 +120,14 @@ namespace Paywall {
         /// <summary>
         /// Get spawn barrier, set speed
         /// </summary>
-        protected virtual void Start() {
-            if (LevelManagerIRE_PW.HasInstance) {
+        protected virtual void Start()
+        {
+            if (LevelManagerIRE_PW.HasInstance)
+            {
                 _moveBarrier = LevelManagerIRE_PW.Instance.MoveBarrier;
                 // If the object is a level segment, use the global speed
-                if (gameObject.CompareTag("LevelSegment")) {
+                if (gameObject.CompareTag("LevelSegment"))
+                {
                     SpeedModifier = LevelManagerIRE_PW.Instance.SegmentSpeed;
                 }
                 _speedMult = LevelManagerIRE_PW.Instance.SpeedMultiplier;
@@ -127,35 +137,42 @@ namespace Paywall {
         /// <summary>
         /// Determine if we are allowed to move, then move
         /// </summary>
-        protected virtual void FixedUpdate() {
+        protected virtual void FixedUpdate()
+        {
             RigidbodyMove();
         }
 
         /// <summary>
         /// If the rigidbody has been knocked back, return it to its original velocity over time
         /// </summary>
-        protected virtual void HandleKnockback() {
+        protected virtual void HandleKnockback()
+        {
             // Speed cap is level speed
             _levelSpeed = (LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
 
             Vector2 newVelocity;
             // If we are currently getting knocked back, deccelerate the knockback velocity until it reaches 0
-            if (_knockbackForce.x > 0) {
+            if (_knockbackForce.x > 0)
+            {
                 _knockbackForce.x += _knockbackDecceleration * Time.fixedDeltaTime * Direction.x;
-                if (_knockbackForce.x <= 0) {
+                if (_knockbackForce.x <= 0)
+                {
                     _knockbackForce.x = 0;
                     _stallTime = 0;
                 }
                 newVelocity = new(_knockbackForce.x + _levelSpeed.x, _rigidbody2D.velocity.y);
             }
-            else {
+            else
+            {
                 _stallTime += Time.fixedDeltaTime;
                 // If we are no longer stalling, accelerate back to MovingRigidbody.Speed
-                if (_stallTime >= _maxStallTime) {
+                if (_stallTime >= _maxStallTime)
+                {
                     _snapBackVelocity += _snapBackAcceleration * Time.fixedDeltaTime * Direction.x;
                 }
                 // If we are stalling, set speed to the level speed so relative motion is 0
-                else {
+                else
+                {
                     _snapBackVelocity = 0;
                 }
                 newVelocity = new(_snapBackVelocity + _levelSpeed.x, _rigidbody2D.velocity.y);
@@ -165,7 +182,8 @@ namespace Paywall {
 
             float targetSpeed = _levelSpeed.x - SpeedModifier * LevelManagerIRE_PW.Instance.SpeedMultiplier;
             // If the velocity exceeds or equals original velocity, stop acceleration
-            if (_rigidbody2D.velocity.x <= targetSpeed) {
+            if (_rigidbody2D.velocity.x <= targetSpeed)
+            {
                 _knockbackApplied = false;
                 _rigidbody2D.velocity = new(targetSpeed, _rigidbody2D.velocity.y);
             }
@@ -175,19 +193,24 @@ namespace Paywall {
         /// Moves this rigidbody at a constant speed based on the Speed parameter and the LevelManager's speed
         /// If it is an enemy, continue moving at relative speed if EnemySpeed is enabled
         /// </summary>
-        protected virtual void RigidbodyMove() {
+        protected virtual void RigidbodyMove()
+        {
             // If knockback is applied, HandleKnockback controls the velocity instead of this function
-            if (_knockbackApplied) {
+            if (_knockbackApplied)
+            {
                 HandleKnockback();
                 return;
             }
 
             // If we block until passing the move barrier, set speed to 0
-            if (BlockMovementUntil && _movementBlockedUntil) {
-                if ((_moveBarrier != null) && (transform.position.x > _moveBarrier.position.x)) {
+            if (BlockMovementUntil && _movementBlockedUntil)
+            {
+                if ((_moveBarrier != null) && (transform.position.x > _moveBarrier.position.x))
+                {
                     SpeedModifier = 0;
                 }
-                else {
+                else
+                {
                     SpeedModifier = _initialSpeed;
                     _movementBlockedUntil = false;
                 }
@@ -200,18 +223,22 @@ namespace Paywall {
         /// Get the movement velocity to set the rigidbody to
         /// </summary>
         /// <returns></returns>
-        protected virtual Vector2 GetMovement() {
+        protected virtual Vector2 GetMovement()
+        {
             Vector2 movement;
             // If the game is paused and we're an enemy, move at our speed without segment speed
-            if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress)) {
+            if (UseEnemySpeed && (GameManagerIRE_PW.Instance.Status != GameManagerIRE_PW.GameStatus.GameInProgress))
+            {
                 movement = SpeedModifier * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             // If the game is not paused and we're an enemy, our speed is the segment speed + our speed
-            else if (UseEnemySpeed) {
+            else if (UseEnemySpeed)
+            {
                 movement = (SpeedModifier + LevelManagerIRE_PW.Instance.SegmentSpeed + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             // If we're not an enemy, just add the speeds normally
-            else {
+            else
+            {
                 movement = (SpeedModifier + LevelManagerIRE_PW.Instance.Speed) * LevelManagerIRE_PW.Instance.SpeedMultiplier * Direction;
             }
             return movement;
@@ -220,8 +247,10 @@ namespace Paywall {
         /// <summary>
         /// Reset movement and block if necessary on disable
         /// </summary>
-        protected virtual void OnDisable() {
-            if (BlockMovementUntil) {
+        protected virtual void OnDisable()
+        {
+            if (BlockMovementUntil)
+            {
                 _movementBlockedUntil = true;
             }
             _rigidbody2D.velocity = Vector2.zero;

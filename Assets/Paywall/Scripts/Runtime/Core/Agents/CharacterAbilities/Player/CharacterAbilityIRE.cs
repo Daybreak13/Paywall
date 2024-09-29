@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.Tools;
-using UnityEngine.InputSystem;
-using MoreMountains.InfiniteRunnerEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class CharacterAbilityIRE : MonoBehaviour {
+    public class CharacterAbilityIRE : MonoBehaviour
+    {
         /// Is the ability enabled
         [field: Tooltip("Is the ability enabled")]
         [field: SerializeField] public bool AbilityPermitted { get; protected set; } = true;
@@ -27,13 +24,17 @@ namespace Paywall {
         /// </summary>
         public bool AbilityAuthorized {
             get {
-                if (Character != null) {
-                    if (Character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal) {
+                if (Character != null)
+                {
+                    if (Character.ConditionState.CurrentState != CharacterStates_PW.ConditionStates.Normal)
+                    {
                         return false;
                     }
                 }
-                if (GameManagerIRE_PW.HasInstance) {
-                    if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress) {
+                if (GameManagerIRE_PW.HasInstance)
+                {
+                    if ((GameManagerIRE_PW.Instance as GameManagerIRE_PW).Status != GameManagerIRE_PW.GameStatus.GameInProgress)
+                    {
                         return false;
                     }
                 }
@@ -42,16 +43,20 @@ namespace Paywall {
 
         }
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             Initialization();
         }
 
-        protected virtual void Initialization() {
+        protected virtual void Initialization()
+        {
             if (_initialized) return;
-            if (Character == null) {
+            if (Character == null)
+            {
                 Character = GetComponentInParent<CharacterIRE>();
             }
-            if (Character != null) {
+            if (Character != null)
+            {
                 _animator = Character.CharacterAnimator;
                 _rigidbody2D = Character.CharacterRigidBody;
                 _boxCollider = Character.CharacterBoxCollider;
@@ -61,7 +66,8 @@ namespace Paywall {
             InputActions = new();
         }
 
-        public virtual void SetCharacter(CharacterIRE character) {
+        public virtual void SetCharacter(CharacterIRE character)
+        {
             Character = character;
         }
 
@@ -69,12 +75,15 @@ namespace Paywall {
         /// Sets the ability permission to on or off
         /// </summary>
         /// <param name="permit"></param>
-        public virtual void PermitAbility(bool permit) {
+        public virtual void PermitAbility(bool permit)
+        {
             AbilityPermitted = permit;
         }
 
-        protected virtual void InternalHandleInput() {
-            if (Character.CharacterType == CharacterTypes.AI) {
+        protected virtual void InternalHandleInput()
+        {
+            if (Character.CharacterType == CharacterTypes.AI)
+            {
                 return;
             }
             HandleInput();
@@ -83,56 +92,65 @@ namespace Paywall {
         /// <summary>
         /// Handles user input. To be overridden.
         /// </summary>
-        protected virtual void HandleInput() {
+        protected virtual void HandleInput()
+        {
 
         }
 
         /// <summary>
         /// Early update. To be overridden
         /// </summary>
-        public virtual void EarlyProcessAbility() {
+        public virtual void EarlyProcessAbility()
+        {
             InternalHandleInput();
         }
 
         /// <summary>
         /// Update. To be overridden.
         /// </summary>
-        public virtual void ProcessAbility() {
+        public virtual void ProcessAbility()
+        {
 
         }
 
         /// <summary>
         /// Late update. To be overridden
         /// </summary>
-        public virtual void LateProcessAbility() {
+        public virtual void LateProcessAbility()
+        {
 
         }
 
         /// <summary>
         /// Update animator every frame
         /// </summary>
-        public virtual void UpdateAnimator() {
+        public virtual void UpdateAnimator()
+        {
 
         }
 
         /// <summary>
         /// Resets abilities. Usually called on player out of bounds death.
         /// </summary>
-        public virtual void ResetAbility() {
+        public virtual void ResetAbility()
+        {
 
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             Initialization();
             InputActions.Enable();
         }
 
-        protected virtual void OnDisable() {
+        protected virtual void OnDisable()
+        {
             StopAllCoroutines();
             InputActions.Disable();
         }
 
-        protected virtual void OnDestroy() {
+        protected virtual void OnDestroy()
+        {
             StopAllCoroutines();
         }
 

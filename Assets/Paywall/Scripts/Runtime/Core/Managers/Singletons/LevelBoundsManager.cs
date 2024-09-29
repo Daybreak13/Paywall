@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
+using Paywall.Interfaces;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class LevelBoundsManager : MonoBehaviour {
-        // Start is called before the first frame update
-        void Start() {
-
-        }
-
-        // Update is called once per frame
-        void Update() {
-
-        }
+    public class LevelBoundsManager : MonoBehaviour, ILevelBoundsManager
+    {
+        /// <inheritdoc />
+        [field: Tooltip("")]
+        [field: SerializeField] public Bounds RecycleBounds { get; private set; }
+        /// <inheritdoc />
+        [field: Tooltip("")]
+        [field: SerializeField] public Bounds DeathBounds { get; private set; }
+        /// <inheritdoc />
+        [field: Tooltip("")]
+        [field: SerializeField] public Transform MoveBarrier { get; private set; }
     }
 }

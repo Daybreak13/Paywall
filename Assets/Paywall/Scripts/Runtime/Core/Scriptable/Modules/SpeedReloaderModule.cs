@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Module that increases reload speed
     /// </summary>
     [CreateAssetMenu(fileName = "SpeedReloaderModule", menuName = "Paywall/Modules/SpeedReloaderModule")]
-    public class SpeedReloaderModule : ScriptableModule {
+    public class SpeedReloaderModule : ScriptableModule
+    {
         /// Reduction in reload time (increase rate)
         [field: Tooltip("Reduction in reload time (increase rate)")]
         [field: SerializeField] public float ReloadTimeReduction { get; protected set; }

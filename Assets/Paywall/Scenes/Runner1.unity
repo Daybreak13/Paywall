@@ -1590,6 +1590,53 @@ MonoBehaviour:
     type: 3}
   <PoolSize>k__BackingField: 40
   <PoolCanExpand>k__BackingField: 1
+--- !u!1 &660586575
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 660586576}
+  - component: {fileID: 660586577}
+  m_Layer: 0
+  m_Name: PlayerSpawnManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &660586576
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660586575}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1086445027}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &660586577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660586575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1817d9c05ac7a87419a5468fb1d9a6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <StartingPosition>k__BackingField: {fileID: 0}
+  <PlayableCharacter>k__BackingField: {fileID: 0}
+  <CurrentPlayerCharacter>k__BackingField: {fileID: 0}
 --- !u!1 &810470075
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,7 +2295,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1086445027}
   m_Layer: 0
-  m_Name: Z Managers
+  m_Name: Zenject Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2267,6 +2314,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1626584811}
+  - {fileID: 660586576}
+  - {fileID: 1478163287}
   m_Father: {fileID: 0}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2854,6 +2903,57 @@ Transform:
   m_Father: {fileID: 1213809061}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1478163286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1478163287}
+  - component: {fileID: 1478163288}
+  m_Layer: 0
+  m_Name: LevelBoundsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1478163287
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478163286}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1086445027}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1478163288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478163286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a4e4cf87f29b5a469f6ea94880f7071, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <RecycleBounds>k__BackingField:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  <DeathBounds>k__BackingField:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  <MoveBarrier>k__BackingField: {fileID: 0}
 --- !u!1 &1544054644
 GameObject:
   m_ObjectHideFlags: 0
@@ -3076,6 +3176,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1b237fcda7575642970ebd6ad41d75b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <Speed>k__BackingField: 0
+  <BlockedSpeed>k__BackingField: 0
+  <BlockedDeceleration>k__BackingField: 20
+  <BlockedAcceleration>k__BackingField: 20
+  <DistanceTraveled>k__BackingField: 0
+  <InitialSpeed>k__BackingField: 30
+  <MaximumSpeed>k__BackingField: 50
+  <SpeedIncrement>k__BackingField: 7.5
+  <CurrentUnmodifiedSpeed>k__BackingField: 0
+  <SegmentSpeed>k__BackingField: 0
 --- !u!114 &1646929793 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2636349366824931319, guid: 60cd6c24ff145b24da79d5529bff2789,

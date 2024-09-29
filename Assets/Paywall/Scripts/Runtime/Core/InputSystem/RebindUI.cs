@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
+using MoreMountains.Tools;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using MoreMountains.Tools;
-using TMPro;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class ReBindUI : MonoBehaviour {
+    public class ReBindUI : MonoBehaviour
+    {
         [SerializeField]
         private InputActionReference inputActionReference; //this is on the SO
 
@@ -37,11 +37,13 @@ namespace Paywall {
         [SerializeField]
         private Button resetButton;
 
-        private void OnEnable() {
+        private void OnEnable()
+        {
             rebindButton.onClick.AddListener(() => DoRebind());
             resetButton.onClick.AddListener(() => ResetBinding());
 
-            if (inputActionReference != null) {
+            if (inputActionReference != null)
+            {
                 InputSystemManager_PW.LoadBindingOverride(actionName);
                 GetBindingInfo();
                 UpdateUI();
@@ -51,12 +53,14 @@ namespace Paywall {
             InputSystemManager_PW.RebindCanceled += UpdateUI;
         }
 
-        private void OnDisable() {
+        private void OnDisable()
+        {
             InputSystemManager_PW.RebindComplete -= UpdateUI;
             InputSystemManager_PW.RebindCanceled -= UpdateUI;
         }
 
-        private void OnValidate() {
+        private void OnValidate()
+        {
             if (inputActionReference == null)
                 return;
 
@@ -64,22 +68,27 @@ namespace Paywall {
             UpdateUI();
         }
 
-        private void GetBindingInfo() {
+        private void GetBindingInfo()
+        {
             if (inputActionReference.action != null)
                 actionName = inputActionReference.action.name;
 
-            if (inputActionReference.action.bindings.Count > selectedBinding) {
+            if (inputActionReference.action.bindings.Count > selectedBinding)
+            {
                 inputBinding = inputActionReference.action.bindings[selectedBinding];
                 bindingIndex = selectedBinding;
             }
         }
 
-        private void UpdateUI() {
+        private void UpdateUI()
+        {
             if (actionText != null)
                 actionText.text = actionName;
 
-            if (rebindText != null) {
-                if (Application.isPlaying) {
+            if (rebindText != null)
+            {
+                if (Application.isPlaying)
+                {
                     rebindText.text = InputSystemManager_PW.GetBindingName(actionName, bindingIndex);
                 }
                 else
@@ -87,11 +96,13 @@ namespace Paywall {
             }
         }
 
-        private void DoRebind() {
+        private void DoRebind()
+        {
             InputSystemManager_PW.StartRebind(actionName, bindingIndex, rebindText, excludeMouse);
         }
 
-        private void ResetBinding() {
+        private void ResetBinding()
+        {
             InputSystemManager_PW.ResetBinding(actionName, bindingIndex);
             UpdateUI();
         }

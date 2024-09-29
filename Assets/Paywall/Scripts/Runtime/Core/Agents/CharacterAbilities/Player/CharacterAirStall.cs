@@ -3,12 +3,14 @@
 using MoreMountains.Tools;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Slows fall speed when jump button is held while falling
     /// </summary>
-    public class CharacterAirStall : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent> {
+    public class CharacterAirStall : CharacterAbilityIRE, MMEventListener<PaywallModuleEvent>, MMEventListener<MMGameEvent>
+    {
         /// The max amount of continuous time that stalling can occur
 		[field: Tooltip("The max amount of continuous time that stalling can occur")]
         [field: SerializeField] public float MaxStallTime { get; protected set; } = 4f;
@@ -43,20 +45,25 @@ namespace Paywall {
         /// <summary>
         /// If jump button is being held, we stall
         /// </summary>
-        protected override void HandleInput() {
+        protected override void HandleInput()
+        {
             base.HandleInput();
-            if (!AbilityAuthorized) {
+            if (!AbilityAuthorized)
+            {
                 return;
             }
-            if (Character.Grounded) { 
-                _stallingEnabled = true; 
-                return; 
+            if (Character.Grounded)
+            {
+                _stallingEnabled = true;
+                return;
             }
 
-            if (ValidInput) {
+            if (ValidInput)
+            {
                 if (!_stalling && Character.CharacterRigidBody.velocity.y < 0) { InitiateStall(); }
             }
-            else if (_stalling) {
+            else if (_stalling)
+            {
                 _stalling = false;
             }
         }
@@ -64,14 +71,16 @@ namespace Paywall {
         /// <summary>
         /// Begin air stall
         /// </summary>
-        protected virtual void InitiateStall() {
+        protected virtual void InitiateStall()
+        {
             _stallTime = 0f;
             _stallStartTime = Time.time;
             _stallThisFrame = true;
             _stalling = true;
         }
 
-        public override void LateProcessAbility() {
+        public override void LateProcessAbility()
+        {
             base.LateProcessAbility();
             HandleAirStall();
         }
@@ -80,9 +89,12 @@ namespace Paywall {
         /// Since we're working with Rigidbody, fixed update is used to keep in line with physics updates
         /// Set rigidbody velocity when stalling
         /// </summary>
-        protected virtual void FixedUpdate() {
-            if (_stalling) {
-                if (Character.CharacterRigidBody.velocity.y < MaxFallSpeedInternal) {
+        protected virtual void FixedUpdate()
+        {
+            if (_stalling)
+            {
+                if (Character.CharacterRigidBody.velocity.y < MaxFallSpeedInternal)
+                {
                     Character.CharacterRigidBody.velocity = new(Character.CharacterRigidBody.velocity.x, MaxFallSpeedInternal);
                 }
             }
@@ -91,51 +103,64 @@ namespace Paywall {
         /// <summary>
         /// Handles air stall in LateProcessAbility each frame
         /// </summary>
-        protected virtual void HandleAirStall() {
-            if (!_stalling) {
+        protected virtual void HandleAirStall()
+        {
+            if (!_stalling)
+            {
                 return;
             }
 
-            if (_stallThisFrame) {
+            if (_stallThisFrame)
+            {
                 _stallThisFrame = false;
                 return;
             }
 
-            if (Character.CharacterRigidBody.velocity.y < 0) {
+            if (Character.CharacterRigidBody.velocity.y < 0)
+            {
                 _stallTime += Time.deltaTime;
             }
 
-            if (_stallTime > MaxStallTime) {
+            if (_stallTime > MaxStallTime)
+            {
                 _stalling = false;
                 _stallingEnabled = false;
             }
         }
 
-        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent) {
-            if (moduleEvent.Module.Name.Equals(StallModule.Name)) {
-                if (PaywallProgressManager.Instance.ModulesDict[moduleEvent.Module.Name].IsActive) {
+        public virtual void OnMMEvent(PaywallModuleEvent moduleEvent)
+        {
+            if (moduleEvent.Module.Name.Equals(StallModule.Name))
+            {
+                if (PaywallProgressManager.Instance.ModulesDict[moduleEvent.Module.Name].IsActive)
+                {
                     AbilityPermitted = true;
                 }
-                else {
+                else
+                {
                     AbilityPermitted = false;
                 }
             }
         }
 
-        public virtual void OnMMEvent(MMGameEvent gameEvent) {
-            if (gameEvent.EventName.Equals("Jump")) {
+        public virtual void OnMMEvent(MMGameEvent gameEvent)
+        {
+            if (gameEvent.EventName.Equals("Jump"))
+            {
                 _stallingEnabled = true;
                 _stalling = false;
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             this.MMEventStartListening<PaywallModuleEvent>();
             this.MMEventStartListening<MMGameEvent>();
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<PaywallModuleEvent>();
             this.MMEventStopListening<MMGameEvent>();

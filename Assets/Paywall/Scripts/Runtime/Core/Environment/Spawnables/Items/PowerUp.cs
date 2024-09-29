@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Types of power ups/fragments
@@ -12,7 +11,8 @@ namespace Paywall {
     /// <summary>
     /// Power up pickable object
     /// </summary>
-    public class PowerUp : PickableObject_PW {
+    public class PowerUp : PickableObject_PW
+    {
         [field: Header("Power Up")]
 
         /// Power up types
@@ -22,7 +22,8 @@ namespace Paywall {
         [field: Tooltip("Amount of the powerup to pick up")]
         [field: SerializeField] public int Amount { get; protected set; } = 1;
 
-        protected override void ObjectPicked() {
+        protected override void ObjectPicked()
+        {
             base.ObjectPicked();
             RunnerItemPickEvent.Trigger(PowerUpType, Amount);
         }

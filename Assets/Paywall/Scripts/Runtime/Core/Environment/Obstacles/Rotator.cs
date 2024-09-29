@@ -1,12 +1,14 @@
 using Paywall.Tools;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Add this component to a transform to rotate it every frame
     /// </summary>
-    public class Rotator : MonoBehaviour {
+    public class Rotator : MonoBehaviour
+    {
         /// Auto calculate rotation speed based on level speed
         [field: Tooltip("Auto calculate rotation speed based on level speed")]
         [field: SerializeField] public bool UseLevelSpeed { get; protected set; } = true;
@@ -24,11 +26,13 @@ namespace Paywall {
         protected float Direction => Clockwise ? -1f : 1f;
         protected Quaternion _initialRotation;
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
             _initialRotation = transform.rotation;
         }
 
-        protected virtual void Update() {
+        protected virtual void Update()
+        {
             Rotate();
         }
 
@@ -36,16 +40,21 @@ namespace Paywall {
         /// Should we rotate
         /// </summary>
         /// <returns></returns>
-        protected virtual bool ShouldRotate() {
-            if (BlockMovementUntil) {
-                if (transform.position.x <= LevelManagerIRE_PW.Instance.MoveBarrier.transform.position.x) {
+        protected virtual bool ShouldRotate()
+        {
+            if (BlockMovementUntil)
+            {
+                if (transform.position.x <= LevelManagerIRE_PW.Instance.MoveBarrier.transform.position.x)
+                {
                     return true;
                 }
-                else {
+                else
+                {
                     return false;
                 }
             }
-            else {
+            else
+            {
                 return true;
             }
         }
@@ -53,8 +62,10 @@ namespace Paywall {
         /// <summary>
         /// Rotate every frame based on level speed
         /// </summary>
-        protected virtual void Rotate() {
-            if (!ShouldRotate()) {
+        protected virtual void Rotate()
+        {
+            if (!ShouldRotate())
+            {
                 return;
             }
             float rotateSpeed = UseLevelSpeed ? LevelManagerIRE_PW.Instance.CurrentUnmodifiedSpeed : RotationSpeed;
@@ -64,11 +75,13 @@ namespace Paywall {
         /// <summary>
         /// Resets the rotation of this object to the initial rotation
         /// </summary>
-        protected virtual void ResetRotator() {
+        protected virtual void ResetRotator()
+        {
             transform.rotation = _initialRotation;
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             ResetRotator();
         }
     }

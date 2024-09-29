@@ -1,11 +1,14 @@
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class EnemyJump : MonoBehaviour {
+    public class EnemyJump : MonoBehaviour
+    {
 
 
-        public virtual void Jump() {
+        public virtual void Jump()
+        {
 
         }
     }

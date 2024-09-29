@@ -1,15 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Base class for depot item SOs
     /// Includes modules, power-up options
     /// </summary>
     [CreateAssetMenu(fileName = "BaseDepotItem", menuName = "Paywall/Depot/BaseDepotItem")]
-    public class BaseScriptableDepotItem : ScriptableObject {
+    public class BaseScriptableDepotItem : ScriptableObject
+    {
         /// Name to display on the button for this option
         [field: Tooltip("Name to display on the button for this option")]
         [field: SerializeField] public string Name { get; protected set; }
@@ -30,7 +30,8 @@ namespace Paywall {
         /// <summary>
         /// What to do when this option is bought
         /// </summary>
-        public virtual void BuyAction() {
+        public virtual void BuyAction()
+        {
 
         }
     }

@@ -1,19 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using Paywall.Tools;
-using UnityEngine.EventSystems;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Class storing data references for a button so that other classes can retrieve the data easily without GetComponent
     /// Extends the built in Button UI class
     /// </summary>
-    public class ButtonDataReference : Button {
+    public class ButtonDataReference : Button
+    {
         [field: Header("Button Reference")]
 
         /// The outer image component of this button (outline)
@@ -38,34 +38,41 @@ namespace Paywall {
         protected Color _originalColor;
         protected bool _initialized;
 
-        protected override void Awake() {
+        protected override void Awake()
+        {
             base.Awake();
             Initialization();
         }
 
-        protected virtual void Initialization() {
-            if (_initialized) {
+        protected virtual void Initialization()
+        {
+            if (_initialized)
+            {
                 return;
             }
             _originalColor = InnerImageComponent.color;
             _initialized = true;
         }
 
-        public virtual void SetColor(Color color) {
+        public virtual void SetColor(Color color)
+        {
             Initialization();
             InnerImageComponent.color = color;
         }
 
-        public virtual void ResetColor() {
+        public virtual void ResetColor()
+        {
             Initialization();
             InnerImageComponent.color = _originalColor;
         }
 
-        public virtual void SetImage(Sprite sprite) {
+        public virtual void SetImage(Sprite sprite)
+        {
             InnerImageComponent.sprite = sprite;
         }
 
-        public override void OnSelect(BaseEventData eventData) {
+        public override void OnSelect(BaseEventData eventData)
+        {
             base.OnSelect(eventData);
             OnSelectEvent?.Invoke();
         }

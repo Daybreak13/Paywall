@@ -1,14 +1,13 @@
-using MoreMountains.CorgiEngine;
 using MoreMountains.Tools;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static MoreMountains.CorgiEngine.Weapon;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class WeaponStandalone : MonoBehaviour {
+    public class WeaponStandalone : MonoBehaviour
+    {
         [field: Header("General")]
 
         /// is this weapon on semi or full auto ?
@@ -98,7 +97,7 @@ namespace Paywall {
         [field: SerializeField] public Vector3 SpawnPosition { get; protected set; } = Vector3.zero;
 
         [field: Header("Movement")]
-        
+
         /// How long does this weapon cause the player to stall in the air when fired
         [field: Tooltip("How long does this weapon cause the player to stall in the air when fired")]
         [field: SerializeField] public float AirStallTime { get; protected set; } = 0.2f;
@@ -124,44 +123,55 @@ namespace Paywall {
         protected bool _poolInitialized = false;
         protected bool _initialized = false;
 
-        protected virtual void Start() {
+        protected virtual void Start()
+        {
             Initialization();
         }
 
-        protected virtual void Initialization() {
-            if (!_initialized) {
+        protected virtual void Initialization()
+        {
+            if (!_initialized)
+            {
                 Flipped = false;
                 WeaponState = new MMStateMachine<WeaponStates>(gameObject, true);
                 _initialized = true;
             }
         }
 
-        public virtual void SetOwner(CharacterIRE owner, CharacterHandleWeaponStandalone handleWeapon) {
+        public virtual void SetOwner(CharacterIRE owner, CharacterHandleWeaponStandalone handleWeapon)
+        {
             Owner = owner;
             HandleWeapon = handleWeapon;
         }
 
-        public virtual void SetReloadTime(float time) {
+        public virtual void SetReloadTime(float time)
+        {
             ReloadTime = time;
         }
 
-        public virtual void SetReloadDelay(float delay) {
+        public virtual void SetReloadDelay(float delay)
+        {
             ReloadDelay = delay;
         }
 
         /// <summary>
         /// Ask this weapon component to shoot if possible
         /// </summary>
-        public virtual void RequestShoot() {
-            if (_reloading) {
+        public virtual void RequestShoot()
+        {
+            if (_reloading)
+            {
                 return;
             }
-            if (MagazineBased) {
-                if (CurrentAmmoLoaded > 0) {
+            if (MagazineBased)
+            {
+                if (CurrentAmmoLoaded > 0)
+                {
                     WeaponState.ChangeState(WeaponStates.WeaponUse);
                 }
             }
-            else {
+            else
+            {
                 WeaponState.ChangeState(WeaponStates.WeaponUse);
             }
         }
@@ -169,11 +179,13 @@ namespace Paywall {
         /// <summary>
         /// Stops the weapon
         /// </summary>
-        public virtual void StopWeapon() {
+        public virtual void StopWeapon()
+        {
             WeaponState.ChangeState(WeaponStates.WeaponIdle);
         }
 
-        protected virtual void LateUpdate() {
+        protected virtual void LateUpdate()
+        {
             ProcessWeaponState();
             AutoReloadWeapon();
         }
@@ -182,8 +194,10 @@ namespace Paywall {
         /// Every frame, shoot or stop depending on weapon state
         /// Processes in LateUpdate so that WeaponUse starts on the same frame as the input was received
         /// </summary>
-        protected virtual void ProcessWeaponState() {
-            switch (WeaponState.CurrentState) {
+        protected virtual void ProcessWeaponState()
+        {
+            switch (WeaponState.CurrentState)
+            {
                 case WeaponStates.WeaponDelayBetweenUses:
                     CaseWeaponDelayBetweenUses();
                     break;
@@ -198,9 +212,12 @@ namespace Paywall {
         /// <summary>
         /// Use the weapon
         /// </summary>
-        protected virtual void CaseWeaponUse() {
-            if (MagazineBased) {
-                if (CurrentAmmoLoaded <= 0) {
+        protected virtual void CaseWeaponUse()
+        {
+            if (MagazineBased)
+            {
+                if (CurrentAmmoLoaded <= 0)
+                {
                     WeaponState.ChangeState(WeaponStates.WeaponIdle);
                     return;
                 }
@@ -212,7 +229,8 @@ namespace Paywall {
             WeaponState.ChangeState(WeaponStates.WeaponDelayBetweenUses);
             if (HandleWeapon != null) HandleWeapon.AirStall(AirStallTime);
             DetermineSpawnPosition();
-            for (int i = 0; i < ProjectilesPerShot; i++) {
+            for (int i = 0; i < ProjectilesPerShot; i++)
+            {
                 SpawnProjectile(SpawnPosition, i, ProjectilesPerShot, true);
             }
         }
@@ -221,9 +239,11 @@ namespace Paywall {
         /// Delay between weapon uses
         /// Use weapon once delay is up
         /// </summary>
-        protected virtual void CaseWeaponDelayBetweenUses() {
+        protected virtual void CaseWeaponDelayBetweenUses()
+        {
             _delayBetweenUsesCounter -= Time.deltaTime;
-            if (_delayBetweenUsesCounter <= 0) {
+            if (_delayBetweenUsesCounter <= 0)
+            {
                 WeaponState.ChangeState(WeaponStates.WeaponUse);
                 CaseWeaponUse();
             }
@@ -233,7 +253,8 @@ namespace Paywall {
         /// Sets current ammo value
         /// </summary>
         /// <param name="newAmmo"></param>
-        public virtual void SetCurrentAmmo(int newAmmo) {
+        public virtual void SetCurrentAmmo(int newAmmo)
+        {
             CurrentAmmoLoaded = newAmmo;
         }
 
@@ -241,20 +262,23 @@ namespace Paywall {
         /// Sets magazine size
         /// </summary>
         /// <param name="magSize"></param>
-        public virtual void SetMagazineSize(int magSize) {
+        public virtual void SetMagazineSize(int magSize)
+        {
             MagazineSize = magSize;
         }
 
         /// <summary>
 		/// Spawns a new object and positions/resizes it
 		/// </summary>
-		public virtual GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true) {
+		public virtual GameObject SpawnProjectile(Vector3 spawnPosition, int projectileIndex, int totalProjectiles, bool triggerObjectActivation = true)
+        {
             /// we get the next object in the pool and make sure it's not null
             GameObject nextGameObject = ObjectPooler.GetPooledGameObject();
 
             // mandatory checks
             if (nextGameObject == null) { return null; }
-            if (nextGameObject.GetComponent<MMPoolableObject>() == null) {
+            if (nextGameObject.GetComponent<MMPoolableObject>() == null)
+            {
                 throw new Exception(gameObject.name + " is trying to spawn objects that don't have a PoolableObject component.");
             }
             // we position the object
@@ -262,9 +286,11 @@ namespace Paywall {
             // we set its direction
 
             nextGameObject.TryGetComponent(out Projectile_PW projectile);
-            if (projectile != null) {
+            if (projectile != null)
+            {
                 projectile.SetWeapon(this);
-                if (Owner != null) {
+                if (Owner != null)
+                {
                     projectile.SetOwner(Owner.gameObject);
                 }
             }
@@ -272,19 +298,24 @@ namespace Paywall {
             nextGameObject.SetActive(true);
 
 
-            if (projectile != null) {
-                if (RandomSpread) {
+            if (projectile != null)
+            {
+                if (RandomSpread)
+                {
                     _randomSpreadDirection.x = UnityEngine.Random.Range(-Spread.x, Spread.x);
                     _randomSpreadDirection.y = UnityEngine.Random.Range(-Spread.y, Spread.y);
                     _randomSpreadDirection.z = UnityEngine.Random.Range(-Spread.z, Spread.z);
                 }
-                else {
-                    if (totalProjectiles > 1) {
+                else
+                {
+                    if (totalProjectiles > 1)
+                    {
                         _randomSpreadDirection.x = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread.x, Spread.x);
                         _randomSpreadDirection.y = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread.y, Spread.y);
                         _randomSpreadDirection.z = MMMaths.Remap(projectileIndex, 0, totalProjectiles - 1, -Spread.z, Spread.z);
                     }
-                    else {
+                    else
+                    {
                         _randomSpreadDirection = Vector3.zero;
                     }
                 }
@@ -292,13 +323,16 @@ namespace Paywall {
                 Quaternion spread = Quaternion.Euler(_randomSpreadDirection);
                 bool facingRight = Owner != null;
                 projectile.SetDirection(spread * transform.right * (Flipped ? -1 : 1), transform.rotation, facingRight);
-                if (RotateWeaponOnSpread) {
+                if (RotateWeaponOnSpread)
+                {
                     this.transform.rotation = this.transform.rotation * spread;
                 }
             }
 
-            if (triggerObjectActivation) {
-                if (nextGameObject.GetComponent<MMPoolableObject>() != null) {
+            if (triggerObjectActivation)
+            {
+                if (nextGameObject.GetComponent<MMPoolableObject>() != null)
+                {
                     nextGameObject.GetComponent<MMPoolableObject>().TriggerOnSpawnComplete();
                 }
             }
@@ -309,13 +343,16 @@ namespace Paywall {
         /// <summary>
         /// Determines the spawn position based on the spawn offset and whether or not the weapon is flipped
         /// </summary>
-        public virtual void DetermineSpawnPosition() {
+        public virtual void DetermineSpawnPosition()
+        {
             _spawnPositionCenter = (ProjectileSpawnTransform == null) ? this.transform.position : ProjectileSpawnTransform.transform.position;
 
-            if (Flipped && FlipWeaponOnCharacterFlip) {
+            if (Flipped && FlipWeaponOnCharacterFlip)
+            {
                 SpawnPosition = _spawnPositionCenter - this.transform.rotation * _flippedProjectileSpawnOffset;
             }
-            else {
+            else
+            {
                 SpawnPosition = _spawnPositionCenter + this.transform.rotation * ProjectileSpawnOffset;
             }
         }
@@ -324,11 +361,13 @@ namespace Paywall {
 		/// Autoreload weapon
 		/// Should use coroutine for autoreload??
 		/// </summary>
-		protected virtual void AutoReloadWeapon() {
+		protected virtual void AutoReloadWeapon()
+        {
             if (((Time.time - _lastShot) < ReloadDelay)
                 || (CurrentAmmoLoaded == MagazineSize)
                 || ((Time.time - _lastReload) < ReloadTime)
-                || WeaponState.CurrentState != WeaponStates.WeaponIdle) {
+                || WeaponState.CurrentState != WeaponStates.WeaponIdle)
+            {
                 return;
             }
             CurrentAmmoLoaded++;
@@ -338,7 +377,8 @@ namespace Paywall {
         /// <summary>
         /// When the weapon is selected, draws a circle at the spawn's position
         /// </summary>
-        protected virtual void OnDrawGizmosSelected() {
+        protected virtual void OnDrawGizmosSelected()
+        {
             DetermineSpawnPosition();
 
             Gizmos.color = Color.white;

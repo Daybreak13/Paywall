@@ -1,10 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
-    public class UpgradeMenuDisplay : MonoBehaviour {
+    public class UpgradeMenuDisplay : MonoBehaviour
+    {
 
         /// List of upgrades
         [field: Tooltip("List of upgrades")]

@@ -1,14 +1,14 @@
 using MoreMountains.Tools;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Manages runner inventory for resources picked that only apply during a run (eg powerups)
     /// </summary>
-    public class CharacterRunnerInventory : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent> {
+    public class CharacterRunnerInventory : CharacterAbilityIRE, MMEventListener<RunnerItemPickEvent>
+    {
         /// Armor fragments (HP)
         [field: Tooltip("Health fragments (increase HP)")]
         [field: SerializeField] public int HealthFragments { get; protected set; }
@@ -28,9 +28,11 @@ namespace Paywall {
         [field: Tooltip("CharacterHandleWeaponIRE component")]
         [field: SerializeField] public CharacterHandleWeaponStandalone HandleWeaponComponent { get; protected set; }
 
-        protected override void Initialization() {
+        protected override void Initialization()
+        {
             base.Initialization();
-            if (HandleWeaponComponent == null) {
+            if (HandleWeaponComponent == null)
+            {
                 HandleWeaponComponent = GetComponent<CharacterHandleWeaponStandalone>();
             }
             GUIManagerIRE_PW.Instance.SetHealthFragments(HealthFragments, MaxHealthFragments);
@@ -41,12 +43,15 @@ namespace Paywall {
         /// Handle item pick events
         /// </summary>
         /// <param name="itemPickEvent"></param>
-        public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent) {
-            switch (itemPickEvent.PickedPowerUpType) {
+        public virtual void OnMMEvent(RunnerItemPickEvent itemPickEvent)
+        {
+            switch (itemPickEvent.PickedPowerUpType)
+            {
                 case PowerUpTypes.Health:
                     HealthFragments += itemPickEvent.Amount;
                     // If we have a full health unit, increase health
-                    if (HealthFragments >= MaxHealthFragments) {
+                    if (HealthFragments >= MaxHealthFragments)
+                    {
                         HealthFragments -= MaxHealthFragments;
                         GameManagerIRE_PW.Instance.SetLives(GameManagerIRE_PW.Instance.CurrentLives + 1);
                     }
@@ -55,7 +60,8 @@ namespace Paywall {
                 case PowerUpTypes.Ammo:
                     AmmoFragments += itemPickEvent.Amount;
                     // If we have a full ammo unit, increase mag size
-                    if (AmmoFragments >= MaxAmmoFragments) {
+                    if (AmmoFragments >= MaxAmmoFragments)
+                    {
                         AmmoFragments -= MaxAmmoFragments;
                         HandleWeaponComponent.SetCurrentWeaponMagSize(HandleWeaponComponent.CurrentWeapon.MagazineSize + 1);
                     }
@@ -64,12 +70,14 @@ namespace Paywall {
             }
         }
 
-        protected override void OnEnable() {
+        protected override void OnEnable()
+        {
             base.OnEnable();
             this.MMEventStartListening<RunnerItemPickEvent>();
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             this.MMEventStopListening<RunnerItemPickEvent>();
         }

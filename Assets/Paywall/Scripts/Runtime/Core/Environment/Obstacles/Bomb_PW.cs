@@ -3,13 +3,15 @@ using Paywall.Tools;
 using System.Collections;
 using UnityEngine;
 
-namespace Paywall {
+namespace Paywall
+{
 
     /// <summary>
     /// Behavior and animation component for bomb
     /// Can take and cause damage
     /// </summary>
-    public class Bomb_PW : MonoBehaviour {
+    public class Bomb_PW : MonoBehaviour
+    {
         /// Collider representing the bomb explosion
         [field: Tooltip("Collider representing the bomb explosion")]
         [field: SerializeField] public Collider2D ExplosionCollider { get; protected set; }
@@ -32,49 +34,63 @@ namespace Paywall {
 
         protected const string _explodingAnimatorParameterName = "Exploding";
 
-        public virtual void Explode() {
+        public virtual void Explode()
+        {
             ExplosionCollider.enabled = true;
             _exploded = true;
             MMAnimatorExtensions.UpdateAnimatorBoolIfExists(AnimatorComponent, _explodingAnimatorParameterName, true);
-            if (_wait != null) {
+            if (_wait != null)
+            {
                 StartCoroutine(DestroyCo());
             }
         }
 
-        protected virtual void Awake() {
-            if (HealthComponent == null) {
-                if (DelayBeforeDestruction > 0) {
+        protected virtual void Awake()
+        {
+            if (HealthComponent == null)
+            {
+                if (DelayBeforeDestruction > 0)
+                {
                     _wait = new(DelayBeforeDestruction);
                 }
             }
-            else {
-                if (HealthComponent.DelayBeforeDestruction > 0) {
+            else
+            {
+                if (HealthComponent.DelayBeforeDestruction > 0)
+                {
                     _wait = new(HealthComponent.DelayBeforeDestruction);
                 }
             }
-            if (AnimatorComponent == null) {
+            if (AnimatorComponent == null)
+            {
                 AnimatorComponent = GetComponent<Animator>();
             }
         }
 
-        protected virtual IEnumerator DestroyCo() {
+        protected virtual IEnumerator DestroyCo()
+        {
             yield return _wait;
             gameObject.SetActive(false);
         }
 
-        protected virtual void OnCollisionEnter2D(Collision2D collision) {
-            if (collision.gameObject.CompareTag(PaywallTagManager.PlayerTag) && ExplodeOnContact && !_exploded) {
+        protected virtual void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag(PaywallTagManager.PlayerTag) && ExplodeOnContact && !_exploded)
+            {
                 Explode();
             }
         }
 
-        protected virtual void OnCollisionStay2D(Collision2D collision) {
-            if (collision.gameObject.CompareTag(PaywallTagManager.PlayerTag) && ExplodeOnContact && !_exploded) {
+        protected virtual void OnCollisionStay2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag(PaywallTagManager.PlayerTag) && ExplodeOnContact && !_exploded)
+            {
                 Explode();
             }
         }
 
-        protected virtual void OnEnable() {
+        protected virtual void OnEnable()
+        {
             ExplosionCollider.enabled = false;
             _exploded = false;
             MMAnimatorExtensions.UpdateAnimatorBoolIfExists(AnimatorComponent, _explodingAnimatorParameterName, false);
